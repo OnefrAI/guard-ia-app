@@ -4,244 +4,43 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Herramientas GUARD-IA</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS con plugins -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            'neon-green': '#39FF14',
+            'dark-bg': '#0a0a0a',
+            'card-bg': '#1a1a1a',
+            'light-text': '#e0e0e0',
+            'medium-text': '#a0a0a0',
+          },
+          boxShadow: {
+            'glow-neon': '0 0 15px rgba(57, 255, 20, 0.5)',
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Usamos Inter como fuente principal -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" 
         integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" 
         crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
-    /* Estilos generales */
+    /* Fondo fijo: sólido negro */
     body {
-      margin: 0;
-      padding: 0;
-      font-family: "Poppins", Arial, sans-serif;
-      background-color: #0A192F; /* Fondo azul oscuro, serio y profesional */
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
+      background-color: #0a0a0a;
     }
-    /* No se usa gradiente */
-    .container {
-      flex: 1;
-      padding: 40px 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      z-index: 5;
-    }
-    .title {
-      font-size: 32px;
-      margin-bottom: 30px;
-      font-weight: 600;
-      color: #fff;
-      text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.3);
-      text-align: center;
-    }
-    .button-container {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      width: 100%;
-      max-width: 500px;
-    }
-    .button-wrapper {
-      position: relative;
-    }
-    /* Botones de Herramientas GUARD-IA */
-    .button {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 15px 25px;
-      border-radius: 12px;
-      text-decoration: none;
-      color: #fff;
-      font-size: 18px;
-      transition: transform 0.3s, background-color 0.3s;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: space-between; /* Se separa el contenido del ícono info */
-      width: 100%;
-    }
-    .button:hover {
-      transform: translateY(-5px);
-      background: rgba(255, 255, 255, 0.2);
-    }
-    .button-content {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex: 1;
-      text-align: left;
-    }
-    .button i {
-      font-size: 20px;
-    }
-    /* Ícono de info dentro del botón, pegado a la derecha */
-    .button .button-info {
-      background-color: rgba(0, 0, 0, 0.6);
-      color: #fff;
-      border-radius: 50%;
-      width: 25px;
-      height: 25px;
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: background-color 0.3s, transform 0.3s;
-    }
-    .button .button-info:hover {
-      background-color: rgba(0, 0, 0, 0.8);
-      transform: scale(1.1);
-    }
-    /* Ícono de información global */
-    .info-icon {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background-color: #3498db;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 16px;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-      z-index: 10;
-      transition: background-color 0.3s, transform 0.3s;
-      color: #fff;
-    }
-    .info-icon:hover {
-      background-color: #2980b9;
-      transform: scale(1.1);
-    }
-    .info-icon::after {
-      content: 'Información general';
-      position: absolute;
-      top: 40px;
-      right: 0;
-      background-color: #fff;
-      color: #000;
-      padding: 5px 10px;
-      border-radius: 5px;
-      font-size: 12px;
-      opacity: 0;
-      transition: opacity 0.3s;
-      pointer-events: none;
-    }
-    .info-icon:hover::after {
-      opacity: 1;
-    }
-    /* Sección de Canales de Acción Policial */
-    .police-channels {
-      padding: 40px 20px;
-      position: relative;
-      z-index: 5;
-    }
-    /* Botones de Canales: reducir tamaño para mejor responsividad */
-    .police-channels .button-container {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      width: 100%;
-      max-width: 500px;
-      margin: 0 auto;
-    }
-    .police-channels .button {
-      padding: 6px 8px;
-      font-size: 12px;
-      text-align: center;
-      box-shadow: none;
-    }
-    /* Sección de Lecturas Policiales Recomendadas (Slider) */
-    .police-readings {
-      padding: 40px 20px;
-      position: relative;
-      z-index: 5;
-    }
-    .slider-container {
-      position: relative;
-      overflow: hidden;
-      width: 100%;
-      max-width: 500px;
-      margin: 0 auto;
-    }
-    .slider-wrapper {
-      display: flex;
-      transition: transform 0.5s ease-in-out;
-    }
-    .card {
-      min-width: 100%;
-      box-sizing: border-box;
-      padding: 20px;
-      text-align: center;
-    }
-    .card img {
-      width: 100%;
-      height: auto;
-      object-fit: contain;
-      border-radius: 8px;
-      margin-bottom: 15px;
-    }
-    .card h3 {
-      margin: 10px 0;
-      font-size: 20px;
-    }
-    .card p {
-      font-size: 16px;
-      line-height: 1.4;
-    }
-    .slider-btn {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background-color: rgba(0, 0, 0, 0.5);
-      border: none;
-      color: #fff;
-      padding: 10px;
-      cursor: pointer;
-      border-radius: 50%;
-      z-index: 10;
-      font-size: 20px;
-    }
-    .slider-btn.prev {
-      left: 10px;
-    }
-    .slider-btn.next {
-      right: 10px;
-    }
-    footer {
-      padding: 20px;
-      text-align: center;
-      color: #fff;
-      background-color: rgba(0, 0, 0, 0.3);
-      position: relative;
-      z-index: 5;
-    }
-    footer a {
-      color: #fff;
-      text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    footer a:hover {
-      text-decoration: underline;
-    }
-    @media (max-width: 600px) {
-      .title { font-size: 28px; }
-      .button-container { width: 100%; }
-      .button { font-size: 16px; padding: 12px 20px; }
-      .button .button-info { width: 20px; height: 20px; font-size: 14px; }
-      .info-icon { width: 24px; height: 24px; font-size: 14px; }
-      .info-icon::after { font-size: 10px; top: 34px; }
-    }
-    /* Estilos para el Modal */
+    /* Modal personalizado */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -261,12 +60,12 @@
       opacity: 1;
     }
     .modal {
-      background-color: rgba(44, 62, 80, 0.95);
+      background-color: rgba(26, 26, 26, 0.95);
       padding: 20px 30px;
       border-radius: 12px;
       max-width: 500px;
       width: 90%;
-      color: #fff;
+      color: #e0e0e0;
       transform: scale(0.8);
       opacity: 0;
       transition: all 0.3s ease-out;
@@ -276,146 +75,160 @@
       transform: scale(1);
       opacity: 1;
     }
-    .modal h2 {
-      margin-top: 0;
-      font-size: 24px;
-      font-weight: 600;
+    /* Scrollbar personalizado */
+    ::-webkit-scrollbar {
+      width: 8px;
     }
-    .modal p {
-      font-size: 16px;
-      line-height: 1.6;
-      margin: 10px 0;
+    ::-webkit-scrollbar-track {
+      background: #0a0a0a;
     }
-    .modal button.close-modal {
-      background-color: #3498db;
-      color: #fff;
-      border: none;
-      padding: 10px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      transition: background-color 0.3s;
+    ::-webkit-scrollbar-thumb {
+      background: #39FF14;
+      border-radius: 4px;
     }
-    .modal button.close-modal:hover {
-      background-color: #2980b9;
+    ::-webkit-scrollbar-thumb:hover {
+      background: #2aff00;
     }
   </style>
 </head>
-<body>
-  <div class="container">
-    <!-- Título principal en dos líneas -->
-    <h1 class="title">Herramientas<br>GUARD-IA</h1>
-    <div class="button-container">
-      <!-- Botones de Herramientas GUARD-IA con estructura modificada -->
-      <div class="button-wrapper">
-        <a href="https://chatgpt.com/g/g-6766e58171cc81918eb92f23b79f66ae-guard-ia" class="button" target="_blank" rel="noopener noreferrer">
-          <div class="button-content">
-            <i class="fas fa-robot"></i>
-            <span class="button-text">ChatGPT GUARD-IA</span>
-          </div>
-          <span class="button-info" data-title="ChatGPT GUARD-IA" data-text="Interactúa con una versión personalizada de ChatGPT diseñada para GUARD-IA." onclick="event.preventDefault(); event.stopPropagation(); showButtonInfo(this)">i</span>
+<body class="text-light-text font-sans relative">
+  
+  <!-- Contenedor principal -->
+  <div class="container mx-auto px-4 py-10 relative z-10">
+    <!-- Título principal en dos líneas con guión en neon -->
+ <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-center mb-8 drop-shadow-lg">
+  Herramientas<br>
+  GUARD<span class="text-neon-green">-</span>IA <i class="fas fa-shield-alt text-neon-green"></i>
+</h1>
+
+    <!-- Botones principales -->
+    <div class="space-y-6 max-w-lg mx-auto">
+      <!-- Botón ChatGPT -->
+      <div class="flex items-center justify-between">
+        <a href="https://chatgpt.com/g/g-6766e58171cc81918eb92f23b79f66ae-guard-ia" target="_blank" rel="noopener noreferrer" class="flex-1 bg-card-bg border border-white/20 py-4 px-6 rounded-xl text-lg flex items-center justify-start gap-3 transition-transform hover:-translate-y-1 hover:bg-white/20 shadow-lg">
+          <i class="fas fa-robot text-xl"></i> 
+          <span class="text-left">ChatGPT GUARD-IA</span>
         </a>
+        <button class="ml-3 w-8 h-8 bg-card-bg border border-white/20 rounded-full flex items-center justify-center text-sm transition-transform hover:scale-110" data-title="ChatGPT GUARD-IA" data-text="Interactúa con una versión personalizada de ChatGPT diseñada para GUARD-IA." onclick="showButtonInfo(this)">
+          i
+        </button>
       </div>
-      <div class="button-wrapper">
-        <a href="herramientas-guardia/calculadora-de-drogas/index.html" class="button" target="_self">
-          <div class="button-content">
-            <i class="fas fa-calculator"></i>
-            <span class="button-text">Calculadora de Drogas</span>
-          </div>
-          <span class="button-info" data-title="Calculadora de Drogas" data-text="Herramienta para cálculos relacionados con drogas. Uso bajo responsabilidad del usuario." onclick="event.preventDefault(); event.stopPropagation(); showButtonInfo(this)">i</span>
+      <!-- Botón Calculadora de Drogas -->
+      <div class="flex items-center justify-between">
+        <a href="herramientas-guardia/calculadora-de-drogas/index.html" target="_self" class="flex-1 bg-card-bg border border-white/20 py-4 px-6 rounded-xl text-lg flex items-center justify-start gap-3 transition-transform hover:-translate-y-1 hover:bg-white/20 shadow-lg">
+          <i class="fas fa-calculator text-xl"></i> 
+          <span class="text-left">Calculadora de Drogas</span>
         </a>
+        <button class="ml-3 w-8 h-8 bg-card-bg border border-white/20 rounded-full flex items-center justify-center text-sm transition-transform hover:scale-110" data-title="Calculadora de Drogas" data-text="Herramienta para cálculos relacionados con drogas. Uso bajo responsabilidad del usuario." onclick="showButtonInfo(this)">
+          i
+        </button>
       </div>
-      <div class="button-wrapper">
-        <a href="herramientas-guardia/bloc-de-notas/index.html" class="button" target="_self">
-          <div class="button-content">
-            <i class="fas fa-sticky-note"></i>
-            <span class="button-text">Bloc de Notas</span>
-          </div>
-          <span class="button-info" data-title="Bloc de Notas" data-text="Un bloc de notas digital que guarda tus notas localmente en tu dispositivo." onclick="event.preventDefault(); event.stopPropagation(); showButtonInfo(this)">i</span>
+      <!-- Botón Bloc de Notas -->
+      <div class="flex items-center justify-between">
+        <a href="herramientas-guardia/bloc-de-notas/index.html" target="_self" class="flex-1 bg-card-bg border border-white/20 py-4 px-6 rounded-xl text-lg flex items-center justify-start gap-3 transition-transform hover:-translate-y-1 hover:bg-white/20 shadow-lg">
+          <i class="fas fa-sticky-note text-xl"></i> 
+          <span class="text-left">Bloc de Notas</span>
         </a>
+        <button class="ml-3 w-8 h-8 bg-card-bg border border-white/20 rounded-full flex items-center justify-center text-sm transition-transform hover:scale-110" data-title="Bloc de Notas" data-text="Un bloc de notas digital que guarda tus notas localmente en tu dispositivo." onclick="showButtonInfo(this)">
+          i
+        </button>
       </div>
-      <div class="button-wrapper">
-        <a href="https://saferlayer.com/" class="button" target="_blank" rel="noopener noreferrer">
-          <div class="button-content">
-            <i class="fas fa-tint"></i>
-            <span class="button-text">Marca de agua by Saferlayer</span>
-          </div>
-          <span class="button-info" data-title="Marca de agua by Saferlayer" data-text="Herramienta externa para agregar marcas de agua a tus archivos." onclick="event.preventDefault(); event.stopPropagation(); showButtonInfo(this)">i</span>
+      <!-- Botón Marca de Agua -->
+      <div class="flex items-center justify-between">
+        <a href="https://saferlayer.com/" target="_blank" rel="noopener noreferrer" class="flex-1 bg-card-bg border border-white/20 py-4 px-6 rounded-xl text-lg flex items-center justify-start gap-3 transition-transform hover:-translate-y-1 hover:bg-white/20 shadow-lg">
+          <i class="fas fa-tint text-xl"></i> 
+          <span class="text-left">Marca de agua by Saferlayer</span>
         </a>
+        <button class="ml-3 w-8 h-8 bg-card-bg border border-white/20 rounded-full flex items-center justify-center text-sm transition-transform hover:scale-110" data-title="Marca de agua by Saferlayer" data-text="Herramienta externa para agregar marcas de agua a tus archivos." onclick="showButtonInfo(this)">
+          i
+        </button>
       </div>
     </div>
   </div>
 
   <!-- Sección de Canales de Acción Policial -->
-  <section class="police-channels">
-    <h2 class="title">CANALES DE<br>ACCIÓN POLICIAL</h2>
-    <div class="button-container">
-      <a href="https://www.youtube.com/@PoliceActivity" class="button" target="_blank" rel="noopener noreferrer">
+  <section class="py-10 relative z-10">
+    <h2 class="text-3xl sm:text-4xl font-bold text-center mb-8 drop-shadow-lg">
+      CANALES DE<br>ACCIÓN POLICIAL
+    </h2>
+    <div class="grid grid-cols-2 gap-4 max-w-lg mx-auto">
+      <a href="https://www.youtube.com/@PoliceActivity" target="_blank" rel="noopener noreferrer" class="bg-card-bg border border-white/20 py-3 px-4 rounded-xl text-center text-lg transition-transform hover:-translate-y-1 hover:bg-white/20 shadow-lg">
         <i class="fas fa-video"></i> PoliceActivity
       </a>
-      <a href="https://www.youtube.com/@RealWorldPolice" class="button" target="_blank" rel="noopener noreferrer">
+      <a href="https://www.youtube.com/@RealWorldPolice" target="_blank" rel="noopener noreferrer" class="bg-card-bg border border-white/20 py-3 px-4 rounded-xl text-center text-lg transition-transform hover:-translate-y-1 hover:bg-white/20 shadow-lg">
         <i class="fas fa-video"></i> Real World Police
       </a>
-      <a href="https://www.youtube.com/@CodeBlueCam" class="button" target="_blank" rel="noopener noreferrer">
+      <a href="https://www.youtube.com/@CodeBlueCam" target="_blank" rel="noopener noreferrer" class="bg-card-bg border border-white/20 py-3 px-4 rounded-xl text-center text-lg transition-transform hover:-translate-y-1 hover:bg-white/20 shadow-lg">
         <i class="fas fa-video"></i> Code Blue Cam
       </a>
-      <a href="https://www.youtube.com/@AuditTheAudit" class="button" target="_blank" rel="noopener noreferrer">
+      <a href="https://www.youtube.com/@AuditTheAudit" target="_blank" rel="noopener noreferrer" class="bg-card-bg border border-white/20 py-3 px-4 rounded-xl text-center text-lg transition-transform hover:-translate-y-1 hover:bg-white/20 shadow-lg">
         <i class="fas fa-video"></i> Audit the Audit
       </a>
-      <a href="https://www.youtube.com/@PolicePursuits" class="button" target="_blank" rel="noopener noreferrer">
+      <a href="https://www.youtube.com/@PolicePursuits" target="_blank" rel="noopener noreferrer" class="bg-card-bg border border-white/20 py-3 px-4 rounded-xl text-center text-lg transition-transform hover:-translate-y-1 hover:bg-white/20 shadow-lg">
         <i class="fas fa-video"></i> Police Pursuits
       </a>
     </div>
   </section>
 
   <!-- Sección de Lecturas Policiales Recomendadas (Slider) -->
-  <section class="police-readings">
-    <h2 class="title">LECTURAS POLICIALES<br>RECOMENDADAS</h2>
-    <div class="slider-container">
-      <button class="slider-btn prev" onclick="prevSlide()">&#10094;</button>
-      <div class="slider-wrapper" id="sliderWrapper">
-        <div class="card">
-          <img src="https://imgs.search.brave.com/VNMdgeChtgIurBN_p-DnqmSakN2ak7bRrP0Yo1n3ef8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuY2RuMi5idXNj/YWxpYnJlLmNvbS9m/aXQtaW4vNTIweDUy/MC8yZS80YS8yZTRh/YzYyZmIxMTJhOWNh/NDdmMTMwMGY4NzVk/OTUwNC5qcGc" alt="Sobre el Combate">
-          <h3>Sobre el Combate</h3>
-          <p>Dave Grossman</p>
-        </div>
-        <div class="card">
-          <img src="https://imgs.search.brave.com/8-PdIHSHt2WqbYUGXhLD_4Bpw8RWitCfRvV2KiHgqpo/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuY2RuMy5idXNj/YWxpYnJlLmNvbS9m/aXQtaW4vNTIweDUy/MC9mZC82Yy9mZDZj/Mjc3ZDBmZDMyZmU3/NmJiN2MyZGMwZTc3/YjZhYi5qcGc" alt="Matar">
-          <h3>Matar</h3>
-          <p>Dave Grossman</p>
-        </div>
-        <div class="card">
-          <img src="https://imgs.search.brave.com/pOsg_as-IHCw3Y7BqzG17ZB9cw9PJCLFMZQ8GrqlEMI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9waWN0/dXJlcy5hYmVib29r/cy5jb20vaXNibi85/Nzg4NDMwOTczNzA1/LWVzLTMwMC5qcGc" alt="En la Línea de Fuego">
-          <h3>En la Línea de Fuego</h3>
-          <p>Ernesto Pérez Vera y Fernando Pérez Pacho</p>
-        </div>
-        <div class="card">
-          <img src="https://imgs.search.brave.com/enDRu-RC4AbH2cwjiwP3a2vZhzAwYiOwerLcRTauW9U/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/bWFyY2lhbHBvbnMu/ZXMvbWVkaWEvaW1n/L3BvcnRhZGFzLzIw/MTkvMTAvMjkvOTc4/ODQxNTM3Mzc1OWpw/ZWc" alt="Tiroteo en Miami">
-          <h3>Tiroteo en Miami</h3>
-          <p>Sin autor</p>
+  <section class="py-10 relative z-10">
+    <h2 class="text-3xl sm:text-4xl font-bold text-center mb-8 drop-shadow-lg">
+      LECTURAS POLICIALES<br>RECOMENDADAS
+    </h2>
+    <div class="relative max-w-lg mx-auto">
+      <button class="absolute top-1/2 left-0 transform -translate-y-1/2 bg-dark-bg bg-opacity-50 border border-white/20 p-2 rounded-full text-2xl z-10" onclick="prevSlide()">&#10094;</button>
+      <div class="overflow-hidden">
+        <div class="flex transition-transform duration-500 ease-in-out" id="sliderWrapper">
+          <!-- Slide 1 -->
+          <div class="min-w-full p-4 text-center">
+            <img src="https://imgs.search.brave.com/VNMdgeChtgIurBN_p-DnqmSakN2ak7bRrP0Yo1n3ef8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuY2RuMi5idXNj/YWxpYnJlLmNvbS9m/aXQtaW4vNTIweDUy/MC8yZS80YS8yZTRh/YzYyZmIxMTJhOWNh/NDdmMTMwMGY4NzVk/OTUwNC5qcGc" alt="Sobre el Combate" class="w-full h-auto object-contain rounded-lg mb-4">
+            <h3 class="text-xl font-semibold">Sobre el Combate</h3>
+            <p class="text-base">Dave Grossman</p>
+          </div>
+          <!-- Slide 2 -->
+          <div class="min-w-full p-4 text-center">
+            <img src="https://imgs.search.brave.com/8-PdIHSHt2WqbYUGXhLD_4Bpw8RWitCfRvV2KiHgqpo/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuY2RuMy5idXNj/YWxpYnJlLmNvbS9m/aXQtaW4vNTIweDUy/MC9mZC82Yy9mZDZj/Mjc3ZDBmZDMyZmU3/NmJiN2MyZGMwZTc3/YjZhYi5qcGc" alt="Matar" class="w-full h-auto object-contain rounded-lg mb-4">
+            <h3 class="text-xl font-semibold">Matar</h3>
+            <p class="text-base">Dave Grossman</p>
+          </div>
+          <!-- Slide 3 -->
+          <div class="min-w-full p-4 text-center">
+            <img src="https://imgs.search.brave.com/pOsg_as-IHCw3Y7BqzG17ZB9cw9PJCLFMZQ8GrqlEMI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9waWN0/dXJlcy5hYmVib29r/cy5jb20vaXNibi85/Nzg4NDMwOTczNzA1/LWVzLTMwMC5qcGc" alt="En la Línea de Fuego" class="w-full h-auto object-contain rounded-lg mb-4">
+            <h3 class="text-xl font-semibold">En la Línea de Fuego</h3>
+            <p class="text-base">Ernesto Pérez Vera y Fernando Pérez Pacho</p>
+          </div>
+          <!-- Slide 4 -->
+          <div class="min-w-full p-4 text-center">
+            <img src="https://imgs.search.brave.com/enDRu-RC4AbH2cwjiwP3a2vZhzAwYiOwerLcRTauW9U/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cubWFyY2lhbHBvbnMuZXMvbWVkaWEvaW1nL3BvcnRhZGFzLzIwMTkvMTAvMjkvOTc4ODQxNTM3Mzc1OWpwZWc" alt="Tiroteo en Miami" class="w-full h-auto object-contain rounded-lg mb-4">
+            <h3 class="text-xl font-semibold">Tiroteo en Miami</h3>
+            <p class="text-base">Sin autor</p>
+          </div>
         </div>
       </div>
-      <button class="slider-btn next" onclick="nextSlide()">&#10095;</button>
+      <button class="absolute top-1/2 right-0 transform -translate-y-1/2 bg-dark-bg bg-opacity-50 border border-white/20 p-2 rounded-full text-2xl z-10" onclick="nextSlide()">&#10095;</button>
     </div>
   </section>
 
-  <!-- Ícono de información global -->
-  <div class="info-icon" id="globalInfoIcon"></div>
+  <!-- Ícono de información fijo -->
+  <div class="fixed top-5 right-5 z-20 bg-neon-green text-dark-bg w-8 h-8 rounded-full flex items-center justify-center text-sm transition-transform hover:scale-110 cursor-pointer" onclick="showModal('Información General', 'Esta página ofrece herramientas útiles y gratuitas. El creador no recibe compensación por su uso. Todo se guarda localmente, asegurando tu privacidad. El uso de estas herramientas es responsabilidad del usuario.')">
+    ?
+  </div>
 
-  <footer>
-    <a href="https://t.me/OnefraGT" target="_blank" rel="noopener noreferrer">
-      <i class="fab fa-telegram-plane" style="font-size: 24px;"></i> Contacta con @OnefraGT
+  <!-- Footer -->
+  <footer class="py-4 text-center bg-dark-bg bg-opacity-70 relative z-10">
+    <a href="https://t.me/OnefraGT" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 text-lg text-light-text">
+      <i class="fab fa-telegram-plane text-2xl"></i> Contacta con @OnefraGT
     </a>
   </footer>
 
   <!-- Modal -->
   <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnClickOutside(event)">
     <div class="modal">
-      <button class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></button>
-      <h2 id="modalTitle">Información</h2>
-      <p id="modalText">Texto de información</p>
+      <button class="absolute top-2 right-2 bg-neon-green text-dark-bg p-2 rounded-full transition-colors hover:bg-green-500" onclick="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+      <h2 id="modalTitle" class="text-2xl font-bold mb-4"></h2>
+      <p id="modalText" class="text-base"></p>
     </div>
   </div>
 
@@ -429,23 +242,16 @@
     function closeModal() {
       document.getElementById("modalOverlay").classList.remove("active");
     }
-    function closeModalOnClickOutside(event) {
-      if (event.target === document.getElementById("modalOverlay")) {
-        closeModal();
-      }
-    }
     function showButtonInfo(element) {
       var title = element.getAttribute("data-title");
       var text = element.getAttribute("data-text");
       showModal(title, text);
     }
-
-    // Asignar evento al ícono global de info
-    document.getElementById("globalInfoIcon").addEventListener("click", function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      showModal("Información General", "Esta página ofrece herramientas útiles y gratuitas. El creador no recibe ninguna compensación a cambio de su uso. Todo se guarda localmente en tu dispositivo, asegurando tu privacidad. El uso de estas herramientas es responsabilidad del usuario final.");
-    });
+    function closeModalOnClickOutside(event) {
+      if (event.target === document.getElementById("modalOverlay")) {
+        closeModal();
+      }
+    }
 
     // Slider JS para Lecturas Policiales Recomendadas
     const sliderWrapper = document.getElementById('sliderWrapper');
