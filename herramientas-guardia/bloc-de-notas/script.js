@@ -13,8 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let mediaStream = null;
   let capturedPhotoDataUrl = null; // Aquí se guardará la foto capturada
 
-  // Se elimina el código relacionado con el dictado por micrófono
-
   // Guardar la nota (se incluye la foto si se capturó, pero al compartir solo se usa el texto)
   noteForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -79,17 +77,17 @@ Hechos: ${noteData.facts || 'N/A'}`;
     }
     notesContainer.innerHTML = notes.map((note, index) => `
       <div class="note">
-        <p><strong>Lugar de Intervención:</strong> ${note.interventionLocation || 'N/A'}</p>
-        <p><strong>Documento:</strong> ${note.documentNumber || 'N/A'}</p>
-        <p><strong>Nombre:</strong> ${note.fullName || 'N/A'}</p>
-        <p><strong>Fecha de nacimiento:</strong> ${note.birthdate || 'N/A'}</p>
-        <p><strong>Padres:</strong> ${note.parentsName || 'N/A'}</p>
-        <p><strong>Dirección:</strong> ${note.address || 'N/A'}</p>
-        <p><strong>Teléfono:</strong> ${note.phone || 'N/A'}</p>
-        <p><strong>Hechos:</strong> ${note.facts || 'N/A'}</p>
-        ${note.photoUrl ? `<img src="${note.photoUrl}" alt="Foto del documento" class="note-photo">` : ''}
-        <button class="btn delete-note-btn" onclick="deleteNote(${index})">Eliminar</button>
-        <button class="btn" onclick="shareNoteFromIndex(${index})">Compartir</button>
+          <p><strong>Lugar de Intervención:</strong> ${note.interventionLocation || 'N/A'}</p>
+          <p><strong>Documento:</strong> ${note.documentNumber || 'N/A'}</p>
+          <p><strong>Nombre:</strong> ${note.fullName || 'N/A'}</p>
+          <p><strong>Fecha de nacimiento:</strong> ${note.birthdate || 'N/A'}</p>
+          <p><strong>Padres:</strong> ${note.parentsName || 'N/A'}</p>
+          <p><strong>Dirección:</strong> ${note.address || 'N/A'}</p>
+          <p><strong>Teléfono:</strong> ${note.phone || 'N/A'}</p>
+          <p><strong>Hechos:</strong> ${note.facts || 'N/A'}</p>
+          ${note.photoUrl ? `<img src="${note.photoUrl}" alt="Foto del documento" class="note-photo">` : ''}
+          <button class="btn delete-note-btn" onclick="deleteNote(${index})">Eliminar</button>
+          <button class="btn" onclick="shareNoteFromIndex(${index})">Compartir</button>
       </div>
     `).join('');
   }
