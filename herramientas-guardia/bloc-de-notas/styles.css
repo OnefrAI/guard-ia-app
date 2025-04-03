@@ -1,13 +1,13 @@
 :root {
-  --color-bg: #0f172a;
-  --color-bg-secondary: #1e293b;
-  --color-primary: #3b82f6;
-  --color-secondary: #f59e0b;
+  --color-bg: #0a0a0a;
+  --color-bg-secondary: #1a1a1a;
+  --color-primary: #39FF14;
+  --color-secondary: #2aff00;
   --color-danger: #ef4444;
   --color-success: #10b981;
-  --color-text: #f8fafc;
-  --color-text-secondary: #94a3b8;
+  --color-text: #e0e0e0;
   --color-border: rgba(255, 255, 255, 0.1);
+  --neon-green: #39FF14;
 }
 
 * {
@@ -58,6 +58,11 @@ h1 {
   font-size: 2rem;
   font-weight: 700;
   color: var(--color-text);
+  text-transform: uppercase;
+}
+
+.neon-green {
+  color: var(--neon-green);
 }
 
 .form-group {
@@ -89,7 +94,8 @@ label {
 }
 
 input,
-textarea {
+textarea,
+select {
   width: 100%;
   padding: 0.75rem 1rem;
   background: rgba(30, 41, 59, 0.5);
@@ -109,7 +115,7 @@ input:focus,
 textarea:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 0 2px rgba(57, 255, 20, 0.2);
 }
 
 textarea {
@@ -144,28 +150,29 @@ textarea {
   color: var(--color-text);
 }
 
+/* Botones inferiores: distintos tonos de verde */
 .save-btn {
-  background: var(--color-secondary);
+  background: #10b981;
 }
 
 .save-btn:hover {
-  background: #d97706;
+  background: #059669;
 }
 
 .photo-btn {
-  background: var(--color-primary);
+  background: #4ade80;
 }
 
 .photo-btn:hover {
-  background: #2563eb;
+  background: #22c55e;
 }
 
 .report-btn {
-  background: var(--color-success);
+  background: #2dd4bf;
 }
 
 .report-btn:hover {
-  background: #059669;
+  background: #14b8a6;
 }
 
 .notes-section {
@@ -230,6 +237,8 @@ textarea {
   background: #c82333;
 }
 
+/* (Se eliminó la caja de información para que no aparezca en la web) */
+
 @media (max-width: 480px) {
   body {
     font-size: 1.2rem;
@@ -240,7 +249,8 @@ textarea {
   }
 
   input,
-  textarea {
+  textarea,
+  select {
     font-size: 1.2rem;
     padding: 1rem;
   }
