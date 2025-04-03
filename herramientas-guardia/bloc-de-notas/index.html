@@ -3,27 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bloc de Notas Policial</title>
+  <title>BLOC DE NOTAS POLICIAL</title>
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" 
+        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" 
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
-<body>
-  <div class="container">
-    <div class="header">
+<body class="text-light-text font-sans relative">
+  <div class="container mx-auto px-4 py-10 relative z-10">
+    <div class="header flex items-center justify-center gap-3 mb-8">
       <svg class="icon-pin" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
         <circle cx="12" cy="10" r="3"></circle>
       </svg>
-      <h1>Bloc de Notas Policial</h1>
+      <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold uppercase text-center drop-shadow-lg">
+        BLOC DE NOTAS <span class="neon-green">POLICIAL</span>
+      </h1>
     </div>
 
-    <form id="noteForm">
+    <form id="noteForm" class="space-y-6">
       <div class="form-group primary">
         <label for="interventionLocation">Lugar de intervención</label>
         <input type="text" id="interventionLocation" name="interventionLocation" placeholder="Ingrese la ubicación...">
       </div>
 
-      <div class="form-grid">
+      <div class="form-grid grid gap-4">
         <div class="form-group">
           <label for="documentNumber">Número de Documento</label>
           <input type="text" id="documentNumber" name="documentNumber" placeholder="Número de Documento">
@@ -34,7 +38,6 @@
         </div>
         <div class="form-group">
           <label for="birthdate">Fecha de nacimiento</label>
-          <!-- Se cambia a type="text" para ingreso manual -->
           <input type="text" id="birthdate" name="birthdate" placeholder="DD-MM-AAAA">
         </div>
         <div class="form-group">
@@ -58,8 +61,8 @@
         <textarea id="facts" name="facts" rows="4" placeholder="Exposición de los hechos"></textarea>
       </div>
 
-      <div class="action-buttons">
-        <button type="submit" id="saveNoteButton" class="btn save-btn">
+      <div class="action-buttons flex justify-between gap-4 mb-6">
+        <button type="submit" id="saveNoteButton" class="btn save-btn flex-1 max-w-[32%] rounded-xl">
           <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
             <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
             <polyline points="17 21 17 13 7 13 7 21"></polyline>
@@ -67,7 +70,7 @@
           </svg>
           <span>Guardar Nota</span>
         </button>
-        <button type="button" id="takePhotoButton" class="btn photo-btn">
+        <button type="button" id="takePhotoButton" class="btn photo-btn flex-1 max-w-[32%] rounded-xl">
           <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
             <path d="M4 7h16l-2-3H6z"></path>
             <circle cx="12" cy="13" r="3"></circle>
@@ -75,7 +78,7 @@
           </svg>
           <span>Tomar Foto</span>
         </button>
-        <button type="button" id="generateReportButton" class="btn report-btn">
+        <button type="button" id="generateReportButton" class="btn report-btn flex-1 max-w-[32%] rounded-xl">
           <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
             <polyline points="14 2 14 8 20 8"></polyline>
@@ -88,18 +91,18 @@
       </div>
     </form>
 
-    <div class="notes-section">
-      <div class="notes-header">
-        <h2>Notas Guardadas</h2>
+    <div class="notes-section mt-8">
+      <div class="notes-header flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Notas Guardadas</h2>
       </div>
-      <div id="notesContainer" class="notes-list"></div>
+      <div id="notesContainer" class="notes-list flex flex-col gap-4"></div>
     </div>
   </div>
 
   <div id="cameraModal" class="modal">
     <div class="modal-content">
       <video id="video" autoplay></video>
-      <div class="modal-buttons">
+      <div class="modal-buttons flex justify-around mt-4">
         <button id="captureButton" class="btn capture-btn">Capturar</button>
         <button id="cancelCaptureButton" class="btn cancel-btn">Cancelar</button>
       </div>
