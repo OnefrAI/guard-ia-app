@@ -29,7 +29,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
         integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <style>
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192x192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png"> <style>
     /* --- Theme Variables --- */
     :root {
       --bg-color: #0a0a0a; --bg-color-rgb: 10, 10, 10;
@@ -82,55 +85,14 @@
     #sliderIndicators button.active-indicator { background-color: var(--accent-color); opacity: 1; }
 
     /* --- Modal CSS (Revisado) --- */
-    .modal-overlay {
-      display: none; /* Start hidden */
-      position: fixed;
-      inset: 0; /* Covers the whole screen */
-      background-color: rgba(var(--bg-color-rgb), 0.8); /* Use variable */
-      z-index: 100; /* Ensure it's on top */
-      align-items: center; /* Vertical centering */
-      justify-content: center; /* Horizontal centering */
-      opacity: 0; /* Start invisible */
-      transition: opacity 0.3s ease, background-color 0.3s ease;
-      padding: 1rem; /* Padding for smaller screens */
-    }
-    .modal-overlay.active {
-      display: flex !important; /* Force display: flex */
-      opacity: 1 !important; /* Force visible */
-    }
-    .modal {
-      background-color: var(--modal-bg-color);
-      color: var(--text-color);
-      padding: 25px 35px; /* Slightly more padding */
-      border-radius: 12px;
-      max-width: 500px;
-      width: 100%; /* Responsive width */
-      position: relative; /* Needed for the close button */
-      transform: scale(0.95);
-      opacity: 0;
-      transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease-out, opacity 0.3s ease-out;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.25); /* Slightly stronger shadow */
-    }
-    .modal-overlay.active .modal {
-      transform: scale(1); /* Animate in */
-      opacity: 1;
-    }
-    /* Modal Content Styles */
-    .modal h2#modalTitle { color: var(--accent-color); transition: color 0.3s ease; margin-bottom: 1rem; font-size: 1.5rem; } /* Ensure accent and spacing */
-    .modal p#modalText { color: var(--text-color); transition: color 0.3s ease; line-height: 1.6; } /* Ensure text color and readability */
-    /* Modal Close Button */
-    .modal-close-button {
-      position: absolute;
-      top: 10px; /* Adjust position */
-      right: 10px;
-      background: none; border: none; padding: 0.4rem;
-      cursor: pointer; line-height: 1;
-    }
-    .modal-close-button i.fa-times {
-        font-size: 1.4rem; /* Adjust size */
-        color: var(--text-medium-color);
-        transition: color 0.2s ease;
-     }
+    .modal-overlay { display: none; position: fixed; inset: 0; background-color: rgba(var(--bg-color-rgb), 0.8); z-index: 100; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease, background-color 0.3s ease; padding: 1rem; }
+    .modal-overlay.active { display: flex !important; opacity: 1 !important; }
+    .modal { background-color: var(--modal-bg-color); color: var(--text-color); padding: 25px 35px; border-radius: 12px; max-width: 500px; width: 100%; position: relative; transform: scale(0.95); opacity: 0; transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease-out, opacity 0.3s ease-out; box-shadow: 0 5px 20px rgba(0,0,0,0.25); }
+    .modal-overlay.active .modal { transform: scale(1); opacity: 1; }
+    .modal h2#modalTitle { color: var(--accent-color); transition: color 0.3s ease; margin-bottom: 1rem; font-size: 1.5rem; }
+    .modal p#modalText { color: var(--text-color); transition: color 0.3s ease; line-height: 1.6; }
+    .modal-close-button { position: absolute; top: 10px; right: 10px; background: none; border: none; padding: 0.4rem; cursor: pointer; line-height: 1; }
+    .modal-close-button i.fa-times { font-size: 1.4rem; color: var(--text-medium-color); transition: color 0.2s ease; }
     .modal-close-button:hover i.fa-times { color: var(--modal-close-hover); }
 
     /* --- Light Mode Specific Overrides --- */
@@ -159,8 +121,6 @@
     body.light-mode footer { background-color: rgba(var(--bg-color-rgb), 0.8); border-color: var(--border-color); }
     body.light-mode footer a { color: var(--text-color); }
     body.light-mode footer a:hover { color: var(--link-hover-color); }
-
-
   </style>
 </head>
 <body class="relative">
@@ -175,22 +135,22 @@
 
 
   <div class="container mx-auto px-4 py-10 relative z-10 mt-10">
-    <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-center mb-12 drop-shadow-lg">
-      Herramientas<br>
-      GUARD<span>-</span>IA <i class="fas fa-shield-alt"></i>
-    </h1>
+     <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-center mb-12 drop-shadow-lg">
+       Herramientas<br>
+       GUARD<span>-</span>IA <i class="fas fa-shield-alt"></i>
+     </h1>
 
-    <div class="max-w-lg mx-auto space-y-4">
-       <a href="https://chatgpt.com/g/g-6766e58171cc81918eb92f23b79f66ae-guard-ia" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-4 px-6 rounded-xl text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
-        <span class="flex items-center gap-3">
-          <i class="fas fa-robot text-xl w-6 text-center"></i>
-          <span>ChatGPT GUARD-IA</span>
-        </span>
-        <button class="info-button-integrated" data-title="ChatGPT GUARD-IA" data-text="Interactúa con una versión personalizada de ChatGPT diseñada para GUARD-IA." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();">
-          <i class="fas fa-info-circle"></i>
-        </button>
-      </a>
-      <a href="herramientas-guardia/calculadora-de-drogas/index.html" target="_self" class="w-full bg-card-bg border py-4 px-6 rounded-xl text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
+     <div class="max-w-lg mx-auto space-y-4">
+        <a href="https://chatgpt.com/g/g-6766e58171cc81918eb92f23b79f66ae-guard-ia" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-4 px-6 rounded-xl text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
+         <span class="flex items-center gap-3">
+           <i class="fas fa-robot text-xl w-6 text-center"></i>
+           <span>ChatGPT GUARD-IA</span>
+         </span>
+         <button class="info-button-integrated" data-title="ChatGPT GUARD-IA" data-text="Interactúa con una versión personalizada de ChatGPT diseñada para GUARD-IA." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();">
+           <i class="fas fa-info-circle"></i>
+         </button>
+       </a>
+       <a href="herramientas-guardia/calculadora-de-drogas/index.html" target="_self" class="w-full bg-card-bg border py-4 px-6 rounded-xl text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
          <span class="flex items-center gap-3">
            <i class="fas fa-calculator text-xl w-6 text-center"></i>
            <span>Calculadora de Drogas</span>
@@ -198,8 +158,8 @@
         <button class="info-button-integrated" data-title="Calculadora de Drogas" data-text="Herramienta para cálculos relacionados con drogas. Uso bajo responsabilidad del usuario." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();">
            <i class="fas fa-info-circle"></i>
         </button>
-      </a>
-       <a href="herramientas-guardia/bloc-de-notas/index.html" target="_self" class="w-full bg-card-bg border py-4 px-6 rounded-xl text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
+       </a>
+        <a href="herramientas-guardia/bloc-de-notas/index.html" target="_self" class="w-full bg-card-bg border py-4 px-6 rounded-xl text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
          <span class="flex items-center gap-3">
             <i class="fas fa-sticky-note text-xl w-6 text-center"></i>
            <span>Bloc de Notas</span>
@@ -207,8 +167,8 @@
          <button class="info-button-integrated" data-title="Bloc de Notas" data-text="Un bloc de notas digital que guarda tus notas localmente en tu dispositivo." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();">
             <i class="fas fa-info-circle"></i>
          </button>
-       </a>
-       <a href="https://saferlayer.com/" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-4 px-6 rounded-xl text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
+        </a>
+        <a href="https://saferlayer.com/" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-4 px-6 rounded-xl text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
          <span class="flex items-center gap-3">
             <i class="fas fa-tint text-xl w-6 text-center"></i>
            <span>Marca de agua by Saferlayer</span>
@@ -216,9 +176,9 @@
          <button class="info-button-integrated" data-title="Marca de agua by Saferlayer" data-text="Herramienta externa para agregar marcas de agua a tus archivos." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();">
            <i class="fas fa-info-circle"></i>
          </button>
-       </a>
-    </div>
-  </div>
+        </a>
+     </div>
+   </div>
 
   <section class="py-10 relative z-10">
     <h2 class="text-3xl sm:text-4xl font-bold text-center mb-8 drop-shadow-lg">
@@ -288,7 +248,7 @@
     let currentSlide = 0;
     let totalSlides = 0;
     if (sliderWrapper) { totalSlides = sliderWrapper.children.length; }
-    function updateSliderIndicatorsActiveColor() { /* ... (implementation as before) ... */
+    function updateSliderIndicatorsActiveColor() { /* ... */
         if (indicatorsContainer) {
             Array.from(indicatorsContainer.children).forEach((indicator, index) => {
                 if (indicator instanceof HTMLElement) {
@@ -298,7 +258,7 @@
             });
         }
      }
-    function createIndicators() { /* ... (implementation as before) ... */
+    function createIndicators() { /* ... */
         if (!indicatorsContainer || totalSlides <= 0) return;
         indicatorsContainer.innerHTML = '';
         for (let i = 0; i < totalSlides; i++) {
@@ -311,7 +271,7 @@
         }
         updateSliderIndicatorsActiveColor();
      }
-    function updateSlider() { /* ... (implementation as before) ... */
+    function updateSlider() { /* ... */
        if (!sliderWrapper || totalSlides <= 0) return;
        sliderWrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
        updateSliderIndicatorsActiveColor();
@@ -323,7 +283,7 @@
      // --- Theme Toggle Logic ---
     const themeToggleButton = document.getElementById('theme-toggle');
     const themeToggleIcon = themeToggleButton ? themeToggleButton.querySelector('i') : null;
-    const setTheme = (theme) => { /* ... (implementation as before) ... */
+    const setTheme = (theme) => { /* ... */
         localStorage.setItem('theme', theme);
         if (theme === 'light') {
             document.body.classList.add('light-mode');
@@ -335,8 +295,8 @@
         updateSliderIndicatorsActiveColor();
      };
     const currentTheme = localStorage.getItem('theme') || 'dark';
-    setTheme(currentTheme); // Apply theme class first
-    if (themeToggleButton) { /* ... (event listener as before) ... */
+    setTheme(currentTheme);
+    if (themeToggleButton) { /* ... */
       themeToggleButton.addEventListener('click', () => {
         let newTheme = document.body.classList.contains('light-mode') ? 'dark' : 'light';
         setTheme(newTheme);
