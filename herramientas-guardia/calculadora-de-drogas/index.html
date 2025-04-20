@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calculadora de drogas</title>
   <meta name="description" content="Calculadora de drogas basada en dosis mínimas psicoactivas de sustancias controladas.">
+
+  <!-- 🔗 Font Awesome para el icono de Home -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
   <style>
     /* Variables de color y configuración para tema oscuro */
     :root {
@@ -27,6 +33,7 @@
       align-items: center;
       min-height: 100vh;
       color: var(--text-color);
+      position: relative;
     }
     .container {
       background: var(--container-bg);
@@ -138,9 +145,36 @@
         padding: 15px;
       }
     }
+
+    /* 🔁 Estilos del botón HOME */
+    .home-button {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      background: #1f2937;
+      color: white;
+      padding: 0.6rem 0.8rem;
+      border-radius: 0.6rem;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      z-index: 999;
+      transition: background 0.3s ease;
+    }
+    .home-button:hover {
+      background: #374151;
+    }
   </style>
 </head>
 <body>
+
+  <!-- ✅ Botón HOME -->
+  <a href="https://onefrai.github.io/guard-ia-app/" class="home-button" title="Volver a la pantalla principal">
+    <i class="fas fa-house"></i>
+  </a>
+
   <main class="container">
     <!-- Título en mayúsculas y con "DROGAS" en neon -->
     <h1>CALCULADORA DE <span class="neon-green">DROGAS</span></h1>
