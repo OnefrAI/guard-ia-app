@@ -6,19 +6,19 @@
   <title>Herramientas GUARD-IA</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
   <script>
-    // Configuración base de Tailwind
+    // Configuración base de Tailwind (sin cambios)
     tailwind.config = {
       theme: {
         extend: {
           fontFamily: {
             sans: ['Inter', 'sans-serif'],
           },
-           colors: { // Referencia, pero usaremos CSS vars
-             'neon-green': '#39FF14', 'dark-bg': '#0a0a0a',
-             'card-bg': '#1a1a1a', 'light-text': '#e0e0e0',
-             'medium-text': '#a0a0a0',
-           },
-           boxShadow: { 'glow-neon': '0 0 15px var(--glow-color)', }
+            colors: { // Referencia, pero usaremos CSS vars
+              'neon-green': '#39FF14', 'dark-bg': '#0a0a0a',
+              'card-bg': '#1a1a1a', 'light-text': '#e0e0e0',
+              'medium-text': '#a0a0a0',
+            },
+            boxShadow: { 'glow-neon': '0 0 15px var(--glow-color)', }
         }
       }
     }
@@ -32,8 +32,10 @@
 
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icons/icon-192x192.png" type="image/png">
-  <link rel="apple-touch-icon" href="icons/icon-192x192.png"> <style>
-    /* --- Theme Variables --- */
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+
+  <style>
+    /* --- Theme Variables --- (sin cambios) */
     :root {
       --bg-color: #0a0a0a; --bg-color-rgb: 10, 10, 10;
       --card-color: #1a1a1a; --card-color-rgb: 26, 26, 26;
@@ -58,7 +60,7 @@
       --info-fixed-text: #ffffff;
     }
 
-    /* --- Base Styles & Transitions --- */
+    /* --- Base Styles & Transitions --- (sin cambios) */
     body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
     h1, h2, h3 { color: var(--text-color); transition: color 0.3s ease; }
     h1 > span, h1 > i.fa-shield-alt { color: var(--accent-color); transition: color 0.3s ease;} /* Title H1 accent */
@@ -68,7 +70,7 @@
     footer a { color: var(--text-color); transition: color 0.3s ease; }
     footer a:hover { color: var(--link-hover-color); }
 
-    /* Component Base Styles */
+    /* Component Base Styles (sin cambios) */
     .bg-card-bg { background-color: var(--card-color); border-color: var(--border-color); color: var(--text-color); transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
     a.bg-card-bg:hover { background-color: var(--button-hover-bg); transition: background-color 0.2s ease, transform 0.2s ease; }
     .info-button-integrated { background: none; border: none; padding: 0.5rem; cursor: pointer; color: var(--text-medium-color); transition: color 0.2s ease, transform 0.2s ease; font-size: 0.8rem; line-height: 1; align-self: center; }
@@ -84,7 +86,7 @@
     #sliderIndicators button { background-color: var(--text-medium-color); opacity: 0.6; transition: background-color 0.3s ease, opacity 0.3s ease; }
     #sliderIndicators button.active-indicator { background-color: var(--accent-color); opacity: 1; }
 
-    /* --- Modal CSS (Revisado) --- */
+    /* --- Modal CSS (Revisado) --- (sin cambios) */
     .modal-overlay { display: none; position: fixed; inset: 0; background-color: rgba(var(--bg-color-rgb), 0.8); z-index: 100; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease, background-color 0.3s ease; padding: 1rem; }
     .modal-overlay.active { display: flex !important; opacity: 1 !important; }
     .modal { background-color: var(--modal-bg-color); color: var(--text-color); padding: 25px 35px; border-radius: 12px; max-width: 500px; width: 100%; position: relative; transform: scale(0.95); opacity: 0; transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease-out, opacity 0.3s ease-out; box-shadow: 0 5px 20px rgba(0,0,0,0.25); }
@@ -95,7 +97,7 @@
     .modal-close-button i.fa-times { font-size: 1.4rem; color: var(--text-medium-color); transition: color 0.2s ease; }
     .modal-close-button:hover i.fa-times { color: var(--modal-close-hover); }
 
-    /* --- Light Mode Specific Overrides --- */
+    /* --- Light Mode Specific Overrides --- (sin cambios) */
     body.light-mode .bg-card-bg { background-color: var(--card-color); border-color: var(--border-color); color: var(--text-color); }
     body.light-mode a.bg-card-bg:hover { background-color: var(--button-hover-bg); }
     body.light-mode .max-w-lg a.bg-card-bg span, body.light-mode .max-w-lg a.bg-card-bg i:not(.fa-info-circle) { color: var(--text-color); }
@@ -121,98 +123,119 @@
     body.light-mode footer { background-color: rgba(var(--bg-color-rgb), 0.8); border-color: var(--border-color); }
     body.light-mode footer a { color: var(--text-color); }
     body.light-mode footer a:hover { color: var(--link-hover-color); }
+
+    /* Scrollbar width - can help on desktop */
+    ::-webkit-scrollbar { width: 8px; }
+
+    /* Improve tap target size for buttons on mobile (optional but good practice) */
+    /* You could apply a class like 'mobile-tap-target' or apply directly */
+    /* Example: #theme-toggle, .fixed-info-button { min-width: 44px; min-height: 44px; } */
+    /* The current fixed w-8 h-8 (32px) is small, consider increasing or ensuring enough padding */
   </style>
 </head>
-<body class="relative">
+<body class="relative min-h-screen flex flex-col">
 
-  <button id="theme-toggle" class="fixed top-5 left-5 z-20 w-8 h-8 rounded-full flex items-center justify-center text-sm" aria-label="Cambiar tema">
+  <button id="theme-toggle" class="fixed top-4 left-4 z-50 w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-lg" aria-label="Cambiar tema">
       <i class="fas fa-sun"></i>
   </button>
 
-  <div class="fixed-info-button fixed top-5 right-5 z-20 w-8 h-8 rounded-full flex items-center justify-center text-sm transition-transform hover:scale-110 cursor-pointer shadow-glow-neon" onclick="showModal('Información General', 'Esta página ofrece herramientas útiles y gratuitas. El creador no recibe compensación por su uso. Todo se guarda localmente cuando aplica (ej. Bloc de Notas), asegurando tu privacidad. El uso de estas herramientas es responsabilidad del usuario.')">
-    <i class="fas fa-question"></i>
+  <div class="fixed-info-button fixed top-4 right-4 z-50 w-10 h-10 rounded-full flex items-center justify-center text-lg transition-transform hover:scale-110 cursor-pointer shadow-glow-neon" onclick="showModal('Información General', 'Esta página ofrece herramientas útiles y gratuitas. El creador no recibe compensación por su uso. Todo se guarda localmente cuando aplica (ej. Bloc de Notas), asegurando tu privacidad. El uso de estas herramientas es responsabilidad del usuario.')">
+      <i class="fas fa-question"></i>
   </div>
 
-
-  <div class="container mx-auto px-4 py-10 relative z-10 mt-10">
-     <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-center mb-12 drop-shadow-lg">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-20 pb-16 sm:pt-16 relative z-10 flex-grow">
+     <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-center mb-8 sm:mb-12 drop-shadow-lg">
        Herramientas<br>
-       GUARD<span>-</span>IA <i class="fas fa-shield-alt"></i>
-     </h1>
+       GUARD<span>-</span>IA <i class="fas fa-shield-alt ml-1 sm:ml-2"></i> </h1>
 
-     <div class="max-w-lg mx-auto space-y-4">
-        <a href="https://chatgpt.com/g/g-6766e58171cc81918eb92f23b79f66ae-guard-ia" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-4 px-6 rounded-xl text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
-         <span class="flex items-center gap-3">
-           <i class="fas fa-robot text-xl w-6 text-center"></i>
+     <div class="max-w-lg mx-auto space-y-3 sm:space-y-4">
+       <a href="https://chatgpt.com/g/g-6766e58171cc81918eb92f23b79f66ae-guard-ia" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
+         <span class="flex items-center gap-2 sm:gap-3">
+           <i class="fas fa-robot text-lg w-5 sm:text-xl sm:w-6 text-center"></i>
            <span>ChatGPT GUARD-IA</span>
          </span>
          <button class="info-button-integrated" data-title="ChatGPT GUARD-IA" data-text="Interactúa con una versión personalizada de ChatGPT diseñada para GUARD-IA." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();">
-           <i class="fas fa-info-circle"></i>
-         </button>
+           <i class="fas fa-info-circle text-lg"></i> </button>
        </a>
-       <a href="herramientas-guardia/calculadora-de-drogas/index.html" target="_self" class="w-full bg-card-bg border py-4 px-6 rounded-xl text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
-         <span class="flex items-center gap-3">
-           <i class="fas fa-calculator text-xl w-6 text-center"></i>
+       <a href="herramientas-guardia/calculadora-de-drogas/index.html" target="_self" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
+         <span class="flex items-center gap-2 sm:gap-3">
+           <i class="fas fa-calculator text-lg w-5 sm:text-xl sm:w-6 text-center"></i>
            <span>Calculadora de Drogas</span>
          </span>
         <button class="info-button-integrated" data-title="Calculadora de Drogas" data-text="Herramienta para cálculos relacionados con drogas. Uso bajo responsabilidad del usuario." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();">
-           <i class="fas fa-info-circle"></i>
-        </button>
+           <i class="fas fa-info-circle text-lg"></i>
+         </button>
        </a>
-        <a href="herramientas-guardia/bloc-de-notas/index.html" target="_self" class="w-full bg-card-bg border py-4 px-6 rounded-xl text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
-         <span class="flex items-center gap-3">
-            <i class="fas fa-sticky-note text-xl w-6 text-center"></i>
+        <a href="herramientas-guardia/bloc-de-notas/index.html" target="_self" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
+         <span class="flex items-center gap-2 sm:gap-3">
+            <i class="fas fa-sticky-note text-lg w-5 sm:text-xl sm:w-6 text-center"></i>
            <span>Bloc de Notas</span>
          </span>
          <button class="info-button-integrated" data-title="Bloc de Notas" data-text="Un bloc de notas digital que guarda tus notas localmente en tu dispositivo." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();">
-            <i class="fas fa-info-circle"></i>
+            <i class="fas fa-info-circle text-lg"></i>
          </button>
         </a>
-        <a href="https://saferlayer.com/" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-4 px-6 rounded-xl text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
-         <span class="flex items-center gap-3">
-            <i class="fas fa-tint text-xl w-6 text-center"></i>
+        <a href="https://saferlayer.com/" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
+         <span class="flex items-center gap-2 sm:gap-3">
+            <i class="fas fa-tint text-lg w-5 sm:text-xl sm:w-6 text-center"></i>
            <span>Marca de agua by Saferlayer</span>
          </span>
          <button class="info-button-integrated" data-title="Marca de agua by Saferlayer" data-text="Herramienta externa para agregar marcas de agua a tus archivos." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();">
-           <i class="fas fa-info-circle"></i>
+           <i class="fas fa-info-circle text-lg"></i>
          </button>
         </a>
      </div>
-   </div>
+  </div>
 
   <section class="py-10 relative z-10">
-    <h2 class="text-3xl sm:text-4xl font-bold text-center mb-8 drop-shadow-lg">
+    <h2 class="text-3xl sm:text-4xl font-bold text-center mb-6 sm:mb-8 drop-shadow-lg">
       CANALES DE<br>ACCIÓN POLICIAL
     </h2>
-    <div class="max-w-lg mx-auto grid grid-cols-2 gap-4">
-      <a href="https://www.youtube.com/@PoliceActivity" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-video"></i> PoliceActivity </a>
-      <a href="https://www.youtube.com/@RealWorldPolice" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-video"></i> Real World Police </a>
-      <a href="https://www.youtube.com/@CodeBlueCam" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-video"></i> Code Blue Cam </a>
-      <a href="https://www.youtube.com/@AuditTheAudit" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-gavel"></i> Audit the Audit </a>
-      <a href="https://www.youtube.com/@DonutOperator" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-video"></i> Donut Operator </a>
-      <a href="https://www.youtube.com/@FreeFieldTraining" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-chalkboard-teacher"></i> FreeFieldTraining </a>
+    <div class="max-w-lg mx-auto px-4 sm:px-0 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+      <a href="https://www.youtube.com/@PoliceActivity" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-video"></i> PoliceActivity </a>
+      <a href="https://www.youtube.com/@RealWorldPolice" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-video"></i> Real World Police </a>
+      <a href="https://www.youtube.com/@CodeBlueCam" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-video"></i> Code Blue Cam </a>
+      <a href="https://www.youtube.com/@AuditTheAudit" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-gavel"></i> Audit the Audit </a>
+      <a href="https://www.youtube.com/@DonutOperator" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-video"></i> Donut Operator </a>
+      <a href="https://www.youtube.com/@FreeFieldTraining" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-chalkboard-teacher"></i> FreeFieldTraining </a>
     </div>
   </section>
 
   <section class="py-10 relative z-10">
-    <h2 class="text-3xl sm:text-4xl font-bold text-center mb-8 drop-shadow-lg"> LECTURAS POLICIALES<br>RECOMENDADAS </h2>
-    <div class="relative max-w-lg mx-auto">
-      <button class="slider-nav-button absolute top-1/2 left-0 transform -translate-y-1/2 -translate-x-full p-2 rounded-full text-2xl z-10" onclick="prevSlide()">❮</button>
-      <div class="overflow-hidden rounded-lg">
-        <div class="flex transition-transform duration-500 ease-in-out" id="sliderWrapper">
-           <div class="min-w-full p-4 text-center bg-card-bg"> <img src="https://imgs.search.brave.com/VNMdgeChtgIurBN_p-DnqmSakN2ak7bRrP0Yo1n3ef8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuY2RuMi5idXNj/YWxpYnJlLmNvbS9m/aXQtaW4vNTIweDUy/MC8yZS80YS8yZTRh/YzYyZmIxMTJhOWNh/NDdmMTMwMGY4NzVk/OTUwNC5qcGc" alt="Portada del libro Sobre el Combate" class="w-auto h-64 object-contain rounded-lg mb-4 mx-auto"> <h3 class="text-xl font-semibold">Sobre el Combate</h3> <p class="text-base text-medium-text">Dave Grossman</p> </div>
-           <div class="min-w-full p-4 text-center bg-card-bg"> <img src="https://imgs.search.brave.com/8-PdIHSHt2WqbYUGXhLD_4Bpw8RWitCfRvV2KiHgqpo/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuY2RuMy5idXNj/YWxpYnJlLmNvbS9m/aXQtaW4vNTIweDUy/MC9mZC82Yy9mZDZj/Mjc3ZDBmZDMyZmU3/NmJiN2MyZGMwZTc3/YjZhYi5qcGc" alt="Portada del libro Matar" class="w-auto h-64 object-contain rounded-lg mb-4 mx-auto"> <h3 class="text-xl font-semibold">Matar</h3> <p class="text-base text-medium-text">Dave Grossman</p> </div>
-           <div class="min-w-full p-4 text-center bg-card-bg"> <img src="https://imgs.search.brave.com/pOsg_as-IHCw3Y7BqzG17ZB9cw9PJCLFMZQ8GrqlEMI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9waWN0/dXJlcy5hYmVib29r/cy5jb20vaXNibi85/Nzg4NDMwOTczNzA1/LWVzLTMwMC5qcGc" alt="Portada del libro En la Línea de Fuego" class="w-auto h-64 object-contain rounded-lg mb-4 mx-auto"> <h3 class="text-xl font-semibold">En la Línea de Fuego</h3> <p class="text-base text-medium-text">Ernesto Pérez Vera y Fernando Pérez Pacho</p> </div>
-           <div class="min-w-full p-4 text-center bg-card-bg"> <img src="https://imgs.search.brave.com/SK2GxbZt59aSZEreTfVwkKxKWMVepLCnmRS1vzvnaFA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9waWN0/dXJlcy5hYmVib29r/cy5jb20vaXNibi85/Nzg4NDE1MzczNzU5/LWVzLmpwZw" alt="Portada del libro Tiroteo en Miami" class="w-auto h-64 object-contain rounded-lg mb-4 mx-auto"> <h3 class="text-xl font-semibold">Tiroteo en Miami</h3> <p class="text-base text-medium-text">Edmundo Mireles Jr.</p> </div>
+    <h2 class="text-3xl sm:text-4xl font-bold text-center mb-6 sm:mb-8 drop-shadow-lg"> LECTURAS POLICIALES<br>RECOMENDADAS </h2>
+    <div class="relative max-w-lg mx-auto px-4 sm:px-0"> <button class="slider-nav-button absolute top-1/2 left-2 sm:left-0 transform -translate-y-1/2 sm:-translate-x-full p-2 rounded-full text-xl sm:text-2xl z-30 bg-opacity-75 sm:bg-opacity-50 hover:bg-opacity-90" onclick="prevSlide()" aria-label="Anterior Slide">❮</button>
+      <div class="overflow-hidden rounded-lg border border-[var(--border-color)]"> <div class="flex transition-transform duration-500 ease-in-out" id="sliderWrapper">
+            <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg">
+                <img src="https://imgs.search.brave.com/VNMdgeChtgIurBN_p-DnqmSakN2ak7bRrP0Yo1n3ef8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuY2RuMi5idXNj/YWxpYnJlLmNvbS9m/aXQtaW4vNTIweDUy/MC8yZS80YS8yZTRh/YzYyZmIxMTJhOWNh/NDdmMTMwMGY4NzVk/OTUwNC5qcGc" alt="Portada del libro Sobre el Combate" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto">
+                <h3 class="text-lg sm:text-xl font-semibold">Sobre el Combate</h3>
+                <p class="text-sm sm:text-base text-medium-text">Dave Grossman</p>
+            </div>
+            <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg">
+                <img src="https://imgs.search.brave.com/8-PdIHSHt2WqbYUGXhLD_4Bpw8RWitCfRvV2KiHgqpo/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuY2RuMy5idXNj/YWxpYnJlLmNvbS9m/aXQtaW4vNTIweDUy/MC9mZC82Yy9mZDZj/Mjc3ZDBmZDMyZmU3/NmJiN2MyZGMwZTc3/YjZhYi5qcGc" alt="Portada del libro Matar" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto">
+                <h3 class="text-lg sm:text-xl font-semibold">Matar</h3>
+                <p class="text-sm sm:text-base text-medium-text">Dave Grossman</p>
+            </div>
+            <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg">
+                <img src="https://imgs.search.brave.com/pOsg_as-IHCw3Y7BqzG17ZB9cw9PJCLFMZQ8GrqlEMI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9waWN0/dXJlcy5hYmVib29r/cy5jb20vaXNibi85/Nzg4NDMwOTczNzA1/LWVzLTMwMC5qcGc" alt="Portada del libro En la Línea de Fuego" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto">
+                <h3 class="text-lg sm:text-xl font-semibold">En la Línea de Fuego</h3>
+                <p class="text-sm sm:text-base text-medium-text">Ernesto Pérez Vera y Fernando Pérez Pacho</p>
+            </div>
+            <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg">
+                <img src="https://imgs.search.brave.com/SK2GxbZt59aSZEreTfVwkKxKWMVepLCnmRS1vzvnaFA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9waWN0/dXJlcy5hYmVib29r/cy5jb20vaXNibi85/Nzg4NDE1MzczNzU5/LWVzLmpwZw" alt="Portada del libro Tiroteo en Miami" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto">
+                <h3 class="text-lg sm:text-xl font-semibold">Tiroteo en Miami</h3>
+                <p class="text-sm sm:text-base text-medium-text">Edmundo Mireles Jr.</p>
+            </div>
         </div>
       </div>
-      <button class="slider-nav-button absolute top-1/2 right-0 transform -translate-y-1/2 translate-x-full p-2 rounded-full text-2xl z-10" onclick="nextSlide()">❯</button>
+      <button class="slider-nav-button absolute top-1/2 right-2 sm:right-0 transform -translate-y-1/2 sm:translate-x-full p-2 rounded-full text-xl sm:text-2xl z-30 bg-opacity-75 sm:bg-opacity-50 hover:bg-opacity-90" onclick="nextSlide()" aria-label="Siguiente Slide">❯</button>
     </div>
     <div id="sliderIndicators" class="flex justify-center space-x-2 mt-4"></div>
   </section>
 
-  <footer class="mt-12 py-4 text-center relative z-10">
-    <a href="https://t.me/OnefraGT" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 text-lg"> <i class="fab fa-telegram-plane text-2xl"></i> Contacta con @OnefraGT </a>
+  <footer class="mt-12 py-4 pb-6 sm:py-4 text-center relative z-10">
+    <a href="https://t.me/OnefraGT" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 text-base sm:text-lg">
+        <i class="fab fa-telegram-plane text-xl sm:text-2xl"></i> Contacta con @OnefraGT
+    </a>
   </footer>
 
   <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnClickOutside(event)">
@@ -220,13 +243,12 @@
       <button class="modal-close-button" onclick="closeModal()" aria-label="Cerrar modal">
         <i class="fas fa-times"></i>
       </button>
-      <h2 id="modalTitle" class="text-2xl font-bold mb-4"></h2>
-      <p id="modalText" class="text-base"></p>
+      <h2 id="modalTitle" class="text-xl sm:text-2xl font-bold mb-4"></h2> <p id="modalText" class="text-base"></p>
     </div>
   </div>
 
   <script>
-    // --- Modal Logic ---
+    // --- Modal Logic --- (sin cambios)
     const modalOverlay = document.getElementById("modalOverlay");
     const modalTitle = document.getElementById("modalTitle");
     const modalText = document.getElementById("modalText");
@@ -242,36 +264,43 @@
     }
     function closeModalOnClickOutside(event) { if (event.target === modalOverlay) { closeModal(); } }
 
-    // --- Slider Logic ---
+    // --- Slider Logic --- (sin cambios funcionales)
     const sliderWrapper = document.getElementById('sliderWrapper');
     const indicatorsContainer = document.getElementById('sliderIndicators');
     let currentSlide = 0;
     let totalSlides = 0;
     if (sliderWrapper) { totalSlides = sliderWrapper.children.length; }
-    function updateSliderIndicatorsActiveColor() { /* ... */
-        if (indicatorsContainer) {
-            Array.from(indicatorsContainer.children).forEach((indicator, index) => {
-                if (indicator instanceof HTMLElement) {
-                    indicator.classList.remove('active-indicator');
-                    if (index === currentSlide) { indicator.classList.add('active-indicator'); }
-                }
-            });
-        }
-     }
-    function createIndicators() { /* ... */
-        if (!indicatorsContainer || totalSlides <= 0) return;
-        indicatorsContainer.innerHTML = '';
-        for (let i = 0; i < totalSlides; i++) {
-            const indicator = document.createElement('button');
-            indicator.className = `w-2 h-2 rounded-full transition-colors`;
-             indicator.style.backgroundColor = 'var(--text-medium-color)';
-            indicator.setAttribute('aria-label', `Ir a slide ${i + 1}`);
-            indicator.onclick = () => goToSlide(i);
-            indicatorsContainer.appendChild(indicator);
-        }
-        updateSliderIndicatorsActiveColor();
-     }
-    function updateSlider() { /* ... */
+
+    function updateSliderIndicatorsActiveColor() {
+      if (indicatorsContainer) {
+          Array.from(indicatorsContainer.children).forEach((indicator, index) => {
+              if (indicator instanceof HTMLElement) {
+                  indicator.classList.remove('active-indicator');
+                  // Use CSS variable for active color
+                  indicator.style.backgroundColor = index === currentSlide ? 'var(--accent-color)' : 'var(--text-medium-color)';
+                  indicator.style.opacity = index === currentSlide ? '1' : '0.6';
+              }
+          });
+      }
+    }
+
+    function createIndicators() {
+      if (!indicatorsContainer || totalSlides <= 0) return;
+      indicatorsContainer.innerHTML = '';
+      for (let i = 0; i < totalSlides; i++) {
+          const indicator = document.createElement('button');
+          // Adjusted size slightly for easier tapping
+          indicator.className = `w-2.5 h-2.5 rounded-full transition-colors duration-300 ease-in-out`;
+          indicator.style.backgroundColor = 'var(--text-medium-color)'; // Initial color via CSS var
+          indicator.style.opacity = '0.6'; // Initial opacity
+          indicator.setAttribute('aria-label', `Ir a slide ${i + 1}`);
+          indicator.onclick = () => goToSlide(i);
+          indicatorsContainer.appendChild(indicator);
+      }
+      updateSliderIndicatorsActiveColor(); // Set initial active state
+    }
+
+    function updateSlider() {
        if (!sliderWrapper || totalSlides <= 0) return;
        sliderWrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
        updateSliderIndicatorsActiveColor();
@@ -280,10 +309,10 @@
     function prevSlide() { if (totalSlides <= 0) return; currentSlide = (currentSlide - 1 + totalSlides) % totalSlides; updateSlider(); }
     function goToSlide(slideIndex) { if (totalSlides <= 0 || slideIndex < 0 || slideIndex >= totalSlides) return; currentSlide = slideIndex; updateSlider(); }
 
-     // --- Theme Toggle Logic ---
+    // --- Theme Toggle Logic --- (sin cambios funcionales)
     const themeToggleButton = document.getElementById('theme-toggle');
     const themeToggleIcon = themeToggleButton ? themeToggleButton.querySelector('i') : null;
-    const setTheme = (theme) => { /* ... */
+    const setTheme = (theme) => {
         localStorage.setItem('theme', theme);
         if (theme === 'light') {
             document.body.classList.add('light-mode');
@@ -292,19 +321,23 @@
             document.body.classList.remove('light-mode');
             if(themeToggleIcon) themeToggleIcon.className = 'fas fa-sun';
         }
+        // Update slider indicators on theme change as colors depend on theme
         updateSliderIndicatorsActiveColor();
-     };
+      };
     const currentTheme = localStorage.getItem('theme') || 'dark';
-    setTheme(currentTheme);
-    if (themeToggleButton) { /* ... */
+    setTheme(currentTheme); // Apply theme on load
+
+    if (themeToggleButton) {
       themeToggleButton.addEventListener('click', () => {
         let newTheme = document.body.classList.contains('light-mode') ? 'dark' : 'light';
         setTheme(newTheme);
       });
     }
 
-    // Initialize Slider
-    if (sliderWrapper && totalSlides > 0) { createIndicators(); }
+    // Initialize Slider after DOM is ready and theme is set
+    if (sliderWrapper && totalSlides > 0) {
+        createIndicators();
+    }
 
   </script>
 
