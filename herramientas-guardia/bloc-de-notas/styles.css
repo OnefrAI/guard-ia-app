@@ -322,3 +322,48 @@ textarea {
   margin-top: 1rem;
   border-radius: 0.5rem;
 }
+/* Botón HOME fijo */
+.home-button {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 100;
+  background: #1f2937;
+  color: white;
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.6rem;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transition: background 0.3s ease;
+}
+
+.home-button:hover {
+  background: #374151;
+}
+
+/* Tamaño y estilo de botones compactos */
+.save-btn,
+.photo-btn,
+.report-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+/* Nuevos colores */
+.photo-btn {
+  background: #3b82f6;
+}
+.photo-btn:hover {
+  background: #2563eb;
+}
+
+.report-btn {
+  background: #facc15;
+  color: #000;
+}
+.report-btn:hover {
+  background: #fbbf24;
+}
