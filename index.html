@@ -35,13 +35,13 @@
   <link rel="apple-touch-icon" href="icons/icon-192x192.png">
 
   <style>
-    /* --- Theme Variables --- (sin cambios) */
+    /* --- Theme Variables --- */
     :root {
       --bg-color: #0a0a0a; --bg-color-rgb: 10, 10, 10;
       --card-color: #1a1a1a; --card-color-rgb: 26, 26, 26;
       --text-color: #e0e0e0; --text-medium-color: #a0a0a0;
       --accent-color: #39FF14; --border-color: rgba(255, 255, 255, 0.2);
-      --modal-bg-color: rgba(30, 30, 30, 0.98); /* Slightly different from card for depth */
+      --modal-bg-color: rgba(30, 30, 30, 0.98);
       --button-hover-bg: rgba(255, 255, 255, 0.1);
       --scroll-thumb-color: var(--accent-color); --scroll-track-color: var(--bg-color);
       --glow-color: rgba(57, 255, 20, 0.5); --modal-close-hover: var(--accent-color);
@@ -60,7 +60,7 @@
       --info-fixed-text: #ffffff;
     }
 
-    /* --- Base Styles & Transitions --- (sin cambios) */
+    /* --- Base Styles & Transitions --- */
     body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
     h1, h2, h3 { color: var(--text-color); transition: color 0.3s ease; }
     h1 > span, h1 > i.fa-shield-alt { color: var(--accent-color); transition: color 0.3s ease;} /* Title H1 accent */
@@ -70,7 +70,7 @@
     footer a { color: var(--text-color); transition: color 0.3s ease; }
     footer a:hover { color: var(--link-hover-color); }
 
-    /* Component Base Styles (sin cambios) */
+    /* Component Base Styles */
     .bg-card-bg { background-color: var(--card-color); border-color: var(--border-color); color: var(--text-color); transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
     a.bg-card-bg:hover { background-color: var(--button-hover-bg); transition: background-color 0.2s ease, transform 0.2s ease; }
     .info-button-integrated { background: none; border: none; padding: 0.5rem; cursor: pointer; color: var(--text-medium-color); transition: color 0.2s ease, transform 0.2s ease; font-size: 0.8rem; line-height: 1; align-self: center; }
@@ -86,7 +86,7 @@
     #sliderIndicators button { background-color: var(--text-medium-color); opacity: 0.6; transition: background-color 0.3s ease, opacity 0.3s ease; }
     #sliderIndicators button.active-indicator { background-color: var(--accent-color); opacity: 1; }
 
-    /* --- Modal CSS (Revisado) --- (sin cambios) */
+    /* --- Modal CSS (Revisado) --- */
     .modal-overlay { display: none; position: fixed; inset: 0; background-color: rgba(var(--bg-color-rgb), 0.8); z-index: 100; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease, background-color 0.3s ease; padding: 1rem; }
     .modal-overlay.active { display: flex !important; opacity: 1 !important; }
     .modal { background-color: var(--modal-bg-color); color: var(--text-color); padding: 25px 35px; border-radius: 12px; max-width: 500px; width: 100%; position: relative; transform: scale(0.95); opacity: 0; transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease-out, opacity 0.3s ease-out; box-shadow: 0 5px 20px rgba(0,0,0,0.25); }
@@ -97,7 +97,7 @@
     .modal-close-button i.fa-times { font-size: 1.4rem; color: var(--text-medium-color); transition: color 0.2s ease; }
     .modal-close-button:hover i.fa-times { color: var(--modal-close-hover); }
 
-    /* --- Light Mode Specific Overrides --- (sin cambios) */
+    /* --- Light Mode Specific Overrides --- */
     body.light-mode .bg-card-bg { background-color: var(--card-color); border-color: var(--border-color); color: var(--text-color); }
     body.light-mode a.bg-card-bg:hover { background-color: var(--button-hover-bg); }
     body.light-mode .max-w-lg a.bg-card-bg span, body.light-mode .max-w-lg a.bg-card-bg i:not(.fa-info-circle) { color: var(--text-color); }
@@ -124,13 +124,29 @@
     body.light-mode footer a { color: var(--text-color); }
     body.light-mode footer a:hover { color: var(--link-hover-color); }
 
+    /* --- Estilos para Rating Stars --- */
+     #ratingStars i:hover,
+     #ratingStars i.hovered {
+       color: var(--accent-color); /* Color al pasar el ratón o seleccionado */
+       transform: scale(1.1); /* Efecto ligero al pasar el ratón */
+     }
+     #ratingStars i.selected {
+        color: var(--accent-color); /* Mantiene el color si está seleccionada */
+     }
+
+     /* Asegurar que las variables de color funcionen bien en ambos modos */
+     body.light-mode #ratingStars i:hover,
+     body.light-mode #ratingStars i.hovered,
+     body.light-mode #ratingStars i.selected {
+        color: var(--accent-color);
+     }
+     body.light-mode #ratingMessage {
+         color: var(--accent-color);
+     }
+
     /* Scrollbar width - can help on desktop */
     ::-webkit-scrollbar { width: 8px; }
 
-    /* Improve tap target size for buttons on mobile (optional but good practice) */
-    /* You could apply a class like 'mobile-tap-target' or apply directly */
-    /* Example: #theme-toggle, .fixed-info-button { min-width: 44px; min-height: 44px; } */
-    /* The current fixed w-8 h-8 (32px) is small, consider increasing or ensuring enough padding */
   </style>
 </head>
 <body class="relative min-h-screen flex flex-col">
@@ -232,8 +248,17 @@
     <div id="sliderIndicators" class="flex justify-center space-x-2 mt-4"></div>
   </section>
 
-  <footer class="mt-12 py-4 pb-6 sm:py-4 text-center relative z-10">
-    <a href="https://t.me/OnefraGT" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 text-base sm:text-lg">
+  <section class="py-8 relative z-10 border-t border-[var(--border-color)] mt-8">
+    <h3 class="text-xl font-semibold text-center mb-4">¿Te resulta útil esta página? ¡Valórala!</h3>
+    <div class="flex justify-center items-center space-x-1 text-2xl sm:text-3xl text-[var(--text-medium-color)]" id="ratingStars">
+      <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="1" aria-label="Valorar con 1 estrella"></i>
+      <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="2" aria-label="Valorar con 2 estrellas"></i>
+      <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="3" aria-label="Valorar con 3 estrellas"></i>
+      <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="4" aria-label="Valorar con 4 estrellas"></i>
+      <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="5" aria-label="Valorar con 5 estrellas"></i>
+    </div>
+    <p id="ratingMessage" class="text-center text-[var(--accent-color)] mt-3 h-5"></p> </section>
+  <footer class="mt-0 py-4 pb-6 sm:py-4 text-center relative z-10"> <a href="https://t.me/OnefraGT" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 text-base sm:text-lg">
         <i class="fab fa-telegram-plane text-xl sm:text-2xl"></i> Contacta con @OnefraGT
     </a>
   </footer>
@@ -248,7 +273,7 @@
   </div>
 
   <script>
-    // --- Modal Logic --- (sin cambios)
+    // --- Modal Logic ---
     const modalOverlay = document.getElementById("modalOverlay");
     const modalTitle = document.getElementById("modalTitle");
     const modalText = document.getElementById("modalText");
@@ -264,7 +289,7 @@
     }
     function closeModalOnClickOutside(event) { if (event.target === modalOverlay) { closeModal(); } }
 
-    // --- Slider Logic --- (sin cambios funcionales)
+    // --- Slider Logic ---
     const sliderWrapper = document.getElementById('sliderWrapper');
     const indicatorsContainer = document.getElementById('sliderIndicators');
     let currentSlide = 0;
@@ -309,7 +334,7 @@
     function prevSlide() { if (totalSlides <= 0) return; currentSlide = (currentSlide - 1 + totalSlides) % totalSlides; updateSlider(); }
     function goToSlide(slideIndex) { if (totalSlides <= 0 || slideIndex < 0 || slideIndex >= totalSlides) return; currentSlide = slideIndex; updateSlider(); }
 
-    // --- Theme Toggle Logic --- (sin cambios funcionales)
+    // --- Theme Toggle Logic ---
     const themeToggleButton = document.getElementById('theme-toggle');
     const themeToggleIcon = themeToggleButton ? themeToggleButton.querySelector('i') : null;
     const setTheme = (theme) => {
@@ -334,7 +359,134 @@
       });
     }
 
-    // Initialize Slider after DOM is ready and theme is set
+    // --- Rating Stars Logic ---
+    const ratingContainer = document.getElementById('ratingStars');
+    const ratingStars = ratingContainer ? ratingContainer.querySelectorAll('i') : [];
+    const ratingMessage = document.getElementById('ratingMessage');
+    // const RATING_STORAGE_KEY = 'guardiaToolsRating'; // Opcional si sólo envías y no guardas local
+
+    let currentRating = 0; // Para guardar la valoración actual persistente o la última clicada
+
+    // Función para actualizar visualmente las estrellas
+    function updateStarsVisual(ratingValue) {
+      ratingStars.forEach(star => {
+        const starValue = parseInt(star.dataset.value, 10);
+        if (starValue <= ratingValue) {
+          star.classList.remove('far'); star.classList.add('fas'); star.classList.add('selected');
+        } else {
+          star.classList.remove('fas'); star.classList.add('far'); star.classList.remove('selected'); star.classList.remove('hovered');
+        }
+      });
+    }
+
+    // Función para manejar el hover sobre las estrellas
+    function handleStarHover(event) {
+        // Sólo procesa si el evento viene de un icono de estrella real
+        if (!event.target.matches('#ratingStars i')) return;
+        const hoverValue = parseInt(event.target.dataset.value, 10);
+        ratingStars.forEach(star => {
+            const starValue = parseInt(star.dataset.value, 10);
+            if (starValue <= hoverValue) {
+                star.classList.add('hovered'); star.classList.remove('far'); star.classList.add('fas');
+            } else {
+                star.classList.remove('hovered');
+                if (!star.classList.contains('selected')) { // Solo vacía si no está seleccionada
+                    star.classList.remove('fas'); star.classList.add('far');
+                }
+            }
+        });
+    }
+
+    // Función para resetear el hover al salir del contenedor
+    function resetStarHover() {
+        updateStarsVisual(currentRating); // Vuelve al estado de la valoración guardada/clicada
+        ratingStars.forEach(star => star.classList.remove('hovered'));
+    }
+
+    // Función para manejar el clic en una estrella Y ENVIAR A FORMSPREE
+    function handleStarClick(event) {
+      // Sólo procesa si el evento viene de un icono de estrella real
+      if (!event.target.matches('#ratingStars i')) return;
+
+      const clickedValue = parseInt(event.target.dataset.value, 10);
+      currentRating = clickedValue; // Guarda la valoración actual en variable
+      // localStorage.setItem(RATING_STORAGE_KEY, currentRating); // << Descomenta si quieres guardar también localmente
+      updateStarsVisual(currentRating); // Actualiza la vista permanentemente
+
+      // Limpia mensaje anterior y prepara para nuevo mensaje
+      if (ratingMessage) ratingMessage.textContent = 'Enviando...';
+
+      // --- ENVÍO A FORMSPREE ---
+      // URL REAL proporcionada por el usuario
+      const formSpreeEndpoint = 'https://formspree.io/f/myzeraaw';
+
+      const formData = {
+          rating: clickedValue,
+          page: window.location.pathname,
+          submittedAt: new Date().toISOString()
+      };
+
+      fetch(formSpreeEndpoint, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+          },
+          body: JSON.stringify(formData)
+      })
+      .then(response => {
+          if (response.ok) {
+              console.log('Valoración enviada a Formspree con éxito!');
+              if (ratingMessage) ratingMessage.textContent = '¡Gracias por tu valoración!';
+          } else {
+              response.json().then(data => {
+                  console.error('Error al enviar a Formspree:', data.errors || response.statusText);
+                   if (ratingMessage) ratingMessage.textContent = 'Error al enviar. Inténtalo más tarde.';
+              }).catch(() => { // Por si la respuesta de error no es JSON
+                  if (ratingMessage) ratingMessage.textContent = 'Error al enviar. Inténtalo más tarde.';
+              });
+          }
+      })
+      .catch(error => {
+          console.error('Error de red al enviar a Formspree:', error);
+          if (ratingMessage) ratingMessage.textContent = 'Error de red. Inténtalo más tarde.';
+      })
+      .finally(() => {
+          // Ocultar mensaje después de unos segundos, tanto si fue éxito como error
+          setTimeout(() => {
+               // Solo limpia si aún muestra un mensaje de estado (para no borrar un mensaje de gracias posterior si el usuario vuelve a clicar rápido)
+               if (ratingMessage && (ratingMessage.textContent.includes('Enviando') || ratingMessage.textContent.includes('Error'))) {
+                    ratingMessage.textContent = '';
+               } else if (ratingMessage && ratingMessage.textContent === '¡Gracias por tu valoración!') {
+                   // Si ya mostró gracias, también lo borra tras el timeout
+                   ratingMessage.textContent = '';
+               }
+          }, 4000);
+      });
+      // --- FIN ENVÍO A FORMSPREE ---
+    }
+
+    // Inicialización al cargar la página
+    if (ratingContainer && ratingStars.length > 0) {
+      // Opcional: Cargar valoración guardada de localStorage si decidiste mantenerla
+      // const savedRating = parseInt(localStorage.getItem(RATING_STORAGE_KEY), 10);
+      // if (savedRating > 0 && savedRating <= 5) {
+      //   currentRating = savedRating;
+      //   updateStarsVisual(currentRating);
+      // }
+
+      // Añadir Event Listeners
+      ratingStars.forEach(star => {
+        star.addEventListener('mouseover', handleStarHover);
+        star.addEventListener('click', handleStarClick);
+      });
+
+      // Resetear hover al salir del contenedor de estrellas
+      ratingContainer.addEventListener('mouseleave', resetStarHover);
+    }
+
+
+    // Initialize Slider (después de cargar el DOM y el tema)
     if (sliderWrapper && totalSlides > 0) {
         createIndicators();
     }
