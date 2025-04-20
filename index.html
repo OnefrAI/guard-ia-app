@@ -30,10 +30,6 @@
         integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="icons/icon-192x192.png" type="image/png">
-  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-
   <style>
     /* --- Theme Variables --- */
     :root {
@@ -46,7 +42,7 @@
       --scroll-thumb-color: var(--accent-color); --scroll-track-color: var(--bg-color);
       --glow-color: rgba(57, 255, 20, 0.5); --modal-close-hover: var(--accent-color);
       --link-hover-color: var(--accent-color); --info-fixed-bg: var(--accent-color);
-      --info-fixed-text: var(--bg-color);
+      --info-fixed-text: var(--bg-color); /* Texto del botón de envío/info */
     }
     body.light-mode {
       --bg-color: #f8f9fa; --bg-color-rgb: 248, 249, 250;
@@ -57,7 +53,7 @@
       --scroll-thumb-color: var(--accent-color); --scroll-track-color: #dee2e6;
       --glow-color: rgba(0, 123, 255, 0.4); --modal-close-hover: var(--accent-color);
       --link-hover-color: var(--accent-color); --info-fixed-bg: var(--accent-color);
-      --info-fixed-text: #ffffff;
+      --info-fixed-text: #ffffff; /* Texto del botón de envío/info en modo claro */
     }
 
     /* --- Base Styles & Transitions --- */
@@ -78,6 +74,7 @@
     #theme-toggle { background-color: var(--card-color); border: 1px solid var(--border-color); color: var(--text-medium-color); box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
     #theme-toggle:hover { color: var(--accent-color); }
     .fixed-info-button { background-color: var(--info-fixed-bg); color: var(--info-fixed-text); transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease; }
+    ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: var(--scroll-track-color); transition: background-color 0.3s ease; }
     ::-webkit-scrollbar-thumb { background: var(--scroll-thumb-color); border-radius: 4px; transition: background-color 0.3s ease; }
     ::-webkit-scrollbar-thumb:hover { filter: brightness(1.2); }
@@ -123,6 +120,10 @@
     body.light-mode footer { background-color: rgba(var(--bg-color-rgb), 0.8); border-color: var(--border-color); }
     body.light-mode footer a { color: var(--text-color); }
     body.light-mode footer a:hover { color: var(--link-hover-color); }
+    body.light-mode #feedbackText { background-color: var(--card-color); color: var(--text-color); border-color: var(--border-color); } /* Estilo textarea modo claro */
+    body.light-mode #feedbackText::placeholder { color: var(--text-medium-color); }
+    body.light-mode #feedbackText:focus { border-color: var(--accent-color); --tw-ring-color: var(--accent-color); } /* Ajuste ring color */
+    body.light-mode #submitFeedbackBtn { background-color: var(--accent-color); color: var(--info-fixed-text);}
 
     /* --- Estilos para Rating Stars --- */
      #ratingStars i:hover,
@@ -143,9 +144,6 @@
      body.light-mode #ratingMessage {
          color: var(--accent-color);
      }
-
-    /* Scrollbar width - can help on desktop */
-    ::-webkit-scrollbar { width: 8px; }
 
   </style>
 </head>
@@ -250,14 +248,34 @@
 
   <section class="py-8 relative z-10 border-t border-[var(--border-color)] mt-8">
     <h3 class="text-xl font-semibold text-center mb-4">¿Te resulta útil esta página? ¡Valórala!</h3>
-    <div class="flex justify-center items-center space-x-1 text-2xl sm:text-3xl text-[var(--text-medium-color)]" id="ratingStars">
+    <div class="flex justify-center items-center space-x-1 text-2xl sm:text-3xl text-[var(--text-medium-color)] mb-4" id="ratingStars">
       <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="1" aria-label="Valorar con 1 estrella"></i>
       <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="2" aria-label="Valorar con 2 estrellas"></i>
       <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="3" aria-label="Valorar con 3 estrellas"></i>
       <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="4" aria-label="Valorar con 4 estrellas"></i>
       <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="5" aria-label="Valorar con 5 estrellas"></i>
     </div>
-    <p id="ratingMessage" class="text-center text-[var(--accent-color)] mt-3 h-5"></p> </section>
+    <div class="max-w-md mx-auto px-4">
+        <textarea
+            id="feedbackText"
+            rows="2"
+            class="w-full p-2 rounded border bg-[var(--card-color)] text-[var(--text-color)] border-[var(--border-color)] focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)] resize-y text-sm placeholder:text-[var(--text-medium-color)]"
+            placeholder="Comentario opcional..."
+            aria-label="Comentario opcional sobre la valoración"
+        ></textarea>
+    </div>
+    <div class="text-center mt-4">
+        <button
+            id="submitFeedbackBtn"
+            type="button"
+            disabled
+            class="px-6 py-2 rounded bg-[var(--accent-color)] text-[var(--info-fixed-text)] font-semibold transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+            Enviar Valoración
+        </button>
+    </div>
+    <p id="ratingMessage" class="text-center text-[var(--accent-color)] mt-3 h-5"></p>
+  </section>
   <footer class="mt-0 py-4 pb-6 sm:py-4 text-center relative z-10"> <a href="https://t.me/OnefraGT" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 text-base sm:text-lg">
         <i class="fab fa-telegram-plane text-xl sm:text-2xl"></i> Contacta con @OnefraGT
     </a>
@@ -272,7 +290,7 @@
     </div>
   </div>
 
-  <script>
+<script>
     // --- Modal Logic ---
     const modalOverlay = document.getElementById("modalOverlay");
     const modalTitle = document.getElementById("modalTitle");
@@ -359,15 +377,16 @@
       });
     }
 
-    // --- Rating Stars Logic ---
+    // --- Rating Stars Logic (con Botón Enviar) ---
     const ratingContainer = document.getElementById('ratingStars');
     const ratingStars = ratingContainer ? ratingContainer.querySelectorAll('i') : [];
     const ratingMessage = document.getElementById('ratingMessage');
-    // const RATING_STORAGE_KEY = 'guardiaToolsRating'; // Opcional si sólo envías y no guardas local
+    const feedbackInput = document.getElementById('feedbackText');
+    const submitFeedbackBtn = document.getElementById('submitFeedbackBtn'); // <-- Obtener el botón
 
-    let currentRating = 0; // Para guardar la valoración actual persistente o la última clicada
+    let currentRating = 0; // Guarda la valoración seleccionada (0 = ninguna)
 
-    // Función para actualizar visualmente las estrellas
+    // Función para actualizar visualmente las estrellas (sin cambios)
     function updateStarsVisual(ratingValue) {
       ratingStars.forEach(star => {
         const starValue = parseInt(star.dataset.value, 10);
@@ -379,10 +398,10 @@
       });
     }
 
-    // Función para manejar el hover sobre las estrellas
+    // Función para manejar el hover sobre las estrellas (sin cambios funcionales)
     function handleStarHover(event) {
-        // Sólo procesa si el evento viene de un icono de estrella real
-        if (!event.target.matches('#ratingStars i')) return;
+       // Sólo procesa si el evento viene de un icono de estrella real
+       if (!event.target.matches('#ratingStars i')) return;
         const hoverValue = parseInt(event.target.dataset.value, 10);
         ratingStars.forEach(star => {
             const starValue = parseInt(star.dataset.value, 10);
@@ -397,92 +416,123 @@
         });
     }
 
-    // Función para resetear el hover al salir del contenedor
+    // Función para resetear el hover al salir del contenedor (sin cambios)
     function resetStarHover() {
-        updateStarsVisual(currentRating); // Vuelve al estado de la valoración guardada/clicada
+        updateStarsVisual(currentRating);
         ratingStars.forEach(star => star.classList.remove('hovered'));
     }
 
-    // Función para manejar el clic en una estrella Y ENVIAR A FORMSPREE
+    // --- Función handleStarClick (MODIFICADA: SOLO SELECCIONA) ---
     function handleStarClick(event) {
       // Sólo procesa si el evento viene de un icono de estrella real
       if (!event.target.matches('#ratingStars i')) return;
 
       const clickedValue = parseInt(event.target.dataset.value, 10);
-      currentRating = clickedValue; // Guarda la valoración actual en variable
-      // localStorage.setItem(RATING_STORAGE_KEY, currentRating); // << Descomenta si quieres guardar también localmente
-      updateStarsVisual(currentRating); // Actualiza la vista permanentemente
+      currentRating = clickedValue; // Actualiza la valoración seleccionada
+      updateStarsVisual(currentRating); // Actualiza la vista
 
-      // Limpia mensaje anterior y prepara para nuevo mensaje
-      if (ratingMessage) ratingMessage.textContent = 'Enviando...';
-
-      // --- ENVÍO A FORMSPREE ---
-      // URL REAL proporcionada por el usuario
-      const formSpreeEndpoint = 'https://formspree.io/f/myzeraaw';
-
-      const formData = {
-          rating: clickedValue,
-          page: window.location.pathname,
-          submittedAt: new Date().toISOString()
-      };
-
-      fetch(formSpreeEndpoint, {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-          },
-          body: JSON.stringify(formData)
-      })
-      .then(response => {
-          if (response.ok) {
-              console.log('Valoración enviada a Formspree con éxito!');
-              if (ratingMessage) ratingMessage.textContent = '¡Gracias por tu valoración!';
-          } else {
-              response.json().then(data => {
-                  console.error('Error al enviar a Formspree:', data.errors || response.statusText);
-                   if (ratingMessage) ratingMessage.textContent = 'Error al enviar. Inténtalo más tarde.';
-              }).catch(() => { // Por si la respuesta de error no es JSON
-                  if (ratingMessage) ratingMessage.textContent = 'Error al enviar. Inténtalo más tarde.';
-              });
-          }
-      })
-      .catch(error => {
-          console.error('Error de red al enviar a Formspree:', error);
-          if (ratingMessage) ratingMessage.textContent = 'Error de red. Inténtalo más tarde.';
-      })
-      .finally(() => {
-          // Ocultar mensaje después de unos segundos, tanto si fue éxito como error
-          setTimeout(() => {
-               // Solo limpia si aún muestra un mensaje de estado (para no borrar un mensaje de gracias posterior si el usuario vuelve a clicar rápido)
-               if (ratingMessage && (ratingMessage.textContent.includes('Enviando') || ratingMessage.textContent.includes('Error'))) {
-                    ratingMessage.textContent = '';
-               } else if (ratingMessage && ratingMessage.textContent === '¡Gracias por tu valoración!') {
-                   // Si ya mostró gracias, también lo borra tras el timeout
-                   ratingMessage.textContent = '';
-               }
-          }, 4000);
-      });
-      // --- FIN ENVÍO A FORMSPREE ---
+      // Habilita el botón de enviar si no lo estaba ya
+      if (submitFeedbackBtn && submitFeedbackBtn.disabled) {
+          submitFeedbackBtn.disabled = false;
+      }
+      // NO envía nada, solo selecciona
     }
 
-    // Inicialización al cargar la página
+    // --- NUEVA FUNCIÓN: sendFeedback (LLAMADA POR EL BOTÓN) ---
+    function sendFeedback() {
+        // 1. Validar que se ha seleccionado una valoración
+        if (currentRating === 0) {
+            if (ratingMessage) ratingMessage.textContent = 'Por favor, selecciona una puntuación.';
+            // Ocultar mensaje de validación después de unos segundos
+            setTimeout(() => {
+                if (ratingMessage && ratingMessage.textContent === 'Por favor, selecciona una puntuación.') {
+                     ratingMessage.textContent = '';
+                }
+            }, 3000);
+            return; // No hacer nada si no hay estrellas seleccionadas
+        }
+
+        // 2. Obtener comentario (si lo hay)
+        const userFeedback = feedbackInput ? feedbackInput.value.trim() : '';
+
+        // 3. Deshabilitar botón y mostrar mensaje de envío
+        if (submitFeedbackBtn) submitFeedbackBtn.disabled = true;
+        if (ratingMessage) ratingMessage.textContent = 'Enviando...';
+
+        // 4. Preparar datos
+        const formSpreeEndpoint = 'https://formspree.io/f/myzeraaw'; // Tu URL real
+        const formData = {
+            rating: currentRating,
+            comment: userFeedback,
+            page: window.location.pathname,
+            submittedAt: new Date().toISOString()
+        };
+
+        // 5. Enviar a Formspree (usando fetch)
+        fetch(formSpreeEndpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Valoración y comentario enviados a Formspree con éxito!');
+                if (ratingMessage) ratingMessage.textContent = '¡Gracias por tu valoración!';
+                // Limpiar campos y resetear estado tras éxito
+                if (feedbackInput) feedbackInput.value = '';
+                currentRating = 0; // Resetea la valoración seleccionada
+                updateStarsVisual(0); // Resetea la vista de las estrellas
+                // El botón se queda deshabilitado (porque currentRating es 0)
+            } else {
+                // Hubo un error en la respuesta de Formspree
+                response.json().then(data => {
+                    console.error('Error al enviar a Formspree:', data.errors || response.statusText);
+                    if (ratingMessage) ratingMessage.textContent = 'Error al enviar. Inténtalo más tarde.';
+                }).catch(() => {
+                    if (ratingMessage) ratingMessage.textContent = 'Error al enviar. Inténtalo más tarde.';
+                });
+                // RE-HABILITAR botón si hubo error para que pueda reintentar
+                if (submitFeedbackBtn) submitFeedbackBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            // Hubo un error de red
+            console.error('Error de red al enviar a Formspree:', error);
+            if (ratingMessage) ratingMessage.textContent = 'Error de red. Inténtalo más tarde.';
+            // RE-HABILITAR botón si hubo error para que pueda reintentar
+            if (submitFeedbackBtn) submitFeedbackBtn.disabled = false;
+        })
+        .finally(() => {
+            // Ocultar mensaje de estado/error/gracias después de unos segundos
+            setTimeout(() => {
+                 if (ratingMessage) {
+                      ratingMessage.textContent = '';
+                 }
+            }, 4000); // Tiempo para mostrar mensajes
+        });
+    }
+
+    // --- Inicialización (MODIFICADA) ---
     if (ratingContainer && ratingStars.length > 0) {
-      // Opcional: Cargar valoración guardada de localStorage si decidiste mantenerla
-      // const savedRating = parseInt(localStorage.getItem(RATING_STORAGE_KEY), 10);
-      // if (savedRating > 0 && savedRating <= 5) {
-      //   currentRating = savedRating;
-      //   updateStarsVisual(currentRating);
-      // }
+        // 1. Poner botón deshabilitado al inicio (ya está en el HTML, pero por si acaso)
+        if (submitFeedbackBtn) submitFeedbackBtn.disabled = true;
 
-      // Añadir Event Listeners
-      ratingStars.forEach(star => {
-        star.addEventListener('mouseover', handleStarHover);
-        star.addEventListener('click', handleStarClick);
-      });
+        // 2. Añadir listeners a las estrellas
+        ratingStars.forEach(star => {
+            star.addEventListener('mouseover', handleStarHover);
+            star.addEventListener('click', handleStarClick); // Llama a la función que SOLO selecciona
+        });
 
-      // Resetear hover al salir del contenedor de estrellas
-      ratingContainer.addEventListener('mouseleave', resetStarHover);
+        // 3. Resetear hover al salir del contenedor de estrellas
+        ratingContainer.addEventListener('mouseleave', resetStarHover);
+
+        // 4. Añadir listener al NUEVO BOTÓN DE ENVÍO
+        if (submitFeedbackBtn) {
+            submitFeedbackBtn.addEventListener('click', sendFeedback); // Llama a la función que SÍ envía
+        }
     }
 
 
