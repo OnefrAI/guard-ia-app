@@ -20,6 +20,16 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   async function saveNote() {
+    // Obtener la fecha y hora actual y formatearla a DD/MM/AAAA HH:mm
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Meses son de 0 a 11
+    const year = now.getFullYear();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const formattedTimestamp = `${day}/${month}/${year} ${hours}:${minutes}`;
+
+
     const noteData = {
       interventionLocation: document.getElementById('interventionLocation').value,
       documentNumber: document.getElementById('documentNumber').value,
@@ -30,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
       phone: document.getElementById('phone').value,
       facts: factsTextarea.value,
       photoUrl: capturedPhotoDataUrl || '', // Se almacena la foto, pero no se comparte
-      timestamp: new Date().toLocaleString() // Añade la fecha y hora actual
+      timestamp: formattedTimestamp // Guarda la fecha y hora formateada
     };
 
     const notes = JSON.parse(localStorage.getItem('notes')) || [];
@@ -45,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     alert("Nota guardada exitosamente.");
   }
 
-  // Función para compartir la nota: se comparte la info y la foto si existe
+  // Función para compartir la nota usando Web Share API (intenta compartir texto y foto)
   async function shareNote(noteData) {
     let shareText = `Nota Policial:
 Fecha y Hora: ${noteData.timestamp || 'N/A'}
@@ -61,6 +71,8 @@ Hechos: ${noteData.facts || 'N/A'}`;
     const shareOptions = {
       title: 'Nota Policial',
       text: shareText,
+      // Según la especificación de la Web Share API, se puede incluir texto y archivos.
+      // Si la plataforma de destino solo soporta uno, podría omitir el otro.
     };
 
     // Si hay foto, añadirla a las opciones de compartir
@@ -85,7 +97,7 @@ Hechos: ${noteData.facts || 'N/A'}`;
         console.log('Nota compartida exitosamente.');
       } else {
         // Fallback para navegadores que no soportan Web Share API
-        alert('La función de compartir no es compatible con este navegador. Puedes copiar el texto de la nota manualmente.');
+        alert('La función de compartir nativa no es compatible con este navegador. Usa las opciones de "Copiar Texto" o "Descargar Foto".');
         console.log('Web Share API no soportada.');
       }
     } catch (err) {
@@ -99,7 +111,43 @@ Hechos: ${noteData.facts || 'N/A'}`;
     }
   }
 
-  // Mostrar las notas guardadas
+  // Función para copiar el texto de la nota al portapapeles
+  async function copyNoteText(noteData) {
+      let noteText = `Nota Policial:
+Fecha y Hora: ${noteData.timestamp || 'N/A'}
+Documento: ${noteData.documentNumber || 'N/A'}
+Nombre: ${noteData.fullName || 'N/A'}
+Fecha de Nacimiento: ${noteData.birthdate || 'N/A'}
+Padres: ${noteData.parentsName || 'N/A'}
+Dirección: ${noteData.address || 'N/A'}
+Teléfono: ${noteData.phone || 'N/A'}
+Lugar de Intervención: ${noteData.interventionLocation || 'N/A'}
+Hechos: ${noteData.facts || 'N/A'}`;
+      try {
+          await navigator.clipboard.writeText(noteText);
+          alert('Texto de la nota copiado al portapapeles.');
+      } catch (err) {
+          console.error('Error al copiar el texto:', err);
+          alert('No se pudo copiar el texto al portapapeles.');
+      }
+  }
+
+  // Función para descargar la foto de la nota
+  function downloadNotePhoto(photoUrl) {
+      if (photoUrl) {
+          const a = document.createElement('a');
+          a.href = photoUrl;
+          a.download = 'foto_nota.png';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+      } else {
+          alert('Esta nota no tiene foto.');
+      }
+  }
+
+
+  // Mostrar las notas guardadas (ahora con botones adicionales y contenedor flex)
   function displayNotes() {
     const notes = JSON.parse(localStorage.getItem('notes')) || [];
     if (notes.length === 0) {
@@ -118,8 +166,11 @@ Hechos: ${noteData.facts || 'N/A'}`;
           <p><strong>Teléfono:</strong> ${note.phone || 'N/A'}</p>
           <p><strong>Hechos:</strong> ${note.facts || 'N/A'}</p>
           ${note.photoUrl ? `<img src="${note.photoUrl}" alt="Foto del documento" class="note-photo">` : ''}
-          <button class="btn delete-note-btn" onclick="deleteNote(${index})">Eliminar</button>
-          <button class="btn" onclick="shareNoteFromIndex(${index})">Compartir</button>
+          <div class="note-actions">  <button class="btn btn-delete" onclick="deleteNote(${index})">Eliminar</button>
+             <button class="btn btn-share" onclick="shareNoteFromIndex(${index})">Compartir</button>
+             <button class="btn btn-copy" onclick="copyNoteTextFromIndex(${index})">Copiar Texto</button>
+             ${note.photoUrl ? `<button class="btn btn-download" onclick="downloadNotePhotoFromIndex(${index})">Descargar Foto</button>` : ''}
+          </div>
       </div>
     `).join('');
   }
@@ -139,6 +190,24 @@ Hechos: ${noteData.facts || 'N/A'}`;
       shareNote(notes[index]);
     }
   };
+
+  // Funciones auxiliares para llamar a las nuevas funciones desde el HTML
+  window.copyNoteTextFromIndex = function(index) {
+      const notes = JSON.parse(localStorage.getItem('notes')) || [];
+      if (index >= 0 && index < notes.length) {
+          copyNoteText(notes[index]);
+      }
+  };
+
+  window.downloadNotePhotoFromIndex = function(index) {
+      const notes = JSON.parse(localStorage.getItem('notes')) || [];
+      if (index >= 0 && index < notes.length && notes[index].photoUrl) {
+          downloadNotePhoto(notes[index].photoUrl);
+      } else {
+          alert('Esta nota no tiene foto para descargar.');
+      }
+  };
+
 
   // Generar informe en formato de texto
   generateReportButton.addEventListener('click', generateReport);
