@@ -29,7 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
       address: document.getElementById('address').value,
       phone: document.getElementById('phone').value,
       facts: factsTextarea.value,
-      photoUrl: capturedPhotoDataUrl || '' // Se almacena la foto, pero no se comparte
+      photoUrl: capturedPhotoDataUrl || '', // Se almacena la foto, pero no se comparte
+      timestamp: new Date().toLocaleString() // Añade la fecha y hora actual
     };
 
     const notes = JSON.parse(localStorage.getItem('notes')) || [];
@@ -44,9 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
     alert("Nota guardada exitosamente.");
   }
 
-  // Función para compartir la nota: solo se comparte el texto creado manualmente
+  // Función para compartir la nota: se comparte la info y la foto si existe
   async function shareNote(noteData) {
     let shareText = `Nota Policial:
+Fecha y Hora: ${noteData.timestamp || 'N/A'}
 Documento: ${noteData.documentNumber || 'N/A'}
 Nombre: ${noteData.fullName || 'N/A'}
 Fecha de Nacimiento: ${noteData.birthdate || 'N/A'}
@@ -56,15 +58,44 @@ Teléfono: ${noteData.phone || 'N/A'}
 Lugar de Intervención: ${noteData.interventionLocation || 'N/A'}
 Hechos: ${noteData.facts || 'N/A'}`;
 
+    const shareOptions = {
+      title: 'Nota Policial',
+      text: shareText,
+    };
+
+    // Si hay foto, añadirla a las opciones de compartir
+    if (noteData.photoUrl) {
+      try {
+        // Convertir Data URL a Blob
+        const response = await fetch(noteData.photoUrl);
+        const blob = await response.blob();
+        // Crear un objeto File a partir del Blob para compartir
+        const photoFile = new File([blob], 'foto_nota.png', { type: 'image/png' });
+        shareOptions.files = [photoFile];
+      } catch (error) {
+        console.error('Error al convertir la foto para compartir:', error);
+        // Si falla la conversión de la foto, se intentará compartir solo el texto
+        // No es necesario lanzar un error aquí, ya que queremos que el texto se comparta de todos modos.
+      }
+    }
+
     try {
-      await navigator.share({
-        title: 'Nota Policial',
-        text: shareText
-      });
-      console.log('Nota compartida exitosamente (solo texto).');
+      if (navigator.share) {
+        await navigator.share(shareOptions);
+        console.log('Nota compartida exitosamente.');
+      } else {
+        // Fallback para navegadores que no soportan Web Share API
+        alert('La función de compartir no es compatible con este navegador. Puedes copiar el texto de la nota manualmente.');
+        console.log('Web Share API no soportada.');
+      }
     } catch (err) {
       console.error('Error al compartir la nota:', err);
-      alert("No se pudo compartir la nota. Inténtalo de nuevo.");
+      // Manejar errores específicos, por ejemplo, si el usuario cancela la acción de compartir
+      if (err.name === 'AbortError') {
+         console.log('Compartir cancelado por el usuario.');
+      } else {
+         alert("No se pudo compartir la nota. Inténtalo de nuevo.");
+      }
     }
   }
 
@@ -77,6 +108,7 @@ Hechos: ${noteData.facts || 'N/A'}`;
     }
     notesContainer.innerHTML = notes.map((note, index) => `
       <div class="note">
+          <p><strong>Fecha y Hora:</strong> ${note.timestamp || 'N/A'}</p>
           <p><strong>Lugar de Intervención:</strong> ${note.interventionLocation || 'N/A'}</p>
           <p><strong>Documento:</strong> ${note.documentNumber || 'N/A'}</p>
           <p><strong>Nombre:</strong> ${note.fullName || 'N/A'}</p>
@@ -113,20 +145,21 @@ Hechos: ${noteData.facts || 'N/A'}`;
 
   function generateReport() {
     const notes = JSON.parse(localStorage.getItem('notes')) || [];
-    let reportText = 'Informe de Intervenciones\n\n';
+    let reportText = 'Informe de Intervenciones\\n\\n';
 
     notes.forEach((note, index) => {
-      reportText += `Intervención ${index + 1}\n`;
-      reportText += '---------------------------------\n';
-      reportText += `Lugar de Intervención: ${note.interventionLocation || 'N/A'}\n`;
-      reportText += `Documento: ${note.documentNumber || 'N/A'}\n`;
-      reportText += `Nombre: ${note.fullName || 'N/A'}\n`;
-      reportText += `Fecha de Nacimiento: ${note.birthdate || 'N/A'}\n`;
-      reportText += `Padres: ${note.parentsName || 'N/A'}\n`;
-      reportText += `Dirección: ${note.address || 'N/A'}\n`;
-      reportText += `Teléfono: ${note.phone || 'N/A'}\n`;
-      reportText += `Hechos: ${note.facts || 'N/A'}\n`;
-      reportText += '---------------------------------\n\n';
+      reportText += `Intervención ${index + 1}\\n`;
+      reportText += '---------------------------------\\n';
+      reportText += `Fecha y Hora: ${note.timestamp || 'N/A'}\\n`; // Añadir al reporte
+      reportText += `Lugar de Intervención: ${note.interventionLocation || 'N/A'}\\n`;
+      reportText += `Documento: ${note.documentNumber || 'N/A'}\\n`;
+      reportText += `Nombre: ${note.fullName || 'N/A'}\\n`;
+      reportText += `Fecha de Nacimiento: ${note.birthdate || 'N/A'}\\n`;
+      reportText += `Padres: ${note.parentsName || 'N/A'}\\n`;
+      reportText += `Dirección: ${note.address || 'N/A'}\\n`;
+      reportText += `Teléfono: ${note.phone || 'N/A'}\\n`;
+      reportText += `Hechos: ${note.facts || 'N/A'}\\n`;
+      reportText += '---------------------------------\\n\\n';
     });
 
     const blob = new Blob([reportText], { type: 'text/plain' });
