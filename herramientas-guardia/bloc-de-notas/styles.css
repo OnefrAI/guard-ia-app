@@ -8,6 +8,16 @@
   --color-text: #e0e0e0;
   --color-border: rgba(255, 255, 255, 0.1);
   --neon-green: #39FF14;
+
+  /* Nuevos colores para botones de nota */
+  --color-btn-delete: #ef4444; /* Rojo */
+  --color-btn-delete-hover: #dc2626;
+  --color-btn-share: #3b82f6; /* Azul (como el anterior photo-btn) */
+  --color-btn-share-hover: #2563eb;
+  --color-btn-copy: #10b981; /* Verde éxito (como el anterior save-btn) */
+  --color-btn-copy-hover: #059669;
+  --color-btn-download: #facc15; /* Amarillo (como el anterior report-btn) */
+  --color-btn-download-hover: #fbbf24;
 }
 
 * {
@@ -130,12 +140,7 @@ textarea {
   margin-bottom: 1.5rem;
 }
 
-.action-buttons .btn {
-  flex: 1;
-  max-width: 32%;
-  border-radius: 0.5rem;
-}
-
+/* Estilos generales para todos los botones */
 .btn {
   display: flex;
   align-items: center;
@@ -147,12 +152,18 @@ textarea {
   cursor: pointer;
   transition: all 0.2s;
   border: none;
-  color: var(--color-text);
+  color: var(--color-text); /* Color de texto por defecto, se sobrescribe abajo */
 }
 
-/* Botones inferiores: distintos tonos de verde */
+/* Estilos específicos para los botones superiores */
+.action-buttons .btn {
+  flex: 1;
+  max-width: 32%;
+}
+
 .save-btn {
   background: #10b981;
+  color: black; /* Texto negro */
 }
 
 .save-btn:hover {
@@ -160,20 +171,23 @@ textarea {
 }
 
 .photo-btn {
-  background: #4ade80;
+  background: #3b82f6;
+  color: black; /* Texto negro */
 }
 
 .photo-btn:hover {
-  background: #22c55e;
+  background: #2563eb;
 }
 
 .report-btn {
-  background: #2dd4bf;
+  background: #facc15;
+  color: black; /* Texto negro */
 }
 
 .report-btn:hover {
-  background: #14b8a6;
+  background: #fbbf24;
 }
+
 
 .notes-section {
   margin-top: 2rem;
@@ -202,69 +216,120 @@ textarea {
   border-radius: 0.75rem;
   padding: 1rem;
   border: 1px solid var(--color-border);
-  color: #000;
+  color: #000; /* Texto oscuro para el contenido de la nota */
 }
 
-.note button {
-  margin-top: 10px;
-  display: block;
-  width: 100%;
-  text-align: center;
-  padding: 0.75rem 1.5rem;
+/* Contenedor para los botones de acción de cada nota */
+.note-actions {
+    display: flex; /* Usa flexbox para poner los botones en línea */
+    flex-wrap: wrap; /* Permite que los botones salten de línea si no caben */
+    gap: 0.5rem; /* Espacio entre botones */
+    margin-top: 10px;
+    justify-content: flex-end; /* Alinea los botones a la derecha */
+}
+
+/* Estilo para los botones dentro de las notas, sobrescribe display: block */
+.note .btn {
+  /* Elimina display: block y width: 100% */
+  display: inline-flex; /* O flex, si quieres usar sus propiedades de alineación */
+  width: auto; /* O un ancho fijo si prefieres */
+  padding: 0.5rem 1rem; /* Ajusta el padding para botones más pequeños */
+  font-size: 0.875rem; /* Ajusta el tamaño de fuente */
+  color: black !important; /* Fuerza el color del texto a negro */
+}
+
+/* Colores específicos para los botones de acción de cada nota */
+.note .btn-delete {
+    background-color: var(--color-btn-delete);
+}
+.note .btn-delete:hover {
+    background-color: var(--color-btn-delete-hover);
+}
+
+.note .btn-share {
+    background-color: var(--color-btn-share);
+}
+.note .btn-share:hover {
+    background-color: var(--color-btn-share-hover);
+}
+
+.note .btn-copy {
+    background-color: var(--color-btn-copy);
+}
+.note .btn-copy:hover {
+    background-color: var(--color-btn-copy-hover);
+}
+
+.note .btn-download {
+    background-color: var(--color-btn-download);
+}
+.note .btn-download:hover {
+    background-color: var(--color-btn-download-hover);
+}
+
+
+.note-photo {
+  max-width: 100%;
+  height: auto; /* Asegura que la altura se ajuste para mantener la proporción */
+  margin-top: 1rem;
   border-radius: 0.5rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
-  color: var(--color-text);
+  display: block; /* Asegura que la imagen ocupe su propia línea si es necesario */
 }
-
-.note button:not(.delete-note-btn) {
-  background: var(--color-primary);
-  color: var(--color-text);
-}
-
-.note button:not(.delete-note-btn):hover {
-  background: #2563eb;
-}
-
-.delete-note-btn {
-  background: var(--color-danger);
-  color: var(--color-text);
-}
-
-.delete-note-btn:hover {
-  background: #c82333;
-}
-
-/* (Se eliminó la caja de información para que no aparezca en la web) */
 
 @media (max-width: 480px) {
   body {
-    font-size: 1.2rem;
+    font-size: 1rem; /* Ajusta el tamaño de fuente base */
+    padding: 0.5rem;
   }
 
   h1 {
-    font-size: 2.5rem;
+    font-size: 1.8rem; /* Ajusta el tamaño del título principal */
+  }
+
+  .container {
+    padding: 1rem; /* Ajusta el padding del contenedor */
   }
 
   input,
   textarea,
   select {
-    font-size: 1.2rem;
-    padding: 1rem;
+    font-size: 1rem; /* Ajusta el tamaño de fuente de los inputs */
+    padding: 0.6rem 0.8rem;
   }
 
-  .btn {
-    font-size: 1.2rem;
-    padding: 1rem 2rem;
-  }
+   .action-buttons .btn {
+       padding: 0.6rem 1rem; /* Ajusta el padding de los botones superiores */
+       font-size: 0.9rem;
+   }
 
-  .container {
-    padding: 1.5rem;
-    width: 100%;
-  }
+   .note .btn {
+       padding: 0.4rem 0.8rem; /* Ajusta el padding de los botones de nota */
+       font-size: 0.75rem; /* Ajusta el tamaño de fuente de los botones de nota */
+   }
+
+   .header {
+       flex-direction: column; /* Apila el icono y el título en pantallas pequeñas */
+       gap: 0.5rem;
+   }
+    .icon-pin {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+    h1 {
+        text-align: center;
+    }
+    .action-buttons {
+        flex-direction: column; /* Apila los botones superiores */
+        gap: 0.5rem;
+    }
+    .action-buttons .btn {
+        max-width: 100%; /* Ocupa todo el ancho */
+    }
+     .note-actions {
+         justify-content: center; /* Centra los botones de nota en pantallas pequeñas */
+     }
 }
+
 
 .modal {
   display: none;
@@ -317,11 +382,7 @@ textarea {
   background: #c82333;
 }
 
-.note-photo {
-  max-width: 100%;
-  margin-top: 1rem;
-  border-radius: 0.5rem;
-}
+
 /* Botón HOME fijo */
 .home-button {
   position: fixed;
@@ -342,28 +403,4 @@ textarea {
 
 .home-button:hover {
   background: #374151;
-}
-
-/* Tamaño y estilo de botones compactos */
-.save-btn,
-.photo-btn,
-.report-btn {
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-}
-
-/* Nuevos colores */
-.photo-btn {
-  background: #3b82f6;
-}
-.photo-btn:hover {
-  background: #2563eb;
-}
-
-.report-btn {
-  background: #facc15;
-  color: #000;
-}
-.report-btn:hover {
-  background: #fbbf24;
 }
