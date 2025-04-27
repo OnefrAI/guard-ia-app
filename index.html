@@ -1,547 +1,548 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Herramientas GUARD-IA</title>
-  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
-  <script>
-    // Configuración base de Tailwind (sin cambios)
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-          },
-            colors: { // Referencia, pero usaremos CSS vars
-              'neon-green': '#39FF14', 'dark-bg': '#0a0a0a',
-              'card-bg': '#1a1a1a', 'light-text': '#e0e0e0',
-              'medium-text': '#a0a0a0',
-            },
-            boxShadow: { 'glow-neon': '0 0 15px var(--glow-color)', }
-        }
+ <!DOCTYPE html>
+ <html lang="es">
+ <head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Herramientas GUARD-IA</title>
+   <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+   <script>
+     // Configuración base de Tailwind (sin cambios)
+     tailwind.config = {
+       theme: {
+         extend: {
+           fontFamily: {
+             sans: ['Inter', 'sans-serif'],
+           },
+             colors: { // Referencia, pero usaremos CSS vars
+               'neon-green': '#39FF14', 'dark-bg': '#0a0a0a',
+               'card-bg': '#1a1a1a', 'light-text': '#e0e0e0',
+               'medium-text': '#a0a0a0',
+             },
+             boxShadow: { 'glow-neon': '0 0 15px var(--glow-color)', }
+         }
+       }
+     }
+   </script>
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+         integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+         crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
+
+
+   <style>
+     /* --- Theme Variables --- */
+     :root {
+       --bg-color: #0a0a0a; --bg-color-rgb: 10, 10, 10;
+       --card-color: #1a1a1a; --card-color-rgb: 26, 26, 26;
+       --text-color: #e0e0e0; --text-medium-color: #a0a0a0;
+       --accent-color: #39FF14; --border-color: rgba(255, 255, 255, 0.2);
+       --modal-bg-color: rgba(30, 30, 30, 0.98);
+       --button-hover-bg: rgba(255, 255, 255, 0.1);
+       --scroll-thumb-color: var(--accent-color); --scroll-track-color: var(--bg-color);
+       --glow-color: rgba(57, 255, 20, 0.5); --modal-close-hover: var(--accent-color);
+       --link-hover-color: var(--accent-color); --info-fixed-bg: var(--accent-color);
+       --info-fixed-text: var(--bg-color); /* Texto del botón de envío/info */
+       /* Nuevas variables para Swiper */
+       --swiper-theme-color: var(--accent-color);
+       --swiper-navigation-color: var(--accent-color);
+       --swiper-pagination-color: var(--accent-color);
+       --swiper-pagination-bullet-inactive-color: var(--text-medium-color);
+       --swiper-pagination-bullet-inactive-opacity: 0.5;
+     }
+     body.light-mode {
+       --bg-color: #f8f9fa; --bg-color-rgb: 248, 249, 250;
+       --card-color: #ffffff; --card-color-rgb: 255, 255, 255;
+       --text-color: #212529; --text-medium-color: #6c757d;
+       --accent-color: #007bff; --border-color: rgba(0, 0, 0, 0.1);
+       --modal-bg-color: rgba(255, 255, 255, 0.98); --button-hover-bg: rgba(0, 0, 0, 0.05);
+       --scroll-thumb-color: var(--accent-color); --scroll-track-color: #dee2e6;
+       --glow-color: rgba(0, 123, 255, 0.4); --modal-close-hover: var(--accent-color);
+       --link-hover-color: var(--accent-color); --info-fixed-bg: var(--accent-color);
+       --info-fixed-text: #ffffff; /* Texto del botón de envío/info en modo claro */
+       /* Swiper en modo claro */
+       --swiper-theme-color: var(--accent-color);
+       --swiper-navigation-color: var(--accent-color);
+       --swiper-pagination-color: var(--accent-color);
+       --swiper-pagination-bullet-inactive-color: var(--text-medium-color);
+     }
+
+     /* --- Base Styles & Transitions --- */
+     body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
+     h1, h2, h3 { color: var(--text-color); transition: color 0.3s ease; }
+     h1 > span, h1 > i.fa-shield-alt { color: var(--accent-color); transition: color 0.3s ease;} /* Title H1 accent */
+     p { color: var(--text-color); transition: color 0.3s ease; }
+     .text-medium-text { color: var(--text-medium-color); transition: color 0.3s ease; }
+     footer { background-color: rgba(var(--bg-color-rgb), 0.8); border-top: 1px solid var(--border-color); transition: background-color 0.3s ease, border-color 0.3s ease; }
+     footer a { color: var(--text-color); transition: color 0.3s ease; }
+     footer a:hover { color: var(--link-hover-color); }
+
+     /* Component Base Styles */
+     .bg-card-bg { background-color: var(--card-color); border-color: var(--border-color); color: var(--text-color); transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
+     a.bg-card-bg:hover { background-color: var(--button-hover-bg); transition: background-color 0.2s ease, transform 0.2s ease; }
+     .info-button-integrated { background: none; border: none; padding: 0.5rem; cursor: pointer; color: var(--text-medium-color); transition: color 0.2s ease, transform 0.2s ease; font-size: 0.8rem; line-height: 1; align-self: center; }
+     .info-button-integrated:hover { color: var(--text-color); transform: scale(1.1); }
+     #theme-toggle { background-color: var(--card-color); border: 1px solid var(--border-color); color: var(--text-medium-color); box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
+     #theme-toggle:hover { color: var(--accent-color); }
+     .fixed-info-button { background-color: var(--info-fixed-bg); color: var(--info-fixed-text); transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease; }
+     ::-webkit-scrollbar { width: 8px; }
+     ::-webkit-scrollbar-track { background: var(--scroll-track-color); transition: background-color 0.3s ease; }
+     ::-webkit-scrollbar-thumb { background: var(--scroll-thumb-color); border-radius: 4px; transition: background-color 0.3s ease; }
+     ::-webkit-scrollbar-thumb:hover { filter: brightness(1.2); }
+     .slider-nav-button { background-color: rgba(var(--card-color-rgb), 0.5); border: 1px solid var(--border-color); color: var(--text-color); transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
+     .slider-nav-button:hover { background-color: rgba(var(--card-color-rgb), 0.8); }
+     #sliderIndicators button { background-color: var(--text-medium-color); opacity: 0.6; transition: background-color 0.3s ease, opacity 0.3s ease; }
+     #sliderIndicators button.active-indicator { background-color: var(--accent-color); opacity: 1; }
+
+     /* --- Modal CSS (Revisado) --- */
+     .modal-overlay { display: none; position: fixed; inset: 0; background-color: rgba(var(--bg-color-rgb), 0.8); z-index: 100; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease, background-color 0.3s ease; padding: 1rem; }
+     .modal-overlay.active { display: flex !important; opacity: 1 !important; }
+     .modal { background-color: var(--modal-bg-color); color: var(--text-color); padding: 25px 35px; border-radius: 12px; max-width: 500px; width: 100%; position: relative; transform: scale(0.95); opacity: 0; transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease-out, opacity 0.3s ease-out; box-shadow: 0 5px 20px rgba(0,0,0,0.25); }
+     .modal-overlay.active .modal { transform: scale(1); opacity: 1; }
+     .modal h2#modalTitle { color: var(--accent-color); transition: color 0.3s ease; margin-bottom: 1rem; font-size: 1.5rem; }
+     .modal p#modalText { color: var(--text-color); transition: color 0.3s ease; line-height: 1.6; }
+     .modal-close-button { position: absolute; top: 10px; right: 10px; background: none; border: none; padding: 0.4rem; cursor: pointer; line-height: 1; }
+     .modal-close-button i.fa-times { font-size: 1.4rem; color: var(--text-medium-color); transition: color 0.2s ease; }
+     .modal-close-button:hover i.fa-times { color: var(--modal-close-hover); }
+
+     /* --- Light Mode Specific Overrides --- */
+     body.light-mode .bg-card-bg { background-color: var(--card-color); border-color: var(--border-color); color: var(--text-color); }
+     body.light-mode a.bg-card-bg:hover { background-color: var(--button-hover-bg); }
+     body.light-mode .max-w-lg a.bg-card-bg span, body.light-mode .max-w-lg a.bg-card-bg i:not(.fa-info-circle) { color: var(--text-color); }
+     body.light-mode .max-w-lg .grid a.bg-card-bg, body.light-mode .max-w-lg .grid a.bg-card-bg i { color: var(--text-color); }
+     body.light-mode #sliderWrapper h3 { color: var(--text-color); }
+     body.light-mode #sliderWrapper p.text-medium-text { color: var(--text-medium-color); }
+     body.light-mode .info-button-integrated { color: var(--text-medium-color); }
+     body.light-mode .info-button-integrated:hover { color: var(--text-color); }
+     body.light-mode #theme-toggle { background-color: var(--card-color); border-color: var(--border-color); color: var(--text-medium-color); }
+     body.light-mode #theme-toggle:hover { color: var(--accent-color); }
+     body.light-mode .fixed-info-button { background-color: var(--info-fixed-bg); color: var(--info-fixed-text); box-shadow: 0 0 15px var(--glow-color); }
+     body.light-mode .modal-overlay { background-color: rgba(var(--bg-color-rgb), 0.8); }
+     body.light-mode .modal { background-color: var(--modal-bg-color); color: var(--text-color); }
+     body.light-mode .modal p#modalText { color: var(--text-color); }
+     body.light-mode .modal-close-button i.fa-times { color: var(--text-medium-color); }
+     body.light-mode .modal-close-button:hover i.fa-times { color: var(--modal-close-hover); }
+     body.light-mode ::-webkit-scrollbar-track { background: var(--scroll-track-color); }
+     body.light-mode ::-webkit-scrollbar-thumb { background: var(--scroll-thumb-color); }
+     body.light-mode .slider-nav-button { background-color: rgba(var(--card-color-rgb), 0.8); border-color: var(--border-color); color: var(--text-color); }
+     body.light-mode .slider-nav-button:hover { background-color: rgba(var(--card-color-rgb), 0.95); }
+     body.light-mode #sliderIndicators button { background-color: var(--text-medium-color); }
+     body.light-mode #sliderIndicators button.active-indicator { background-color: var(--accent-color); }
+     body.light-mode footer { background-color: rgba(var(--bg-color-rgb), 0.8); border-color: var(--border-color); }
+     body.light-mode footer a { color: var(--text-color); }
+     body.light-mode footer a:hover { color: var(--link-hover-color); }
+     body.light-mode #feedbackText { background-color: var(--card-color); color: var(--text-color); border-color: var(--border-color); } /* Estilo textarea modo claro */
+     body.light-mode #feedbackText::placeholder { color: var(--text-medium-color); }
+     body.light-mode #feedbackText:focus { border-color: var(--accent-color); --tw-ring-color: var(--accent-color); } /* Ajuste ring color */
+     body.light-mode #submitFeedbackBtn { background-color: var(--accent-color); color: var(--info-fixed-text);}
+
+     /* --- Estilos para Rating Stars --- */
+      #ratingStars i:hover,
+      #ratingStars i.hovered {
+        color: var(--accent-color); /* Color al pasar el ratón o seleccionado */
+        transform: scale(1.1); /* Efecto ligero al pasar el ratón */
       }
-    }
-  </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+      #ratingStars i.selected {
+         color: var(--accent-color); /* Mantiene el color si está seleccionada */
+      }
 
-  <style>
-    /* --- Theme Variables --- */
-    :root {
-      --bg-color: #0a0a0a; --bg-color-rgb: 10, 10, 10;
-      --card-color: #1a1a1a; --card-color-rgb: 26, 26, 26;
-      --text-color: #e0e0e0; --text-medium-color: #a0a0a0;
-      --accent-color: #39FF14; --border-color: rgba(255, 255, 255, 0.2);
-      --modal-bg-color: rgba(30, 30, 30, 0.98);
-      --button-hover-bg: rgba(255, 255, 255, 0.1);
-      --scroll-thumb-color: var(--accent-color); --scroll-track-color: var(--bg-color);
-      --glow-color: rgba(57, 255, 20, 0.5); --modal-close-hover: var(--accent-color);
-      --link-hover-color: var(--accent-color); --info-fixed-bg: var(--accent-color);
-      --info-fixed-text: var(--bg-color); /* Texto del botón de envío/info */
-    }
-    body.light-mode {
-      --bg-color: #f8f9fa; --bg-color-rgb: 248, 249, 250;
-      --card-color: #ffffff; --card-color-rgb: 255, 255, 255;
-      --text-color: #212529; --text-medium-color: #6c757d;
-      --accent-color: #007bff; --border-color: rgba(0, 0, 0, 0.1);
-      --modal-bg-color: rgba(255, 255, 255, 0.98); --button-hover-bg: rgba(0, 0, 0, 0.05);
-      --scroll-thumb-color: var(--accent-color); --scroll-track-color: #dee2e6;
-      --glow-color: rgba(0, 123, 255, 0.4); --modal-close-hover: var(--accent-color);
-      --link-hover-color: var(--accent-color); --info-fixed-bg: var(--accent-color);
-      --info-fixed-text: #ffffff; /* Texto del botón de envío/info en modo claro */
-    }
-
-    /* --- Base Styles & Transitions --- */
-    body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
-    h1, h2, h3 { color: var(--text-color); transition: color 0.3s ease; }
-    h1 > span, h1 > i.fa-shield-alt { color: var(--accent-color); transition: color 0.3s ease;} /* Title H1 accent */
-    p { color: var(--text-color); transition: color 0.3s ease; }
-    .text-medium-text { color: var(--text-medium-color); transition: color 0.3s ease; }
-    footer { background-color: rgba(var(--bg-color-rgb), 0.8); border-top: 1px solid var(--border-color); transition: background-color 0.3s ease, border-color 0.3s ease; }
-    footer a { color: var(--text-color); transition: color 0.3s ease; }
-    footer a:hover { color: var(--link-hover-color); }
-
-    /* Component Base Styles */
-    .bg-card-bg { background-color: var(--card-color); border-color: var(--border-color); color: var(--text-color); transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
-    a.bg-card-bg:hover { background-color: var(--button-hover-bg); transition: background-color 0.2s ease, transform 0.2s ease; }
-    .info-button-integrated { background: none; border: none; padding: 0.5rem; cursor: pointer; color: var(--text-medium-color); transition: color 0.2s ease, transform 0.2s ease; font-size: 0.8rem; line-height: 1; align-self: center; }
-    .info-button-integrated:hover { color: var(--text-color); transform: scale(1.1); }
-    #theme-toggle { background-color: var(--card-color); border: 1px solid var(--border-color); color: var(--text-medium-color); box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
-    #theme-toggle:hover { color: var(--accent-color); }
-    .fixed-info-button { background-color: var(--info-fixed-bg); color: var(--info-fixed-text); transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease; }
-    ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-track { background: var(--scroll-track-color); transition: background-color 0.3s ease; }
-    ::-webkit-scrollbar-thumb { background: var(--scroll-thumb-color); border-radius: 4px; transition: background-color 0.3s ease; }
-    ::-webkit-scrollbar-thumb:hover { filter: brightness(1.2); }
-    .slider-nav-button { background-color: rgba(var(--card-color-rgb), 0.5); border: 1px solid var(--border-color); color: var(--text-color); transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
-    .slider-nav-button:hover { background-color: rgba(var(--card-color-rgb), 0.8); }
-    #sliderIndicators button { background-color: var(--text-medium-color); opacity: 0.6; transition: background-color 0.3s ease, opacity 0.3s ease; }
-    #sliderIndicators button.active-indicator { background-color: var(--accent-color); opacity: 1; }
-
-    /* --- Modal CSS (Revisado) --- */
-    .modal-overlay { display: none; position: fixed; inset: 0; background-color: rgba(var(--bg-color-rgb), 0.8); z-index: 100; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease, background-color 0.3s ease; padding: 1rem; }
-    .modal-overlay.active { display: flex !important; opacity: 1 !important; }
-    .modal { background-color: var(--modal-bg-color); color: var(--text-color); padding: 25px 35px; border-radius: 12px; max-width: 500px; width: 100%; position: relative; transform: scale(0.95); opacity: 0; transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease-out, opacity 0.3s ease-out; box-shadow: 0 5px 20px rgba(0,0,0,0.25); }
-    .modal-overlay.active .modal { transform: scale(1); opacity: 1; }
-    .modal h2#modalTitle { color: var(--accent-color); transition: color 0.3s ease; margin-bottom: 1rem; font-size: 1.5rem; }
-    .modal p#modalText { color: var(--text-color); transition: color 0.3s ease; line-height: 1.6; }
-    .modal-close-button { position: absolute; top: 10px; right: 10px; background: none; border: none; padding: 0.4rem; cursor: pointer; line-height: 1; }
-    .modal-close-button i.fa-times { font-size: 1.4rem; color: var(--text-medium-color); transition: color 0.2s ease; }
-    .modal-close-button:hover i.fa-times { color: var(--modal-close-hover); }
-
-    /* --- Light Mode Specific Overrides --- */
-    body.light-mode .bg-card-bg { background-color: var(--card-color); border-color: var(--border-color); color: var(--text-color); }
-    body.light-mode a.bg-card-bg:hover { background-color: var(--button-hover-bg); }
-    body.light-mode .max-w-lg a.bg-card-bg span, body.light-mode .max-w-lg a.bg-card-bg i:not(.fa-info-circle) { color: var(--text-color); }
-    body.light-mode .max-w-lg .grid a.bg-card-bg, body.light-mode .max-w-lg .grid a.bg-card-bg i { color: var(--text-color); }
-    body.light-mode #sliderWrapper h3 { color: var(--text-color); }
-    body.light-mode #sliderWrapper p.text-medium-text { color: var(--text-medium-color); }
-    body.light-mode .info-button-integrated { color: var(--text-medium-color); }
-    body.light-mode .info-button-integrated:hover { color: var(--text-color); }
-    body.light-mode #theme-toggle { background-color: var(--card-color); border-color: var(--border-color); color: var(--text-medium-color); }
-    body.light-mode #theme-toggle:hover { color: var(--accent-color); }
-    body.light-mode .fixed-info-button { background-color: var(--info-fixed-bg); color: var(--info-fixed-text); box-shadow: 0 0 15px var(--glow-color); }
-    body.light-mode .modal-overlay { background-color: rgba(var(--bg-color-rgb), 0.8); }
-    body.light-mode .modal { background-color: var(--modal-bg-color); color: var(--text-color); }
-    body.light-mode .modal p#modalText { color: var(--text-color); }
-    body.light-mode .modal-close-button i.fa-times { color: var(--text-medium-color); }
-    body.light-mode .modal-close-button:hover i.fa-times { color: var(--modal-close-hover); }
-    body.light-mode ::-webkit-scrollbar-track { background: var(--scroll-track-color); }
-    body.light-mode ::-webkit-scrollbar-thumb { background: var(--scroll-thumb-color); }
-    body.light-mode .slider-nav-button { background-color: rgba(var(--card-color-rgb), 0.8); border-color: var(--border-color); color: var(--text-color); }
-    body.light-mode .slider-nav-button:hover { background-color: rgba(var(--card-color-rgb), 0.95); }
-    body.light-mode #sliderIndicators button { background-color: var(--text-medium-color); }
-    body.light-mode #sliderIndicators button.active-indicator { background-color: var(--accent-color); }
-    body.light-mode footer { background-color: rgba(var(--bg-color-rgb), 0.8); border-color: var(--border-color); }
-    body.light-mode footer a { color: var(--text-color); }
-    body.light-mode footer a:hover { color: var(--link-hover-color); }
-    body.light-mode #feedbackText { background-color: var(--card-color); color: var(--text-color); border-color: var(--border-color); } /* Estilo textarea modo claro */
-    body.light-mode #feedbackText::placeholder { color: var(--text-medium-color); }
-    body.light-mode #feedbackText:focus { border-color: var(--accent-color); --tw-ring-color: var(--accent-color); } /* Ajuste ring color */
-    body.light-mode #submitFeedbackBtn { background-color: var(--accent-color); color: var(--info-fixed-text);}
-
-    /* --- Estilos para Rating Stars --- */
-     #ratingStars i:hover,
-     #ratingStars i.hovered {
-       color: var(--accent-color); /* Color al pasar el ratón o seleccionado */
-       transform: scale(1.1); /* Efecto ligero al pasar el ratón */
-     }
-     #ratingStars i.selected {
-        color: var(--accent-color); /* Mantiene el color si está seleccionada */
-     }
-
-     /* Asegurar que las variables de color funcionen bien en ambos modos */
-     body.light-mode #ratingStars i:hover,
-     body.light-mode #ratingStars i.hovered,
-     body.light-mode #ratingStars i.selected {
-        color: var(--accent-color);
-     }
-     body.light-mode #ratingMessage {
+      /* Asegurar que las variables de color funcionen bien en ambos modos */
+      body.light-mode #ratingStars i:hover,
+      body.light-mode #ratingStars i.hovered,
+      body.light-mode #ratingStars i.selected {
          color: var(--accent-color);
+      }
+      body.light-mode #ratingMessage {
+          color: var(--accent-color);
+      }
+
+      /* ***** MODIFICADO: Estilos para el Carrusel de Reseñas (Vertical) ***** */
+     #reviewsCarouselContainer {
+         max-width: 700px;
+         margin: 2rem auto;
+         padding: 0 1rem;
+         /* Añadir padding para los botones de navegación si se solapan */
+         padding-left: 2.5rem;
+         padding-right: 2.5rem;
+         position: relative; /* Necesario para posicionar botones */
+     }
+     .swiper-slide {
+         background-color: var(--card-color);
+         border: 1px solid var(--border-color);
+         border-radius: 12px;
+         padding: 1.5rem;
+         color: var(--text-color);
+         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+         min-height: 150px; /* Ajusta según necesites */
+         display: flex;           /* Usar flex */
+         flex-direction: column;  /* Dirección vertical */
+         justify-content: center; /* Centrar verticalmente */
+         align-items: center;     /* Centrar horizontalmente */
+         text-align: center;      /* Centrar texto por defecto */
+         transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+     }
+     body.light-mode .swiper-slide {
+         background-color: var(--card-color);
+         border-color: var(--border-color);
+         color: var(--text-color);
+     }
+     .review-stars {
+         margin-bottom: 0.75rem; /* Espacio debajo de las estrellas */
+         font-size: 1.1rem;
+         color: var(--accent-color);
+         /* No necesita text-align: center si el contenedor .swiper-slide ya lo tiene */
+     }
+      body.light-mode .review-stars {
+          color: var(--accent-color);
+      }
+     .review-comment {
+         font-size: 0.95rem;
+         line-height: 1.5;
+         color: var(--text-color);
+         /* No necesita text-align: center si el contenedor .swiper-slide ya lo tiene */
+         word-break: break-word; /* Evitar desbordamiento */
+         /* Permitir que el comentario ocupe el espacio restante */
+         width: 100%;
+     }
+      body.light-mode .review-comment {
+          color: var(--text-color);
+      }
+     .review-comment.no-comment {
+         color: var(--text-medium-color);
+         font-style: italic;
+     }
+      body.light-mode .review-comment.no-comment {
+          color: var(--text-medium-color);
+      }
+
+     /* Estilos para los botones de navegación de Swiper */
+     .swiper-button-prev,
+     .swiper-button-next {
+         color: var(--swiper-navigation-color);
+         transition: color 0.3s ease;
+         top: 50%;
+         width: calc(var(--swiper-navigation-size) / 44 * 27); /* Tamaño por defecto */
+         height: var(--swiper-navigation-size); /* Tamaño por defecto */
+         margin-top: calc(0px - (var(--swiper-navigation-size) / 2)); /* Centrado vertical */
+         /* Ajustar posición para que no estén tan pegados a los bordes */
+         &.swiper-button-prev {
+            left: 5px; /* Un poco separado del borde izquierdo */
+         }
+         &.swiper-button-next {
+             right: 5px; /* Un poco separado del borde derecho */
+         }
+     }
+     /* Reducir tamaño en móviles */
+     @media (max-width: 640px) {
+        .swiper-button-prev,
+        .swiper-button-next {
+            /* Ocultar botones en móvil si se prefiere */
+             /* display: none; */
+             /* O reducir tamaño */
+             width: calc(var(--swiper-navigation-size) / 44 * 20);
+             height: calc(var(--swiper-navigation-size) / 44 * 30);
+             margin-top: calc(0px - (var(--swiper-navigation-size) / 2) + 7px); /* Ajuste vertical */
+        }
+         .swiper-button-prev::after,
+         .swiper-button-next::after {
+             font-size: 1.2rem; /* Flechas más pequeñas */
+         }
+         #reviewsCarouselContainer {
+             padding-left: 1.5rem; /* Menos padding si los botones son más pequeños o se ocultan */
+             padding-right: 1.5rem;
+         }
      }
 
-  </style>
-</head>
-<body class="relative min-h-screen flex flex-col">
 
-  <button id="theme-toggle" class="fixed top-4 left-4 z-50 w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-lg" aria-label="Cambiar tema">
-      <i class="fas fa-sun"></i>
-  </button>
+     /* Estilos para la paginación de Swiper (sin cambios) */
+     .swiper-pagination-bullet {
+         background-color: var(--swiper-pagination-bullet-inactive-color);
+         opacity: var(--swiper-pagination-bullet-inactive-opacity);
+         transition: background-color 0.3s ease, opacity 0.3s ease;
+     }
+     .swiper-pagination-bullet-active {
+         background-color: var(--swiper-pagination-color);
+         opacity: 1;
+     }
+     #reviewsLoading, #noReviewsMessage {
+         text-align: center;
+         color: var(--text-medium-color);
+         padding: 2rem;
+     }
+      body.light-mode #reviewsLoading, body.light-mode #noReviewsMessage {
+          color: var(--text-medium-color);
+      }
 
-  <div class="fixed-info-button fixed top-4 right-4 z-50 w-10 h-10 rounded-full flex items-center justify-center text-lg transition-transform hover:scale-110 cursor-pointer shadow-glow-neon" onclick="showModal('Información General', 'Esta página ofrece herramientas útiles y gratuitas. El creador no recibe compensación por su uso. Todo se guarda localmente cuando aplica (ej. Bloc de Notas), asegurando tu privacidad. El uso de estas herramientas es responsabilidad del usuario.')">
-      <i class="fas fa-question"></i>
-  </div>
+   </style>
+ </head>
+ <body class="relative min-h-screen flex flex-col">
 
-  <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-20 pb-16 sm:pt-16 relative z-10 flex-grow">
-     <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-center mb-8 sm:mb-12 drop-shadow-lg">
-       Herramientas<br>
-       GUARD<span>-</span>IA <i class="fas fa-shield-alt ml-1 sm:ml-2"></i> </h1>
+   <button id="theme-toggle" class="fixed top-4 left-4 z-50 w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-lg" aria-label="Cambiar tema">
+       <i class="fas fa-sun"></i>
+   </button>
 
-     <div class="max-w-lg mx-auto space-y-3 sm:space-y-4">
-       <a href="https://chatgpt.com/g/g-6766e58171cc81918eb92f23b79f66ae-guard-ia" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
-         <span class="flex items-center gap-2 sm:gap-3">
-           <i class="fas fa-robot text-lg w-5 sm:text-xl sm:w-6 text-center"></i>
-           <span>ChatGPT GUARD-IA</span>
-         </span>
-         <button class="info-button-integrated" data-title="ChatGPT GUARD-IA" data-text="Interactúa con una versión personalizada de ChatGPT diseñada para GUARD-IA." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();">
-           <i class="fas fa-info-circle text-lg"></i> </button>
-       </a>
-       <a href="herramientas-guardia/calculadora-de-drogas/index.html" target="_self" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
-         <span class="flex items-center gap-2 sm:gap-3">
-           <i class="fas fa-calculator text-lg w-5 sm:text-xl sm:w-6 text-center"></i>
-           <span>Calculadora de Drogas</span>
-         </span>
-        <button class="info-button-integrated" data-title="Calculadora de Drogas" data-text="Herramienta para cálculos relacionados con drogas. Uso bajo responsabilidad del usuario." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();">
-           <i class="fas fa-info-circle text-lg"></i>
-         </button>
-       </a>
-        <a href="herramientas-guardia/bloc-de-notas/index.html" target="_self" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
-         <span class="flex items-center gap-2 sm:gap-3">
-            <i class="fas fa-sticky-note text-lg w-5 sm:text-xl sm:w-6 text-center"></i>
-           <span>Bloc de Notas</span>
-         </span>
-         <button class="info-button-integrated" data-title="Bloc de Notas" data-text="Un bloc de notas digital que guarda tus notas localmente en tu dispositivo." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();">
+   <div class="fixed-info-button fixed top-4 right-4 z-50 w-10 h-10 rounded-full flex items-center justify-center text-lg transition-transform hover:scale-110 cursor-pointer shadow-glow-neon" onclick="showModal('Información General', 'Esta página ofrece herramientas útiles y gratuitas. El creador no recibe compensación por su uso. Todo se guarda localmente cuando aplica (ej. Bloc de Notas), asegurando tu privacidad. El uso de estas herramientas es responsabilidad del usuario.')">
+       <i class="fas fa-question"></i>
+   </div>
+
+   <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-20 pb-16 sm:pt-16 relative z-10 flex-grow">
+      <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-center mb-8 sm:mb-12 drop-shadow-lg">
+        Herramientas<br>
+        GUARD<span>-</span>IA <i class="fas fa-shield-alt ml-1 sm:ml-2"></i> </h1>
+
+      <div class="max-w-lg mx-auto space-y-3 sm:space-y-4">
+        <a href="https://chatgpt.com/g/g-6766e58171cc81918eb92f23b79f66ae-guard-ia" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
+          <span class="flex items-center gap-2 sm:gap-3">
+            <i class="fas fa-robot text-lg w-5 sm:text-xl sm:w-6 text-center"></i>
+            <span>ChatGPT GUARD-IA</span>
+          </span>
+          <button class="info-button-integrated" data-title="ChatGPT GUARD-IA" data-text="Interactúa con una versión personalizada de ChatGPT diseñada para GUARD-IA." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();">
+            <i class="fas fa-info-circle text-lg"></i> </button>
+        </a>
+        <a href="herramientas-guardia/calculadora-de-drogas/index.html" target="_self" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
+          <span class="flex items-center gap-2 sm:gap-3">
+            <i class="fas fa-calculator text-lg w-5 sm:text-xl sm:w-6 text-center"></i>
+            <span>Calculadora de Drogas</span>
+          </span>
+         <button class="info-button-integrated" data-title="Calculadora de Drogas" data-text="Herramienta para cálculos relacionados con drogas. Uso bajo responsabilidad del usuario." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();">
             <i class="fas fa-info-circle text-lg"></i>
-         </button>
+          </button>
         </a>
-        <a href="https://saferlayer.com/" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
-         <span class="flex items-center gap-2 sm:gap-3">
-            <i class="fas fa-tint text-lg w-5 sm:text-xl sm:w-6 text-center"></i>
-           <span>Marca de agua by Saferlayer</span>
-         </span>
-         <button class="info-button-integrated" data-title="Marca de agua by Saferlayer" data-text="Herramienta externa para agregar marcas de agua a tus archivos." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();">
-           <i class="fas fa-info-circle text-lg"></i>
-         </button>
-        </a>
-     </div>
-  </div>
-
-  <section class="py-10 relative z-10">
-    <h2 class="text-3xl sm:text-4xl font-bold text-center mb-6 sm:mb-8 drop-shadow-lg">
-      CANALES DE<br>ACCIÓN POLICIAL
-    </h2>
-    <div class="max-w-lg mx-auto px-4 sm:px-0 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-      <a href="https://www.youtube.com/@PoliceActivity" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-video"></i> PoliceActivity </a>
-      <a href="https://www.youtube.com/@RealWorldPolice" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-video"></i> Real World Police </a>
-      <a href="https://www.youtube.com/@CodeBlueCam" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-video"></i> Code Blue Cam </a>
-      <a href="https://www.youtube.com/@AuditTheAudit" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-gavel"></i> Audit the Audit </a>
-      <a href="https://www.youtube.com/@DonutOperator" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-video"></i> Donut Operator </a>
-      <a href="https://www.youtube.com/@FreeFieldTraining" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-chalkboard-teacher"></i> FreeFieldTraining </a>
-    </div>
-  </section>
-
-  <section class="py-10 relative z-10">
-    <h2 class="text-3xl sm:text-4xl font-bold text-center mb-6 sm:mb-8 drop-shadow-lg"> LECTURAS POLICIALES<br>RECOMENDADAS </h2>
-    <div class="relative max-w-lg mx-auto px-4 sm:px-0"> <button class="slider-nav-button absolute top-1/2 left-2 sm:left-0 transform -translate-y-1/2 sm:-translate-x-full p-2 rounded-full text-xl sm:text-2xl z-30 bg-opacity-75 sm:bg-opacity-50 hover:bg-opacity-90" onclick="prevSlide()" aria-label="Anterior Slide">❮</button>
-      <div class="overflow-hidden rounded-lg border border-[var(--border-color)]"> <div class="flex transition-transform duration-500 ease-in-out" id="sliderWrapper">
-            <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg">
-                <img src="https://imgs.search.brave.com/VNMdgeChtgIurBN_p-DnqmSakN2ak7bRrP0Yo1n3ef8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuY2RuMi5idXNj/YWxpYnJlLmNvbS9m/aXQtaW4vNTIweDUy/MC8yZS80YS8yZTRh/YzYyZmIxMTJhOWNh/NDdmMTMwMGY4NzVk/OTUwNC5qcGc" alt="Portada del libro Sobre el Combate" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto">
-                <h3 class="text-lg sm:text-xl font-semibold">Sobre el Combate</h3>
-                <p class="text-sm sm:text-base text-medium-text">Dave Grossman</p>
-            </div>
-            <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg">
-                <img src="https://imgs.search.brave.com/8-PdIHSHt2WqbYUGXhLD_4Bpw8RWitCfRvV2KiHgqpo/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuY2RuMy5idXNj/YWxpYnJlLmNvbS9m/aXQtaW4vNTIweDUy/MC9mZC82Yy9mZDZj/Mjc3ZDBmZDMyZmU3/NmJiN2MyZGMwZTc3/YjZhYi5qcGc" alt="Portada del libro Matar" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto">
-                <h3 class="text-lg sm:text-xl font-semibold">Matar</h3>
-                <p class="text-sm sm:text-base text-medium-text">Dave Grossman</p>
-            </div>
-            <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg">
-                <img src="https://imgs.search.brave.com/pOsg_as-IHCw3Y7BqzG17ZB9cw9PJCLFMZQ8GrqlEMI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9waWN0/dXJlcy5hYmVib29r/cy5jb20vaXNibi85/Nzg4NDMwOTczNzA1/LWVzLTMwMC5qcGc" alt="Portada del libro En la Línea de Fuego" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto">
-                <h3 class="text-lg sm:text-xl font-semibold">En la Línea de Fuego</h3>
-                <p class="text-sm sm:text-base text-medium-text">Ernesto Pérez Vera y Fernando Pérez Pacho</p>
-            </div>
-            <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg">
-                <img src="https://imgs.search.brave.com/SK2GxbZt59aSZEreTfVwkKxKWMVepLCnmRS1vzvnaFA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9waWN0/dXJlcy5hYmVib29r/cy5jb20vaXNibi85/Nzg4NDE1MzczNzU5/LWVzLmpwZw" alt="Portada del libro Tiroteo en Miami" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto">
-                <h3 class="text-lg sm:text-xl font-semibold">Tiroteo en Miami</h3>
-                <p class="text-sm sm:text-base text-medium-text">Edmundo Mireles Jr.</p>
-            </div>
-        </div>
+         <a href="herramientas-guardia/bloc-de-notas/index.html" target="_self" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
+          <span class="flex items-center gap-2 sm:gap-3">
+             <i class="fas fa-sticky-note text-lg w-5 sm:text-xl sm:w-6 text-center"></i>
+            <span>Bloc de Notas</span>
+          </span>
+          <button class="info-button-integrated" data-title="Bloc de Notas" data-text="Un bloc de notas digital que guarda tus notas localmente en tu dispositivo." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();">
+             <i class="fas fa-info-circle text-lg"></i>
+          </button>
+         </a>
+         <a href="https://saferlayer.com/" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
+          <span class="flex items-center gap-2 sm:gap-3">
+             <i class="fas fa-tint text-lg w-5 sm:text-xl sm:w-6 text-center"></i>
+            <span>Marca de agua by Saferlayer</span>
+          </span>
+          <button class="info-button-integrated" data-title="Marca de agua by Saferlayer" data-text="Herramienta externa para agregar marcas de agua a tus archivos." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();">
+            <i class="fas fa-info-circle text-lg"></i>
+          </button>
+         </a>
       </div>
-      <button class="slider-nav-button absolute top-1/2 right-2 sm:right-0 transform -translate-y-1/2 sm:translate-x-full p-2 rounded-full text-xl sm:text-2xl z-30 bg-opacity-75 sm:bg-opacity-50 hover:bg-opacity-90" onclick="nextSlide()" aria-label="Siguiente Slide">❯</button>
-    </div>
-    <div id="sliderIndicators" class="flex justify-center space-x-2 mt-4"></div>
-  </section>
+   </div>
 
-  <section class="py-8 relative z-10 border-t border-[var(--border-color)] mt-8">
-    <h3 class="text-xl font-semibold text-center mb-4">¿Te resulta útil esta página? ¡Valórala!</h3>
-    <div class="flex justify-center items-center space-x-1 text-2xl sm:text-3xl text-[var(--text-medium-color)] mb-4" id="ratingStars">
-      <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="1" aria-label="Valorar con 1 estrella"></i>
-      <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="2" aria-label="Valorar con 2 estrellas"></i>
-      <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="3" aria-label="Valorar con 3 estrellas"></i>
-      <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="4" aria-label="Valorar con 4 estrellas"></i>
-      <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="5" aria-label="Valorar con 5 estrellas"></i>
-    </div>
-    <div class="max-w-md mx-auto px-4">
-        <textarea
-            id="feedbackText"
-            rows="2"
-            class="w-full p-2 rounded border bg-[var(--card-color)] text-[var(--text-color)] border-[var(--border-color)] focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)] resize-y text-sm placeholder:text-[var(--text-medium-color)]"
-            placeholder="Comentario opcional..."
-            aria-label="Comentario opcional sobre la valoración"
-        ></textarea>
-    </div>
-    <div class="text-center mt-4">
-        <button
-            id="submitFeedbackBtn"
-            type="button"
-            disabled
-            class="px-6 py-2 rounded bg-[var(--accent-color)] text-[var(--info-fixed-text)] font-semibold transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-            Enviar Valoración
-        </button>
-    </div>
-    <p id="ratingMessage" class="text-center text-[var(--accent-color)] mt-3 h-5"></p>
-  </section>
-  <footer class="mt-0 py-4 pb-6 sm:py-4 text-center relative z-10"> <a href="https://t.me/OnefraGT" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 text-base sm:text-lg">
-        <i class="fab fa-telegram-plane text-xl sm:text-2xl"></i> Contacta con @OnefraGT
-    </a>
-  </footer>
+   <section class="py-10 relative z-10">
+     <h2 class="text-3xl sm:text-4xl font-bold text-center mb-6 sm:mb-8 drop-shadow-lg">
+       CANALES DE<br>ACCIÓN POLICIAL
+     </h2>
+     <div class="max-w-lg mx-auto px-4 sm:px-0 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+       <a href="https://www.youtube.com/@PoliceActivity" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-video"></i> PoliceActivity </a>
+       <a href="https://www.youtube.com/@RealWorldPolice" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-video"></i> Real World Police </a>
+       <a href="https://www.youtube.com/@CodeBlueCam" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-video"></i> Code Blue Cam </a>
+       <a href="https://www.youtube.com/@AuditTheAudit" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-gavel"></i> Audit the Audit </a>
+       <a href="https://www.youtube.com/@DonutOperator" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-video"></i> Donut Operator </a>
+       <a href="https://www.youtube.com/@FreeFieldTraining" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-chalkboard-teacher"></i> FreeFieldTraining </a>
+     </div>
+   </section>
 
-  <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnClickOutside(event)">
-    <div class="modal">
-      <button class="modal-close-button" onclick="closeModal()" aria-label="Cerrar modal">
-        <i class="fas fa-times"></i>
-      </button>
-      <h2 id="modalTitle" class="text-xl sm:text-2xl font-bold mb-4"></h2> <p id="modalText" class="text-base"></p>
-    </div>
-  </div>
+   <section class="py-10 relative z-10">
+     <h2 class="text-3xl sm:text-4xl font-bold text-center mb-6 sm:mb-8 drop-shadow-lg"> LECTURAS POLICIALES<br>RECOMENDADAS </h2>
+     <div class="relative max-w-lg mx-auto px-4 sm:px-0"> <button class="slider-nav-button absolute top-1/2 left-2 sm:left-0 transform -translate-y-1/2 sm:-translate-x-full p-2 rounded-full text-xl sm:text-2xl z-30 bg-opacity-75 sm:bg-opacity-50 hover:bg-opacity-90" onclick="prevSlide()" aria-label="Anterior Slide">❮</button>
+       <div class="overflow-hidden rounded-lg border border-[var(--border-color)]"> <div class="flex transition-transform duration-500 ease-in-out" id="sliderWrapper">
+             <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg">
+                 <img src="https://imgs.search.brave.com/VNMdgeChtgIurBN_p-DnqmSakN2ak7bRrP0Yo1n3ef8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuY2RuMi5idXNj/YWxpYnJlLmNvbS9m/aXQtaW4vNTIweDUy/MC8yZS80YS8yZTRh/YzYyZmIxMTJhOWNh/NDdmMTMwMGY4NzVk/OTUwNC5qcGc" alt="Portada del libro Sobre el Combate" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto">
+                 <h3 class="text-lg sm:text-xl font-semibold">Sobre el Combate</h3>
+                 <p class="text-sm sm:text-base text-medium-text">Dave Grossman</p>
+             </div>
+             <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg">
+                 <img src="https://imgs.search.brave.com/8-PdIHSHt2WqbYUGXhLD_4Bpw8RWitCfRvV2KiHgqpo/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuY2RuMy5idXNj/YWxpYnJlLmNvbS9m/aXQtaW4vNTIweDUy/MC9mZC82Yy9mZDZj/Mjc3ZDBmZDMyZmU3/NmJiN2MyZGMwZTc3/YjZhYi5qcGc" alt="Portada del libro Matar" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto">
+                 <h3 class="text-lg sm:text-xl font-semibold">Matar</h3>
+                 <p class="text-sm sm:text-base text-medium-text">Dave Grossman</p>
+             </div>
+             <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg">
+                 <img src="https://imgs.search.brave.com/pOsg_as-IHCw3Y7BqzG17ZB9cw9PJCLFMZQ8GrqlEMI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9waWN0/dXJlcy5hYmVib29r/cy5jb20vaXNibi85/Nzg4NDMwOTczNzA1/LWVzLTMwMC5qcGc" alt="Portada del libro En la Línea de Fuego" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto">
+                 <h3 class="text-lg sm:text-xl font-semibold">En la Línea de Fuego</h3>
+                 <p class="text-sm sm:text-base text-medium-text">Ernesto Pérez Vera y Fernando Pérez Pacho</p>
+             </div>
+             <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg">
+                 <img src="https://imgs.search.brave.com/SK2GxbZt59aSZEreTfVwkKxKWMVepLCnmRS1vzvnaFA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9waWN0/dXJlcy5hYmVib29r/cy5jb20vaXNibi85/Nzg4NDE1MzczNzU5/LWVzLmpwZw" alt="Portada del libro Tiroteo en Miami" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto">
+                 <h3 class="text-lg sm:text-xl font-semibold">Tiroteo en Miami</h3>
+                 <p class="text-sm sm:text-base text-medium-text">Edmundo Mireles Jr.</p>
+             </div>
+         </div>
+       </div>
+       <button class="slider-nav-button absolute top-1/2 right-2 sm:right-0 transform -translate-y-1/2 sm:translate-x-full p-2 rounded-full text-xl sm:text-2xl z-30 bg-opacity-75 sm:bg-opacity-50 hover:bg-opacity-90" onclick="nextSlide()" aria-label="Siguiente Slide">❯</button>
+     </div>
+     <div id="sliderIndicators" class="flex justify-center space-x-2 mt-4"></div>
+   </section>
 
-<script>
-    // --- Modal Logic ---
-    const modalOverlay = document.getElementById("modalOverlay");
-    const modalTitle = document.getElementById("modalTitle");
-    const modalText = document.getElementById("modalText");
-    function showModal(title, text) { if(modalOverlay && modalTitle && modalText){ modalTitle.innerText = title; modalText.innerText = text; modalOverlay.classList.add("active"); } else { console.error("Modal elements not found!"); } }
-    function closeModal() { if(modalOverlay) modalOverlay.classList.remove("active"); }
-    function showButtonInfo(buttonElement) {
-        if (buttonElement && typeof buttonElement.getAttribute === 'function') {
-            var title = buttonElement.getAttribute("data-title");
-            var text = buttonElement.getAttribute("data-text");
-            if (title !== null && text !== null) { showModal(title, text); }
-            else { console.error("Info button attributes missing.", buttonElement); }
-        } else { console.error("Invalid element passed to showButtonInfo:", buttonElement); }
-    }
-    function closeModalOnClickOutside(event) { if (event.target === modalOverlay) { closeModal(); } }
+   <section id="reviewsCarouselContainer" class="relative z-10">
+       <h2 class="text-2xl sm:text-3xl font-bold text-center mb-6 drop-shadow-lg">Opiniones de Usuarios</h2>
+       <div class="swiper" id="reviewsCarousel">
+           <div class="swiper-wrapper" id="reviewsSwiperWrapper">
+               </div>
+           <div class="swiper-pagination"></div>
+           <div class="swiper-button-prev"></div>
+           <div class="swiper-button-next"></div>
+       </div>
+       <div id="reviewsLoading" style="display: none;">Cargando reseñas...</div>
+       <div id="noReviewsMessage" style="display: none;">Aún no hay reseñas. ¡Sé el primero!</div>
+   </section>
 
-    // --- Slider Logic ---
-    const sliderWrapper = document.getElementById('sliderWrapper');
-    const indicatorsContainer = document.getElementById('sliderIndicators');
-    let currentSlide = 0;
-    let totalSlides = 0;
-    if (sliderWrapper) { totalSlides = sliderWrapper.children.length; }
+   <section class="py-8 relative z-10 border-t border-[var(--border-color)] mt-8">
+     <h3 class="text-xl font-semibold text-center mb-4">¿Te resulta útil esta página? ¡Valórala!</h3>
+     <div class="flex justify-center items-center space-x-1 text-2xl sm:text-3xl text-[var(--text-medium-color)] mb-4" id="ratingStars">
+       <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="1" aria-label="Valorar con 1 estrella"></i>
+       <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="2" aria-label="Valorar con 2 estrellas"></i>
+       <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="3" aria-label="Valorar con 3 estrellas"></i>
+       <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="4" aria-label="Valorar con 4 estrellas"></i>
+       <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="5" aria-label="Valorar con 5 estrellas"></i>
+     </div>
+     <div class="max-w-md mx-auto px-4">
+         <textarea
+             id="feedbackText"
+             rows="2"
+             class="w-full p-2 rounded border bg-[var(--card-color)] text-[var(--text-color)] border-[var(--border-color)] focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)] resize-y text-sm placeholder:text-[var(--text-medium-color)]"
+             placeholder="Comentario opcional..."
+             aria-label="Comentario opcional sobre la valoración"
+         ></textarea>
+     </div>
+     <div class="text-center mt-4">
+         <button
+             id="submitFeedbackBtn"
+             type="button"
+             disabled
+             class="px-6 py-2 rounded bg-[var(--accent-color)] text-[var(--info-fixed-text)] font-semibold transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+         >
+             Enviar Valoración
+         </button>
+     </div>
+     <p id="ratingMessage" class="text-center text-[var(--accent-color)] mt-3 h-5"></p>
+   </section>
 
-    function updateSliderIndicatorsActiveColor() {
-      if (indicatorsContainer) {
-          Array.from(indicatorsContainer.children).forEach((indicator, index) => {
-              if (indicator instanceof HTMLElement) {
-                  indicator.classList.remove('active-indicator');
-                  // Use CSS variable for active color
-                  indicator.style.backgroundColor = index === currentSlide ? 'var(--accent-color)' : 'var(--text-medium-color)';
-                  indicator.style.opacity = index === currentSlide ? '1' : '0.6';
-              }
-          });
-      }
-    }
+   <footer class="mt-0 py-4 pb-6 sm:py-4 text-center relative z-10"> <a href="https://t.me/OnefraGT" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 text-base sm:text-lg">
+         <i class="fab fa-telegram-plane text-xl sm:text-2xl"></i> Contacta con @OnefraGT
+     </a>
+   </footer>
 
-    function createIndicators() {
-      if (!indicatorsContainer || totalSlides <= 0) return;
-      indicatorsContainer.innerHTML = '';
-      for (let i = 0; i < totalSlides; i++) {
-          const indicator = document.createElement('button');
-          // Adjusted size slightly for easier tapping
-          indicator.className = `w-2.5 h-2.5 rounded-full transition-colors duration-300 ease-in-out`;
-          indicator.style.backgroundColor = 'var(--text-medium-color)'; // Initial color via CSS var
-          indicator.style.opacity = '0.6'; // Initial opacity
-          indicator.setAttribute('aria-label', `Ir a slide ${i + 1}`);
-          indicator.onclick = () => goToSlide(i);
-          indicatorsContainer.appendChild(indicator);
-      }
-      updateSliderIndicatorsActiveColor(); // Set initial active state
-    }
+   <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnClickOutside(event)">
+     <div class="modal">
+       <button class="modal-close-button" onclick="closeModal()" aria-label="Cerrar modal">
+         <i class="fas fa-times"></i>
+       </button>
+       <h2 id="modalTitle" class="text-xl sm:text-2xl font-bold mb-4"></h2> <p id="modalText" class="text-base"></p>
+     </div>
+   </div>
 
-    function updateSlider() {
-       if (!sliderWrapper || totalSlides <= 0) return;
-       sliderWrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
-       updateSliderIndicatorsActiveColor();
-     }
-    function nextSlide() { if (totalSlides <= 0) return; currentSlide = (currentSlide + 1) % totalSlides; updateSlider(); }
-    function prevSlide() { if (totalSlides <= 0) return; currentSlide = (currentSlide - 1 + totalSlides) % totalSlides; updateSlider(); }
-    function goToSlide(slideIndex) { if (totalSlides <= 0 || slideIndex < 0 || slideIndex >= totalSlides) return; currentSlide = slideIndex; updateSlider(); }
+ <script>
+     // ***** Variables Globales para Supabase y Swiper *****
+     const SUPABASE_URL = 'https://gczozcergpdgwwdbyabo.supabase.co'; // TU URL REAL
+     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdjem96Y2VyZ3BkZ3d3ZGJ5YWJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE5NjM0NTMsImV4cCI6MjA1NzUzOTQ1M30.NsgzC0gpM3yAE9I9UClgAY0WgC0lgyN5vCI7kFWCgBo'; // TU CLAVE ANON REAL
+     let supabase = null; // Se inicializará en DOMContentLoaded
+     let reviewsSwiper = null; // Se inicializará después de cargar reseñas
 
-    // --- Theme Toggle Logic ---
-    const themeToggleButton = document.getElementById('theme-toggle');
-    const themeToggleIcon = themeToggleButton ? themeToggleButton.querySelector('i') : null;
-    const setTheme = (theme) => {
-        localStorage.setItem('theme', theme);
-        if (theme === 'light') {
-            document.body.classList.add('light-mode');
-            if(themeToggleIcon) themeToggleIcon.className = 'fas fa-moon';
-        } else {
-            document.body.classList.remove('light-mode');
-            if(themeToggleIcon) themeToggleIcon.className = 'fas fa-sun';
-        }
-        // Update slider indicators on theme change as colors depend on theme
-        updateSliderIndicatorsActiveColor();
-      };
-    const currentTheme = localStorage.getItem('theme') || 'dark';
-    setTheme(currentTheme); // Apply theme on load
+     // --- Modal Logic --- (Sin cambios)
+     const modalOverlay = document.getElementById("modalOverlay"); const modalTitle = document.getElementById("modalTitle"); const modalText = document.getElementById("modalText"); function showModal(title, text) { if(modalOverlay && modalTitle && modalText){ modalTitle.innerText = title; modalText.innerText = text; modalOverlay.classList.add("active"); } else { console.error("Modal elements not found!"); } } function closeModal() { if(modalOverlay) modalOverlay.classList.remove("active"); } function showButtonInfo(buttonElement) { if (buttonElement && typeof buttonElement.getAttribute === 'function') { var title = buttonElement.getAttribute("data-title"); var text = buttonElement.getAttribute("data-text"); if (title !== null && text !== null) { showModal(title, text); } else { console.error("Info button attributes missing.", buttonElement); } } else { console.error("Invalid element passed to showButtonInfo:", buttonElement); } } function closeModalOnClickOutside(event) { if (event.target === modalOverlay) { closeModal(); } }
 
-    if (themeToggleButton) {
-      themeToggleButton.addEventListener('click', () => {
-        let newTheme = document.body.classList.contains('light-mode') ? 'dark' : 'light';
-        setTheme(newTheme);
-      });
-    }
+     // --- Slider Logic --- (Sin cambios)
+     const sliderWrapper = document.getElementById('sliderWrapper'); const indicatorsContainer = document.getElementById('sliderIndicators'); let currentSlide = 0; let totalSlides = 0; if (sliderWrapper) { totalSlides = sliderWrapper.children.length; } function updateSliderIndicatorsActiveColor() { if (indicatorsContainer) { Array.from(indicatorsContainer.children).forEach((indicator, index) => { if (indicator instanceof HTMLElement) { indicator.classList.remove('active-indicator'); indicator.style.backgroundColor = index === currentSlide ? 'var(--accent-color)' : 'var(--text-medium-color)'; indicator.style.opacity = index === currentSlide ? '1' : '0.6'; } }); } } function createIndicators() { if (!indicatorsContainer || totalSlides <= 0) return; indicatorsContainer.innerHTML = ''; for (let i = 0; i < totalSlides; i++) { const indicator = document.createElement('button'); indicator.className = `w-2.5 h-2.5 rounded-full transition-colors duration-300 ease-in-out`; indicator.style.backgroundColor = 'var(--text-medium-color)'; indicator.style.opacity = '0.6'; indicator.setAttribute('aria-label', `Ir a slide ${i + 1}`); indicator.onclick = () => goToSlide(i); indicatorsContainer.appendChild(indicator); } updateSliderIndicatorsActiveColor(); } function updateSlider() { if (!sliderWrapper || totalSlides <= 0) return; sliderWrapper.style.transform = `translateX(-${currentSlide * 100}%)`; updateSliderIndicatorsActiveColor(); } function nextSlide() { if (totalSlides <= 0) return; currentSlide = (currentSlide + 1) % totalSlides; updateSlider(); } function prevSlide() { if (totalSlides <= 0) return; currentSlide = (currentSlide - 1 + totalSlides) % totalSlides; updateSlider(); } function goToSlide(slideIndex) { if (totalSlides <= 0 || slideIndex < 0 || slideIndex >= totalSlides) return; currentSlide = slideIndex; updateSlider(); }
 
-    // --- Rating Stars Logic (con Botón Enviar) ---
-    const ratingContainer = document.getElementById('ratingStars');
-    const ratingStars = ratingContainer ? ratingContainer.querySelectorAll('i') : [];
-    const ratingMessage = document.getElementById('ratingMessage');
-    const feedbackInput = document.getElementById('feedbackText');
-    const submitFeedbackBtn = document.getElementById('submitFeedbackBtn'); // <-- Obtener el botón
+     // --- Theme Toggle Logic --- (Sin cambios)
+     const themeToggleButton = document.getElementById('theme-toggle'); const themeToggleIcon = themeToggleButton ? themeToggleButton.querySelector('i') : null; const setTheme = (theme) => { localStorage.setItem('theme', theme); if (theme === 'light') { document.body.classList.add('light-mode'); if(themeToggleIcon) themeToggleIcon.className = 'fas fa-moon'; } else { document.body.classList.remove('light-mode'); if(themeToggleIcon) themeToggleIcon.className = 'fas fa-sun'; } updateSliderIndicatorsActiveColor(); }; const currentTheme = localStorage.getItem('theme') || 'dark'; setTheme(currentTheme); if (themeToggleButton) { themeToggleButton.addEventListener('click', () => { let newTheme = document.body.classList.contains('light-mode') ? 'dark' : 'light'; setTheme(newTheme); }); }
 
-    let currentRating = 0; // Guarda la valoración seleccionada (0 = ninguna)
+     // --- Rating Stars Logic --- (Sin cambios funcionales)
+     const ratingContainer = document.getElementById('ratingStars'); const ratingStars = ratingContainer ? ratingContainer.querySelectorAll('i') : []; const ratingMessage = document.getElementById('ratingMessage'); const feedbackInput = document.getElementById('feedbackText'); const submitFeedbackBtn = document.getElementById('submitFeedbackBtn'); let currentRating = 0; function updateStarsVisual(ratingValue) { ratingStars.forEach(star => { const starValue = parseInt(star.dataset.value, 10); if (starValue <= ratingValue) { star.classList.remove('far'); star.classList.add('fas'); star.classList.add('selected'); } else { star.classList.remove('fas'); star.classList.add('far'); star.classList.remove('selected'); star.classList.remove('hovered'); } }); } function handleStarHover(event) { if (!event.target.matches('#ratingStars i')) return; const hoverValue = parseInt(event.target.dataset.value, 10); ratingStars.forEach(star => { const starValue = parseInt(star.dataset.value, 10); if (starValue <= hoverValue) { star.classList.add('hovered'); star.classList.remove('far'); star.classList.add('fas'); } else { star.classList.remove('hovered'); if (!star.classList.contains('selected')) { star.classList.remove('fas'); star.classList.add('far'); } } }); } function resetStarHover() { updateStarsVisual(currentRating); ratingStars.forEach(star => star.classList.remove('hovered')); } function handleStarClick(event) { if (!event.target.matches('#ratingStars i')) return; const clickedValue = parseInt(event.target.dataset.value, 10); currentRating = clickedValue; updateStarsVisual(currentRating); if (submitFeedbackBtn && submitFeedbackBtn.disabled && supabase) { submitFeedbackBtn.disabled = false; submitFeedbackBtn.textContent = 'Enviar Valoración'; submitFeedbackBtn.style.backgroundColor = ''; submitFeedbackBtn.style.cursor = 'pointer'; } }
 
-    // Función para actualizar visualmente las estrellas (sin cambios)
-    function updateStarsVisual(ratingValue) {
-      ratingStars.forEach(star => {
-        const starValue = parseInt(star.dataset.value, 10);
-        if (starValue <= ratingValue) {
-          star.classList.remove('far'); star.classList.add('fas'); star.classList.add('selected');
-        } else {
-          star.classList.remove('fas'); star.classList.add('far'); star.classList.remove('selected'); star.classList.remove('hovered');
-        }
-      });
-    }
+     // --- sendFeedback (Usa Supabase y actualiza carrusel) --- (Sin cambios funcionales)
+     async function sendFeedback() { if (currentRating === 0) { if (ratingMessage) ratingMessage.textContent = 'Por favor, selecciona una puntuación.'; setTimeout(() => { if (ratingMessage && ratingMessage.textContent === 'Por favor, selecciona una puntuación.') { ratingMessage.textContent = ''; } }, 3000); return; } const userFeedback = feedbackInput ? feedbackInput.value.trim() : ''; if (submitFeedbackBtn) submitFeedbackBtn.disabled = true; if (ratingMessage) ratingMessage.textContent = 'Enviando...'; if (!supabase) { console.error("Supabase client not available."); if (ratingMessage) ratingMessage.textContent = 'Error de conexión.'; return; } try { const reviewData = { rating: currentRating, comment: userFeedback || null }; const { data, error } = await supabase.from('reviews').insert([reviewData]).select(); if (error) { throw new Error(error.message); } console.log('Reseña guardada en Supabase:', data); if (ratingMessage) ratingMessage.textContent = '¡Gracias por tu valoración!'; if (feedbackInput) feedbackInput.value = ''; currentRating = 0; updateStarsVisual(0); await fetchAndDisplayReviews(); } catch (error) { console.error('Error durante el envío a Supabase:', error); if (ratingMessage) ratingMessage.textContent = 'Error al enviar.'; if (submitFeedbackBtn && supabase) { submitFeedbackBtn.disabled = false; /* ... restaurar estilo ... */ } } finally { setTimeout(() => { if (ratingMessage) ratingMessage.textContent = ''; }, 4000); } }
 
-    // Función para manejar el hover sobre las estrellas (sin cambios funcionales)
-    function handleStarHover(event) {
-       // Sólo procesa si el evento viene de un icono de estrella real
-       if (!event.target.matches('#ratingStars i')) return;
-        const hoverValue = parseInt(event.target.dataset.value, 10);
-        ratingStars.forEach(star => {
-            const starValue = parseInt(star.dataset.value, 10);
-            if (starValue <= hoverValue) {
-                star.classList.add('hovered'); star.classList.remove('far'); star.classList.add('fas');
-            } else {
-                star.classList.remove('hovered');
-                if (!star.classList.contains('selected')) { // Solo vacía si no está seleccionada
-                    star.classList.remove('fas'); star.classList.add('far');
-                }
-            }
-        });
-    }
+     // --- Lógica del Carrusel de Reseñas --- (Sin cambios funcionales)
+     function displayStars(rating) { let starsHTML = ''; for (let i = 1; i <= 5; i++) { if (i <= rating) { starsHTML += '<i class="fas fa-star"></i>'; } else { starsHTML += '<i class="far fa-star"></i>'; } } return starsHTML; }
+     async function fetchAndDisplayReviews() { const wrapper = document.getElementById('reviewsSwiperWrapper'); const loadingDiv = document.getElementById('reviewsLoading'); const noReviewsDiv = document.getElementById('noReviewsMessage'); const carouselElement = document.getElementById('reviewsCarousel'); if (!wrapper || !loadingDiv || !noReviewsDiv || !carouselElement) { console.error('Elementos del carrusel no encontrados.'); return; } if (!supabase) { console.warn('Supabase no inicializado, no se pueden cargar reseñas.'); noReviewsDiv.textContent = 'Error al cargar reseñas (conexión).'; noReviewsDiv.style.display = 'block'; loadingDiv.style.display = 'none'; carouselElement.style.display = 'none'; return; } loadingDiv.style.display = 'block'; noReviewsDiv.style.display = 'none'; wrapper.innerHTML = ''; if (reviewsSwiper) { reviewsSwiper.destroy(true, true); reviewsSwiper = null; } try { let { data: reviews, error } = await supabase.from('reviews').select('*').order('created_at', { ascending: false }).limit(15); if (error) { throw error; } loadingDiv.style.display = 'none'; if (reviews && reviews.length > 0) { carouselElement.style.display = 'block'; reviews.forEach(review => { const slide = document.createElement('div'); slide.classList.add('swiper-slide'); const starsDiv = document.createElement('div'); starsDiv.classList.add('review-stars'); starsDiv.innerHTML = displayStars(review.rating); const commentP = document.createElement('p'); commentP.classList.add('review-comment'); if (review.comment && review.comment.trim() !== '') { commentP.textContent = review.comment; } else { commentP.textContent = 'Sin comentario.'; commentP.classList.add('no-comment'); } slide.appendChild(starsDiv); slide.appendChild(commentP); wrapper.appendChild(slide); }); reviewsSwiper = new Swiper('#reviewsCarousel', { loop: reviews.length > 1, slidesPerView: 1, spaceBetween: 20, pagination: { el: '.swiper-pagination', clickable: true, }, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev', }, breakpoints: { 640: { slidesPerView: 2, spaceBetween: 20 }, 1024: { slidesPerView: 3, spaceBetween: 30 } }, autoplay: { delay: 5000, disableOnInteraction: false, }, }); } else { noReviewsDiv.style.display = 'block'; carouselElement.style.display = 'none'; } } catch (error) { console.error('Error al obtener reseñas:', error); loadingDiv.style.display = 'none'; noReviewsDiv.textContent = 'Error al cargar las reseñas.'; noReviewsDiv.style.display = 'block'; carouselElement.style.display = 'none'; } }
 
-    // Función para resetear el hover al salir del contenedor (sin cambios)
-    function resetStarHover() {
-        updateStarsVisual(currentRating);
-        ratingStars.forEach(star => star.classList.remove('hovered'));
-    }
+     // --- ***** MODIFICADO: Inicialización General dentro de DOMContentLoaded ***** ---
+     document.addEventListener('DOMContentLoaded', () => {
 
-    // --- Función handleStarClick (MODIFICADA: SOLO SELECCIONA) ---
-    function handleStarClick(event) {
-      // Sólo procesa si el evento viene de un icono de estrella real
-      if (!event.target.matches('#ratingStars i')) return;
+         // ***** PASO 1: Intentar Inicializar Supabase *****
+         console.log("DOMContentLoaded event fired. Intentando inicializar Supabase..."); // Log 1
+         try {
+             // Verifica si las claves están definidas y no son placeholders
+             if (!SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_URL.includes('TU_SUPABASE_URL') || SUPABASE_ANON_KEY.includes('TU_SUPABASE_ANON_KEY')) {
+                  throw new Error('Supabase URL or Anon Key is missing or contains placeholder text.');
+             }
 
-      const clickedValue = parseInt(event.target.dataset.value, 10);
-      currentRating = clickedValue; // Actualiza la valoración seleccionada
-      updateStarsVisual(currentRating); // Actualiza la vista
+             // Verifica si la librería global 'supabase' (creada por el script) y su método 'createClient' existen
+             // Usamos window.supabase para ser explícitos
+             // *** CORRECCIÓN CLAVE: Acceder a la librería a través de window.supabase ***
+             if (typeof window.supabase === 'undefined' || typeof window.supabase.createClient !== 'function') {
+                  console.error("Supabase library object (window.supabase) or createClient function not found. Check script loading in <head>.");
+                  // Loguear el objeto window para ver qué hay disponible
+                  console.log("Window object at DOMContentLoaded:", window);
+                  throw new Error('Supabase client library not loaded or invalid.');
+             } else {
+                  // Llama a createClient usando el objeto global de la librería (window.supabase)
+                  // y asigna el *resultado* (el cliente inicializado) a nuestra variable global 'supabase'.
+                  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                  console.log('Supabase client initialized successfully using window.supabase inside DOMContentLoaded.'); // Log 4 (Éxito)
 
-      // Habilita el botón de enviar si no lo estaba ya
-      if (submitFeedbackBtn && submitFeedbackBtn.disabled) {
-          submitFeedbackBtn.disabled = false;
-      }
-      // NO envía nada, solo selecciona
-    }
+                  // Comprobación extra para asegurarse que el cliente se creó
+                  if (!supabase) {
+                     throw new Error('Supabase client creation returned null or undefined.');
+                  }
+             }
+         } catch (error) {
+             // Manejo centralizado de errores de inicialización
+             console.error("Error initializing Supabase client inside DOMContentLoaded:", error); // Log 5 (Error)
+             alert("Error conectando con el sistema de reseñas. La carga y envío de reseñas no funcionará. Detalles en la consola (F12).");
 
-    // --- NUEVA FUNCIÓN: sendFeedback (LLAMADA POR EL BOTÓN) ---
-    function sendFeedback() {
-        // 1. Validar que se ha seleccionado una valoración
-        if (currentRating === 0) {
-            if (ratingMessage) ratingMessage.textContent = 'Por favor, selecciona una puntuación.';
-            // Ocultar mensaje de validación después de unos segundos
-            setTimeout(() => {
-                if (ratingMessage && ratingMessage.textContent === 'Por favor, selecciona una puntuación.') {
-                     ratingMessage.textContent = '';
-                }
-            }, 3000);
-            return; // No hacer nada si no hay estrellas seleccionadas
-        }
+             // Deshabilitar botón y mostrar error
+             const submitBtn = document.getElementById('submitFeedbackBtn');
+             if(submitBtn) {
+                 submitBtn.disabled = true;
+                 submitBtn.textContent = 'Error Conexión';
+                 submitBtn.style.backgroundColor = '#ef4444'; // Rojo
+                 submitBtn.style.cursor = 'not-allowed';
+             }
+             // Ocultar el contenedor del carrusel
+             const reviewsContainer = document.getElementById('reviewsCarouselContainer');
+             if (reviewsContainer) reviewsContainer.style.display = 'none';
 
-        // 2. Obtener comentario (si lo hay)
-        const userFeedback = feedbackInput ? feedbackInput.value.trim() : '';
+             // Detener la ejecución adicional dentro de DOMContentLoaded si falla Supabase
+             return; // Importante para no ejecutar el resto si falla
+         }
 
-        // 3. Deshabilitar botón y mostrar mensaje de envío
-        if (submitFeedbackBtn) submitFeedbackBtn.disabled = true;
-        if (ratingMessage) ratingMessage.textContent = 'Enviando...';
+         // ***** PASO 2: Inicializar otras partes (solo si Supabase funcionó) *****
+         console.log("Inicializando otras partes de la página..."); // Log 6
 
-        // 4. Preparar datos
-        const formSpreeEndpoint = 'https://formspree.io/f/myzeraaw'; // Tu URL real
-        const formData = {
-            rating: currentRating,
-            comment: userFeedback,
-            page: window.location.pathname,
-            submittedAt: new Date().toISOString()
-        };
+         // Inicializar Slider de Libros
+         if (sliderWrapper && totalSlides > 0) { createIndicators(); updateSlider(); }
 
-        // 5. Enviar a Formspree (usando fetch)
-        fetch(formSpreeEndpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        })
-        .then(response => {
-            if (response.ok) {
-                console.log('Valoración y comentario enviados a Formspree con éxito!');
-                if (ratingMessage) ratingMessage.textContent = '¡Gracias por tu valoración!';
-                // Limpiar campos y resetear estado tras éxito
-                if (feedbackInput) feedbackInput.value = '';
-                currentRating = 0; // Resetea la valoración seleccionada
-                updateStarsVisual(0); // Resetea la vista de las estrellas
-                // El botón se queda deshabilitado (porque currentRating es 0)
-            } else {
-                // Hubo un error en la respuesta de Formspree
-                response.json().then(data => {
-                    console.error('Error al enviar a Formspree:', data.errors || response.statusText);
-                    if (ratingMessage) ratingMessage.textContent = 'Error al enviar. Inténtalo más tarde.';
-                }).catch(() => {
-                    if (ratingMessage) ratingMessage.textContent = 'Error al enviar. Inténtalo más tarde.';
-                });
-                // RE-HABILITAR botón si hubo error para que pueda reintentar
-                if (submitFeedbackBtn) submitFeedbackBtn.disabled = false;
-            }
-        })
-        .catch(error => {
-            // Hubo un error de red
-            console.error('Error de red al enviar a Formspree:', error);
-            if (ratingMessage) ratingMessage.textContent = 'Error de red. Inténtalo más tarde.';
-            // RE-HABILITAR botón si hubo error para que pueda reintentar
-            if (submitFeedbackBtn) submitFeedbackBtn.disabled = false;
-        })
-        .finally(() => {
-            // Ocultar mensaje de estado/error/gracias después de unos segundos
-            setTimeout(() => {
-                 if (ratingMessage) {
-                      ratingMessage.textContent = '';
-                 }
-            }, 4000); // Tiempo para mostrar mensajes
-        });
-    }
+         // Inicializar Lógica de Rating
+         if (ratingContainer && ratingStars.length > 0) {
+             // El botón empieza deshabilitado por defecto (en el HTML)
+             // Se habilitará al hacer clic en una estrella (ver handleStarClick)
+              if (submitFeedbackBtn) { submitFeedbackBtn.disabled = true; }
 
-    // --- Inicialización (MODIFICADA) ---
-    if (ratingContainer && ratingStars.length > 0) {
-        // 1. Poner botón deshabilitado al inicio (ya está en el HTML, pero por si acaso)
-        if (submitFeedbackBtn) submitFeedbackBtn.disabled = true;
+             ratingStars.forEach(star => { star.addEventListener('mouseover', handleStarHover); star.addEventListener('click', handleStarClick); });
+             ratingContainer.addEventListener('mouseleave', resetStarHover);
+             if (submitFeedbackBtn) { submitFeedbackBtn.addEventListener('click', sendFeedback); }
+         }
 
-        // 2. Añadir listeners a las estrellas
-        ratingStars.forEach(star => {
-            star.addEventListener('mouseover', handleStarHover);
-            star.addEventListener('click', handleStarClick); // Llama a la función que SOLO selecciona
-        });
+         // Cargar reseñas al iniciar (ahora seguro que Supabase está listo si llegamos aquí)
+         fetchAndDisplayReviews();
 
-        // 3. Resetear hover al salir del contenedor de estrellas
-        ratingContainer.addEventListener('mouseleave', resetStarHover);
+         // Verificar si Swiper está cargado (opcional)
+         if (typeof Swiper === 'undefined') {
+             console.warn('Swiper library not loaded. Carousel might not work.');
+         }
 
-        // 4. Añadir listener al NUEVO BOTÓN DE ENVÍO
-        if (submitFeedbackBtn) {
-            submitFeedbackBtn.addEventListener('click', sendFeedback); // Llama a la función que SÍ envía
-        }
-    }
+     }); // Fin de DOMContentLoaded
 
+ </script>
 
-    // Initialize Slider (después de cargar el DOM y el tema)
-    if (sliderWrapper && totalSlides > 0) {
-        createIndicators();
-    }
-
-  </script>
-
-</body>
-</html>
+ </body>
+ </html>
+ 
