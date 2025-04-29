@@ -73,7 +73,17 @@
      }
 
      /* --- Base Styles & Transitions --- */
-     body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
+     html {
+         scroll-behavior: smooth; /* Desplazamiento suave */
+     }
+     body {
+         background-color: var(--bg-color);
+         color: var(--text-color);
+         font-family: 'Inter', sans-serif;
+         transition: background-color 0.3s ease, color 0.3s ease;
+         overflow-x: hidden; /* MODIFICADO: Prevenir scroll horizontal */
+         -webkit-tap-highlight-color: transparent; /* Evitar resaltado azul en taps móviles */
+     }
      h1, h2, h3 { color: var(--text-color); transition: color 0.3s ease; }
      h1 > span, h1 > i.fa-shield-alt { color: var(--accent-color); transition: color 0.3s ease;} /* Title H1 accent */
      p { color: var(--text-color); transition: color 0.3s ease; }
@@ -161,15 +171,17 @@
           color: var(--accent-color);
       }
 
-      /* ***** MODIFICADO: Estilos para el Carrusel de Reseñas (Vertical) ***** */
+      /* Estilos para el Carrusel de Reseñas (Vertical) */
      #reviewsCarouselContainer {
          max-width: 700px;
+         width: 100%; /* MODIFICADO: Asegurar que ocupe el ancho disponible */
          margin: 2rem auto;
-         padding: 0 1rem;
-         /* Añadir padding para los botones de navegación si se solapan */
+         padding: 0 1rem; /* Padding base */
+         /* Padding mayor en pantallas más grandes para botones de navegación */
          padding-left: 2.5rem;
          padding-right: 2.5rem;
          position: relative; /* Necesario para posicionar botones */
+         box-sizing: border-box; /* Incluir padding en el ancho total */
      }
      .swiper-slide {
          background-color: var(--card-color);
@@ -179,12 +191,13 @@
          color: var(--text-color);
          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
          min-height: 150px; /* Ajusta según necesites */
-         display: flex;           /* Usar flex */
-         flex-direction: column;  /* Dirección vertical */
-         justify-content: center; /* Centrar verticalmente */
-         align-items: center;     /* Centrar horizontalmente */
-         text-align: center;      /* Centrar texto por defecto */
+         display: flex;
+         flex-direction: column;
+         justify-content: center;
+         align-items: center;
+         text-align: center;
          transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+         box-sizing: border-box; /* Incluir padding en el tamaño */
      }
      body.light-mode .swiper-slide {
          background-color: var(--card-color);
@@ -192,10 +205,9 @@
          color: var(--text-color);
      }
      .review-stars {
-         margin-bottom: 0.75rem; /* Espacio debajo de las estrellas */
+         margin-bottom: 0.75rem;
          font-size: 1.1rem;
          color: var(--accent-color);
-         /* No necesita text-align: center si el contenedor .swiper-slide ya lo tiene */
      }
       body.light-mode .review-stars {
           color: var(--accent-color);
@@ -204,9 +216,7 @@
          font-size: 0.95rem;
          line-height: 1.5;
          color: var(--text-color);
-         /* No necesita text-align: center si el contenedor .swiper-slide ya lo tiene */
-         word-break: break-word; /* Evitar desbordamiento */
-         /* Permitir que el comentario ocupe el espacio restante */
+         word-break: break-word;
          width: 100%;
      }
       body.light-mode .review-comment {
@@ -226,24 +236,31 @@
          color: var(--swiper-navigation-color);
          transition: color 0.3s ease;
          top: 50%;
-         width: calc(var(--swiper-navigation-size) / 44 * 27); /* Tamaño por defecto */
-         height: var(--swiper-navigation-size); /* Tamaño por defecto */
-         margin-top: calc(0px - (var(--swiper-navigation-size) / 2)); /* Centrado vertical */
-         /* Ajustar posición para que no estén tan pegados a los bordes */
-         &.swiper-button-prev {
-            left: 5px; /* Un poco separado del borde izquierdo */
-         }
-         &.swiper-button-next {
-             right: 5px; /* Un poco separado del borde derecho */
-         }
+         width: calc(var(--swiper-navigation-size) / 44 * 27);
+         height: var(--swiper-navigation-size);
+         margin-top: calc(0px - (var(--swiper-navigation-size) / 2));
+         /* Posicionamiento absoluto respecto al contenedor del carrusel */
+         position: absolute;
+         z-index: 10; /* Asegurar que estén por encima */
      }
-     /* Reducir tamaño en móviles */
+     .swiper-button-prev {
+         left: 5px; /* Separación del borde izquierdo */
+     }
+     .swiper-button-next {
+         right: 5px; /* Separación del borde derecho */
+     }
+
+     /* Ajustes responsivos para botones y padding */
      @media (max-width: 640px) {
+        #reviewsCarouselContainer {
+             padding-left: 1rem; /* Reducir padding en móvil */
+             padding-right: 1rem;
+        }
         .swiper-button-prev,
         .swiper-button-next {
-            /* Ocultar botones en móvil si se prefiere */
-             /* display: none; */
-             /* O reducir tamaño */
+            /* Opcional: Ocultar botones en pantallas muy pequeñas */
+            /* display: none; */
+            /* O hacerlos más pequeños */
              width: calc(var(--swiper-navigation-size) / 44 * 20);
              height: calc(var(--swiper-navigation-size) / 44 * 30);
              margin-top: calc(0px - (var(--swiper-navigation-size) / 2) + 7px); /* Ajuste vertical */
@@ -251,10 +268,6 @@
          .swiper-button-prev::after,
          .swiper-button-next::after {
              font-size: 1.2rem; /* Flechas más pequeñas */
-         }
-         #reviewsCarouselContainer {
-             padding-left: 1.5rem; /* Menos padding si los botones son más pequeños o se ocultan */
-             padding-right: 1.5rem;
          }
      }
 
@@ -282,16 +295,15 @@
  </head>
  <body class="relative min-h-screen flex flex-col">
 
-   <button id="theme-toggle" class="fixed top-4 left-4 z-50 w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-lg" aria-label="Cambiar tema">
+   <button id="theme-toggle" class="fixed top-2 left-2 sm:top-4 sm:left-4 z-50 w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-base sm:text-lg shadow-lg" aria-label="Cambiar tema">
        <i class="fas fa-sun"></i>
    </button>
 
-   <div class="fixed-info-button fixed top-4 right-4 z-50 w-10 h-10 rounded-full flex items-center justify-center text-lg transition-transform hover:scale-110 cursor-pointer shadow-glow-neon" onclick="showModal('Información General', 'Esta página ofrece herramientas útiles y gratuitas. El creador no recibe compensación por su uso. Todo se guarda localmente cuando aplica (ej. Bloc de Notas), asegurando tu privacidad. El uso de estas herramientas es responsabilidad del usuario.')">
+   <div class="fixed-info-button fixed top-2 right-2 sm:top-4 sm:right-4 z-50 w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-base sm:text-lg transition-transform hover:scale-110 cursor-pointer shadow-glow-neon" onclick="showModal('Información General', 'Esta página ofrece herramientas útiles y gratuitas. El creador no recibe compensación por su uso. Todo se guarda localmente cuando aplica (ej. Bloc de Notas), asegurando tu privacidad. El uso de estas herramientas es responsabilidad del usuario.')">
        <i class="fas fa-question"></i>
    </div>
 
-   <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-20 pb-16 sm:pt-16 relative z-10 flex-grow">
-      <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-center mb-8 sm:mb-12 drop-shadow-lg">
+   <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-16 sm:pt-16 relative z-10 flex-grow"> <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-center mb-8 sm:mb-12 drop-shadow-lg">
         Herramientas<br>
         GUARD<span>-</span>IA <i class="fas fa-shield-alt ml-1 sm:ml-2"></i> </h1>
 
@@ -463,78 +475,59 @@
      function displayStars(rating) { let starsHTML = ''; for (let i = 1; i <= 5; i++) { if (i <= rating) { starsHTML += '<i class="fas fa-star"></i>'; } else { starsHTML += '<i class="far fa-star"></i>'; } } return starsHTML; }
      async function fetchAndDisplayReviews() { const wrapper = document.getElementById('reviewsSwiperWrapper'); const loadingDiv = document.getElementById('reviewsLoading'); const noReviewsDiv = document.getElementById('noReviewsMessage'); const carouselElement = document.getElementById('reviewsCarousel'); if (!wrapper || !loadingDiv || !noReviewsDiv || !carouselElement) { console.error('Elementos del carrusel no encontrados.'); return; } if (!supabase) { console.warn('Supabase no inicializado, no se pueden cargar reseñas.'); noReviewsDiv.textContent = 'Error al cargar reseñas (conexión).'; noReviewsDiv.style.display = 'block'; loadingDiv.style.display = 'none'; carouselElement.style.display = 'none'; return; } loadingDiv.style.display = 'block'; noReviewsDiv.style.display = 'none'; wrapper.innerHTML = ''; if (reviewsSwiper) { reviewsSwiper.destroy(true, true); reviewsSwiper = null; } try { let { data: reviews, error } = await supabase.from('reviews').select('*').order('created_at', { ascending: false }).limit(15); if (error) { throw error; } loadingDiv.style.display = 'none'; if (reviews && reviews.length > 0) { carouselElement.style.display = 'block'; reviews.forEach(review => { const slide = document.createElement('div'); slide.classList.add('swiper-slide'); const starsDiv = document.createElement('div'); starsDiv.classList.add('review-stars'); starsDiv.innerHTML = displayStars(review.rating); const commentP = document.createElement('p'); commentP.classList.add('review-comment'); if (review.comment && review.comment.trim() !== '') { commentP.textContent = review.comment; } else { commentP.textContent = 'Sin comentario.'; commentP.classList.add('no-comment'); } slide.appendChild(starsDiv); slide.appendChild(commentP); wrapper.appendChild(slide); }); reviewsSwiper = new Swiper('#reviewsCarousel', { loop: reviews.length > 1, slidesPerView: 1, spaceBetween: 20, pagination: { el: '.swiper-pagination', clickable: true, }, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev', }, breakpoints: { 640: { slidesPerView: 2, spaceBetween: 20 }, 1024: { slidesPerView: 3, spaceBetween: 30 } }, autoplay: { delay: 5000, disableOnInteraction: false, }, }); } else { noReviewsDiv.style.display = 'block'; carouselElement.style.display = 'none'; } } catch (error) { console.error('Error al obtener reseñas:', error); loadingDiv.style.display = 'none'; noReviewsDiv.textContent = 'Error al cargar las reseñas.'; noReviewsDiv.style.display = 'block'; carouselElement.style.display = 'none'; } }
 
-     // --- ***** MODIFICADO: Inicialización General dentro de DOMContentLoaded ***** ---
+     // --- Inicialización General dentro de DOMContentLoaded ---
      document.addEventListener('DOMContentLoaded', () => {
 
          // ***** PASO 1: Intentar Inicializar Supabase *****
-         console.log("DOMContentLoaded event fired. Intentando inicializar Supabase..."); // Log 1
+         console.log("DOMContentLoaded event fired. Intentando inicializar Supabase...");
          try {
-             // Verifica si las claves están definidas y no son placeholders
              if (!SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_URL.includes('TU_SUPABASE_URL') || SUPABASE_ANON_KEY.includes('TU_SUPABASE_ANON_KEY')) {
                   throw new Error('Supabase URL or Anon Key is missing or contains placeholder text.');
              }
-
-             // Verifica si la librería global 'supabase' (creada por el script) y su método 'createClient' existen
-             // Usamos window.supabase para ser explícitos
-             // *** CORRECCIÓN CLAVE: Acceder a la librería a través de window.supabase ***
              if (typeof window.supabase === 'undefined' || typeof window.supabase.createClient !== 'function') {
-                  console.error("Supabase library object (window.supabase) or createClient function not found. Check script loading in <head>.");
-                  // Loguear el objeto window para ver qué hay disponible
+                  console.error("Supabase library object (window.supabase) or createClient function not found.");
                   console.log("Window object at DOMContentLoaded:", window);
                   throw new Error('Supabase client library not loaded or invalid.');
              } else {
-                  // Llama a createClient usando el objeto global de la librería (window.supabase)
-                  // y asigna el *resultado* (el cliente inicializado) a nuestra variable global 'supabase'.
                   supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                  console.log('Supabase client initialized successfully using window.supabase inside DOMContentLoaded.'); // Log 4 (Éxito)
-
-                  // Comprobación extra para asegurarse que el cliente se creó
+                  console.log('Supabase client initialized successfully.');
                   if (!supabase) {
                      throw new Error('Supabase client creation returned null or undefined.');
                   }
              }
          } catch (error) {
-             // Manejo centralizado de errores de inicialización
-             console.error("Error initializing Supabase client inside DOMContentLoaded:", error); // Log 5 (Error)
+             console.error("Error initializing Supabase client:", error);
              alert("Error conectando con el sistema de reseñas. La carga y envío de reseñas no funcionará. Detalles en la consola (F12).");
-
-             // Deshabilitar botón y mostrar error
              const submitBtn = document.getElementById('submitFeedbackBtn');
              if(submitBtn) {
                  submitBtn.disabled = true;
                  submitBtn.textContent = 'Error Conexión';
-                 submitBtn.style.backgroundColor = '#ef4444'; // Rojo
+                 submitBtn.style.backgroundColor = '#ef4444';
                  submitBtn.style.cursor = 'not-allowed';
              }
-             // Ocultar el contenedor del carrusel
              const reviewsContainer = document.getElementById('reviewsCarouselContainer');
              if (reviewsContainer) reviewsContainer.style.display = 'none';
-
-             // Detener la ejecución adicional dentro de DOMContentLoaded si falla Supabase
-             return; // Importante para no ejecutar el resto si falla
+             return; // Detener si falla
          }
 
          // ***** PASO 2: Inicializar otras partes (solo si Supabase funcionó) *****
-         console.log("Inicializando otras partes de la página..."); // Log 6
+         console.log("Inicializando otras partes...");
 
-         // Inicializar Slider de Libros
+         // Slider de Libros
          if (sliderWrapper && totalSlides > 0) { createIndicators(); updateSlider(); }
 
-         // Inicializar Lógica de Rating
+         // Lógica de Rating
          if (ratingContainer && ratingStars.length > 0) {
-             // El botón empieza deshabilitado por defecto (en el HTML)
-             // Se habilitará al hacer clic en una estrella (ver handleStarClick)
-              if (submitFeedbackBtn) { submitFeedbackBtn.disabled = true; }
-
+              if (submitFeedbackBtn) { submitFeedbackBtn.disabled = true; } // Deshabilitado al inicio
              ratingStars.forEach(star => { star.addEventListener('mouseover', handleStarHover); star.addEventListener('click', handleStarClick); });
              ratingContainer.addEventListener('mouseleave', resetStarHover);
              if (submitFeedbackBtn) { submitFeedbackBtn.addEventListener('click', sendFeedback); }
          }
 
-         // Cargar reseñas al iniciar (ahora seguro que Supabase está listo si llegamos aquí)
+         // Cargar reseñas
          fetchAndDisplayReviews();
 
-         // Verificar si Swiper está cargado (opcional)
+         // Verificar Swiper
          if (typeof Swiper === 'undefined') {
              console.warn('Swiper library not loaded. Carousel might not work.');
          }
