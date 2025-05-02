@@ -82,20 +82,18 @@
 
         /* --- Estilos Base & Tipografía --- */
         html { scroll-padding-top: 1rem; }
-        body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; padding-bottom: 1rem; /* Remove extra padding */ }
+        body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; padding-bottom: 1rem; }
         .main-container { max-width: 56rem; margin: auto; padding: 1rem; } @media (min-width: 640px) { .main-container { padding: 1.5rem; } } @media (min-width: 1024px) { .main-container { padding: 2rem; max-width: 64rem; } }
 
         /* --- Cabecera --- */
         .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
         #menuToggleBtn { background: none; border: none; color: var(--text-color); font-size: 1.5rem; cursor: pointer; padding: 0.5rem; margin-left: -0.5rem; }
-        @media (min-width: 768px) { #menuToggleBtn { display: none; } } /* Hide hamburger on md+ */
+        @media (min-width: 768px) { #menuToggleBtn { display: none; } }
         .header-button { background-color: transparent; color: var(--header-button-text-color); padding: 0.4rem 0.5rem; border: none; border-radius: 0; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: color 0.2s ease; display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none; }
         .header-button:disabled { opacity: 0.5; cursor: not-allowed; color: var(--text-medium-color) !important; }
         .header-button:hover:not(:disabled) { color: var(--header-button-hover-text-color); }
         .header-actions-right { display: flex; gap: 0.8rem; }
-        @media (max-width: 767px) { /* Hide desktop header actions on mobile */ .app-header .header-actions-left a, .app-header .header-actions-right { display: none; } }
-
-         /* Animación para botón de menú (ahora en cabecera) */
+        @media (max-width: 767px) { .app-header .header-actions-left a, .app-header .header-actions-right { display: none; } }
          .pulsate-glow { animation: pulsate 1.5s infinite ease-in-out; border-radius: 50%; }
          @keyframes pulsate { 0% { transform: scale(1); box-shadow: 0 0 0 0 var(--highlight-glow-color); } 70% { transform: scale(1.05); box-shadow: 0 0 10px 5px rgba(0,0,0,0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,0,0,0); } }
 
@@ -130,7 +128,7 @@
         /* --- Título Principal --- */
         .main-title { font-size: 1.3rem; font-weight: 600; text-align: center; margin-bottom: 1rem; color: var(--text-color); } @media (min-width: 640px) { .main-title { font-size: 1.5rem; margin-bottom: 1.5rem;} }
 
-        /* --- Gestión de Calendarios (Volvemos a ponerla arriba) --- */
+        /* --- Gestión de Calendarios (Arriba) --- */
         #calendarManagement { background-color: var(--shift-selector-bg); padding: 0.75rem 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; justify-content: center; max-width: 48rem; margin: auto; border: 1px solid var(--border-color); }
         #calendarManagement label { font-size: 0.875rem; font-weight: 500; color: var(--text-color); margin-right: 0.25rem; }
         #calendarManagement select, #calendarManagement input { background-color: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); border-radius: 0.375rem; padding: 0.4rem 0.6rem; font-size: 0.875rem; flex-grow: 1; min-width: 120px; max-width: 200px; }
@@ -138,7 +136,6 @@
         .management-button:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(50%); }
         #addCalendarBtn { background-color: var(--button-primary-bg); color: var(--button-primary-text); } #addCalendarBtn:hover:not(:disabled) { background-color: var(--button-primary-hover-bg); filter: brightness(1.1); }
         #deleteCalendarBtn { background-color: var(--button-delete-bg); color: var(--button-delete-text); } #deleteCalendarBtn:hover:not(:disabled) { background-color: var(--button-delete-hover-bg); }
-        /* Highlight for new calendar input (Top version) */
         #calendarManagement input.highlight-input { animation: input-glow 1.5s infinite ease-in-out; }
 
 
@@ -238,13 +235,13 @@
         <div class="app-header">
              <button id="menuToggleBtn" aria-label="Abrir menú"> <i class="fas fa-bars"></i> </button>
              <h1 class="main-title hidden sm:block">Calendario GUARD-IA</h1>
-             <div class="header-actions-right hidden md:flex"> <button id="editShiftsBtnDesktop" class="header-button" title="Editar Turnos/Patrón" disabled> <i class="fas fa-edit fa-fw"></i> Editar </button>
+             <div class="header-actions-right hidden md:flex">
+                <button id="editShiftsBtnDesktop" class="header-button" title="Editar Turnos/Patrón" disabled> <i class="fas fa-edit fa-fw"></i> Editar </button>
                 <button id="startTutorialBtnDesktop" class="header-button" title="Iniciar guía interactiva"> <i class="fas fa-question-circle fa-fw"></i> Guía </button>
                 <button id="themeToggleBtnDesktop" class="header-button" title="Cambiar tema"> </button>
             </div>
         </div>
          <h1 class="main-title sm:hidden">Calendario GUARD-IA</h1>
-
 
         <div id="calendarManagement">
             <label for="calendarSelector">Calendario:</label>
@@ -254,7 +251,6 @@
             <button id="addCalendarBtn" class="management-button" title="Añadir nuevo calendario"> <i class="fas fa-plus"></i> Añadir </button>
             <button id="deleteCalendarBtn" class="management-button" title="Eliminar calendario seleccionado" disabled> <i class="fas fa-trash-alt"></i> </button>
         </div>
-
 
         <div id="mainCalendarArea">
              <div class="calendar-container">
@@ -274,12 +270,6 @@
         <button class="menu-item" id="startTutorialBtnMobile"> <i class="fas fa-question-circle fa-fw"></i> Guía Rápida </button>
         <button class="menu-item theme-toggle-mobile" id="themeToggleBtnMobile"> </button>
         <button class="menu-item" id="editShiftsBtnMobile" disabled> <i class="fas fa-edit fa-fw"></i> Editar Turnos/Patrón </button>
-
-        <div class="menu-section">
-            <div class="menu-section-title">Gestión Calendario</div>
-            <div class="menu-calendar-management">
-                </div>
-        </div>
 
         <div class="menu-section">
              <div class="menu-section-title">Copia Seguridad</div>
@@ -307,11 +297,11 @@
         const patternApplyArea = document.getElementById('patternApplyArea'); const patternInfo = document.getElementById('patternInfo'); const selectedPatternDisplay = document.getElementById('selectedPatternDisplay');
         const cancelPatternSelectionBtn = document.getElementById('cancelPatternSelectionBtn');
         // Calendar Management (Back to Top)
-        const calendarManagementContainer = document.getElementById('calendarManagement'); // Reference to the top container
-        const calendarSelector = document.getElementById('calendarSelector'); // Use the top selector ID
-        const newCalendarNameInput = document.getElementById('newCalendarName'); // Use the top input ID
-        const addCalendarBtn = document.getElementById('addCalendarBtn');       // Use the top add button ID
-        const deleteCalendarBtn = document.getElementById('deleteCalendarBtn');   // Use the top delete button ID
+        const calendarManagementContainer = document.getElementById('calendarManagement');
+        const calendarSelector = document.getElementById('calendarSelector');
+        const newCalendarNameInput = document.getElementById('newCalendarName');
+        const addCalendarBtn = document.getElementById('addCalendarBtn');
+        const deleteCalendarBtn = document.getElementById('deleteCalendarBtn');
         // Export/Import (Mobile Menu)
         const exportBtnMobile = document.getElementById('exportBtnMobile');
         const importBtnMobile = document.getElementById('importBtnMobile');
@@ -371,6 +361,13 @@
             if (menuToggleBtn && menuToggleBtn.classList.contains('pulsate-glow')) {
                  menuToggleBtn.classList.remove('pulsate-glow');
             }
+            // Highlight new calendar input (using top input ID now)
+             if (firstTimeUser && calendarList.length === 0 && newCalendarNameInput) {
+                 newCalendarNameInput.classList.add('highlight-input');
+                 newCalendarNameInput.addEventListener('input', () => {
+                     newCalendarNameInput.classList.remove('highlight-input');
+                 }, { once: true });
+             }
         }
         function closeMobileMenu() {
             if (mobileMenu) mobileMenu.classList.remove('open');
@@ -554,34 +551,39 @@
              highlightPatternSelection(); // Highlight start, end, and range
          }
         function extractAndShowPattern() { /* ... no changes ... */ if (!activeCalendarName || !patternStartDate || !patternEndDate) { console.error("Cannot extract pattern: Missing dates."); selectedPatternSequence = []; updateSavedPatternDisplay(); return; } let start = parseDateString(patternStartDate), end = parseDateString(patternEndDate); if (!start || !end) { alert("Fechas de patrón inválidas."); cancelPatternSelection(true); return; } const calendarData = calendarsData[activeCalendarName]; selectedPatternSequence = []; let iterDate = new Date(Date.UTC(start.getFullYear(), start.getMonth(), start.getDate())); let endDateUTC = new Date(Date.UTC(end.getFullYear(), end.getMonth(), end.getDate())); while (iterDate <= endDateUTC) { const dateStr = formatDate(new Date(iterDate)); selectedPatternSequence.push(calendarData[dateStr]?.shift); iterDate.setUTCDate(iterDate.getUTCDate() + 1); } console.log("Extracted pattern sequence:", selectedPatternSequence); const hasDefinedShift = selectedPatternSequence.some(shift => shift !== undefined && shift !== null); if (!hasDefinedShift) { alert("El patrón seleccionado está vacío (no hay turnos asignados en el rango elegido). Por favor, selecciona un rango con al menos un turno asignado o cancela."); selectedPatternSequence = []; updateSavedPatternDisplay(); return; } updateSavedPatternDisplay(); }
-        function highlightPatternSelection() { /* ... (Corrected range highlighting) ... */
-            clearPatternHighlight(false);
+        function highlightPatternSelection() {
+            clearPatternHighlight(false); // Clear previous range highlight but keep start/end markers
             if (!patternStartDate) return;
+
             const start = parseDateString(patternStartDate);
+            const end = patternEndDate ? parseDateString(patternEndDate) : null;
+
+            // Highlight start date number
             const startCellNumber = calendarGrid.querySelector(`.day-cell[data-date="${patternStartDate}"] .day-number`);
             if (startCellNumber) startCellNumber.classList.add('pattern-start-date');
 
-            if (patternEndDate) {
-                 const end = parseDateString(patternEndDate);
-                 const endCellNumber = calendarGrid.querySelector(`.day-cell[data-date="${patternEndDate}"] .day-number`);
-                 if (endCellNumber) endCellNumber.classList.add('pattern-end-date');
+            if (end) {
+                // Highlight end date number
+                const endCellNumber = calendarGrid.querySelector(`.day-cell[data-date="${patternEndDate}"] .day-number`);
+                if (endCellNumber) endCellNumber.classList.add('pattern-end-date');
 
-                 if (start && end) {
+                if (start && end) {
                     // Ensure start date is before end date for iteration
                     let startDate = start <= end ? new Date(start) : new Date(end);
                     let endDate = start <= end ? new Date(end) : new Date(start);
-                    let currentDateIter = new Date(startDate); // Iterate with local date
+
+                    // Iterate using local dates to match cell data-date format
+                    let currentDateIter = new Date(startDate);
 
                     while (currentDateIter <= endDate) {
                         const dateStr = formatDate(currentDateIter);
                         const cell = calendarGrid.querySelector(`.day-cell[data-date="${dateStr}"]`);
-                        // Add range class to all cells within the date range
-                        if (cell) {
-                             cell.classList.add('pattern-range');
+                        if (cell) { // Check if cell exists in the current grid view
+                            cell.classList.add('pattern-range');
                         }
-                        currentDateIter.setDate(currentDateIter.getDate() + 1);
+                        currentDateIter.setDate(currentDateIter.getDate() + 1); // Increment day
                     }
-                 }
+                }
             }
         }
         function clearPatternHighlight(clearStartEnd = true) { /* ... no changes ... */ calendarGrid.querySelectorAll('.pattern-range').forEach(c => c.classList.remove('pattern-range')); if (clearStartEnd) { calendarGrid.querySelectorAll('.pattern-start-date, .pattern-end-date').forEach(n => n.classList.remove('pattern-start-date', 'pattern-end-date')); } }
