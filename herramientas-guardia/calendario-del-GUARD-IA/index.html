@@ -415,11 +415,7 @@
         function handleDayDoubleClick(dateString, cellElement) { /* ... (Corrected safety check) ... */
             if (!activeCalendarName || cellElement.classList.contains('other-month')) return;
             console.log(`Double click on: ${dateString}`);
-            // Ensure active calendar exists in data
-            if (!calendarsData[activeCalendarName]) {
-                 console.error(`Data for active calendar "${activeCalendarName}" not found.`);
-                 return;
-            }
+            if (!calendarsData[activeCalendarName]) { console.error(`Data for active calendar "${activeCalendarName}" not found.`); return; }
             const calendarData = calendarsData[activeCalendarName];
             if (!calendarData[dateString]) { calendarData[dateString] = {}; }
             calendarData[dateString].event = !calendarData[dateString].event;
@@ -467,35 +463,29 @@
          }
         function extractAndShowPattern() { /* ... no changes ... */ if (!activeCalendarName || !patternStartDate || !patternEndDate) { console.error("Cannot extract pattern: Missing dates."); selectedPatternSequence = []; updateSavedPatternDisplay(); return; } let start = parseDateString(patternStartDate), end = parseDateString(patternEndDate); if (!start || !end) { alert("Fechas de patrón inválidas."); cancelPatternSelection(true); return; } const calendarData = calendarsData[activeCalendarName]; selectedPatternSequence = []; let iterDate = new Date(Date.UTC(start.getFullYear(), start.getMonth(), start.getDate())); let endDateUTC = new Date(Date.UTC(end.getFullYear(), end.getMonth(), end.getDate())); while (iterDate <= endDateUTC) { const dateStr = formatDate(new Date(iterDate)); selectedPatternSequence.push(calendarData[dateStr]?.shift); iterDate.setUTCDate(iterDate.getUTCDate() + 1); } console.log("Extracted pattern sequence:", selectedPatternSequence); const hasDefinedShift = selectedPatternSequence.some(shift => shift !== undefined && shift !== null); if (!hasDefinedShift) { alert("El patrón seleccionado está vacío (no hay turnos asignados en el rango elegido). Por favor, selecciona un rango con al menos un turno asignado o cancela."); selectedPatternSequence = []; updateSavedPatternDisplay(); return; } updateSavedPatternDisplay(); }
         function highlightPatternSelection() { /* ... (Corrected range highlighting) ... */
-            // Clear previous highlights first (range only)
             clearPatternHighlight(false);
-
-            if (!patternStartDate) return; // No start date yet
-
+            if (!patternStartDate) return;
             const start = parseDateString(patternStartDate);
-            const end = patternEndDate ? parseDateString(patternEndDate) : null;
+            const startCellNumber = calendarGrid.querySelector(`.day-cell[data-date="${patternStartDate}"] .day-number`);
+            if (startCellNumber) startCellNumber.classList.add('pattern-start-date');
 
-            // Highlight start date number
-            calendarGrid.querySelector(`.day-cell[data-date="${patternStartDate}"] .day-number`)?.classList.add('pattern-start-date');
+            if (patternEndDate) {
+                 const end = parseDateString(patternEndDate);
+                 const endCellNumber = calendarGrid.querySelector(`.day-cell[data-date="${patternEndDate}"] .day-number`);
+                 if (endCellNumber) endCellNumber.classList.add('pattern-end-date');
 
-            if (end) {
-                // Highlight end date number
-                calendarGrid.querySelector(`.day-cell[data-date="${patternEndDate}"] .day-number`)?.classList.add('pattern-end-date');
+                 if (start && end) {
+                    let startDate = start <= end ? new Date(start) : new Date(end);
+                    let endDate = start <= end ? new Date(end) : new Date(start);
+                    let currentDateIter = new Date(startDate); // Iterate with local date
 
-                // Highlight range between start and end (inclusive)
-                let iterDate = new Date(Date.UTC(start.getFullYear(), start.getMonth(), start.getDate())); // Use UTC for iteration
-                let endDateUTC = new Date(Date.UTC(end.getFullYear(), end.getMonth(), end.getDate()));
-
-                while (iterDate <= endDateUTC) {
-                    const dateStr = formatDate(new Date(iterDate)); // Convert back for querySelector
-                    const cell = calendarGrid.querySelector(`.day-cell[data-date="${dateStr}"]`);
-                    // Add range class even to other-month cells for visual continuity if needed,
-                    // but maybe only if they are part of the visible grid? Check if cell exists.
-                    if (cell) {
-                         cell.classList.add('pattern-range');
+                    while (currentDateIter <= endDate) {
+                        const dateStr = formatDate(currentDateIter);
+                        const cell = calendarGrid.querySelector(`.day-cell[data-date="${dateStr}"]`);
+                        if (cell) { cell.classList.add('pattern-range'); }
+                        currentDateIter.setDate(currentDateIter.getDate() + 1);
                     }
-                    iterDate.setUTCDate(iterDate.getUTCDate() + 1); // Iterate UTC date
-                }
+                 }
             }
         }
         function clearPatternHighlight(clearStartEnd = true) { /* ... no changes ... */ calendarGrid.querySelectorAll('.pattern-range').forEach(c => c.classList.remove('pattern-range')); if (clearStartEnd) { calendarGrid.querySelectorAll('.pattern-start-date, .pattern-end-date').forEach(n => n.classList.remove('pattern-start-date', 'pattern-end-date')); } }
@@ -531,7 +521,7 @@
 
         // --- Application Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
-            console.log("DOM loaded. Initializing application v5.3 (UX Fixes)..."); // Version bump
+            console.log("DOM loaded. Initializing application v5.3 (UX Fixes)...");
 
             loadInitialTheme(); loadData(); updateCalendarSelector(); createShiftSelectorButtons();
 
@@ -560,7 +550,7 @@
 
             // Action Listeners (Bottom Bar - Desktop)
             if (editShiftsBtnBottom) editShiftsBtnBottom.addEventListener('click', toggleEditControlsVisibility);
-            if (startTutorialBtnBottom) startTutorialBtnBottom.addEventListener('click', showTutorialPopup);
+            if (startTutorialBtnBottom) startTutorialBtnBottom.addEventListener('click', showTutorialPopup); // Corrected listener
             if (themeToggleBtnBottom) themeToggleBtnBottom.addEventListener('click', toggleTheme);
 
             // Tutorial Listeners
