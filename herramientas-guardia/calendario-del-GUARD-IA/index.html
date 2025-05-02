@@ -25,9 +25,8 @@
             --header-button-text-color: var(--text-medium-color); --header-button-hover-text-color: var(--text-color);
             --bottom-bar-bg: var(--card-color); --bottom-bar-border: var(--border-color);
             --mobile-menu-bg: #2a2a2a; --menu-section-border: rgba(255, 255, 255, 0.1);
-            --pattern-range-bg: rgba(57, 255, 20, 0.1); /* Fondo para rango de patrón */
-            --menu-overlay-bg: rgba(0, 0, 0, 0.5); /* Fondo para overlay del menú */
-            --highlight-glow-color: rgba(57, 255, 20, 0.5); /* Verde neón semitransparente para glow */
+            --pattern-range-bg: rgba(57, 255, 20, 0.1); --menu-overlay-bg: rgba(0, 0, 0, 0.5);
+            --highlight-glow-color: rgba(57, 255, 20, 0.5);
 
             /* Mapeo */
             --calendar-bg: var(--card-color); --calendar-text: var(--text-color); --calendar-border: var(--border-color);
@@ -62,7 +61,7 @@
              --bottom-bar-bg: #f1f3f5; --bottom-bar-border: var(--border-color);
              --mobile-menu-bg: #f1f3f5; --menu-section-border: rgba(0, 0, 0, 0.08);
              --pattern-range-bg: rgba(0, 123, 255, 0.1); --menu-overlay-bg: rgba(0, 0, 0, 0.4);
-             --highlight-glow-color: rgba(0, 123, 255, 0.4); /* Azul semitransparente para glow */
+             --highlight-glow-color: rgba(0, 123, 255, 0.4);
              /* Mapeo */
              --calendar-bg: var(--card-color); --calendar-text: var(--text-color); --calendar-border: var(--border-color);
              --day-hover-bg: #e9ecef; --current-day-bg: var(--accent-color); --current-day-text: var(--accent-text-color);
@@ -475,6 +474,7 @@
                  if (endCellNumber) endCellNumber.classList.add('pattern-end-date');
 
                  if (start && end) {
+                    // Ensure start date is before end date for iteration
                     let startDate = start <= end ? new Date(start) : new Date(end);
                     let endDate = start <= end ? new Date(end) : new Date(start);
                     let currentDateIter = new Date(startDate); // Iterate with local date
@@ -482,7 +482,10 @@
                     while (currentDateIter <= endDate) {
                         const dateStr = formatDate(currentDateIter);
                         const cell = calendarGrid.querySelector(`.day-cell[data-date="${dateStr}"]`);
-                        if (cell) { cell.classList.add('pattern-range'); }
+                        // Add range class to all cells within the date range
+                        if (cell) {
+                             cell.classList.add('pattern-range');
+                        }
                         currentDateIter.setDate(currentDateIter.getDate() + 1);
                     }
                  }
