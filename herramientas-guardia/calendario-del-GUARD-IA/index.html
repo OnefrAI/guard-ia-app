@@ -25,7 +25,8 @@
             --header-button-text-color: var(--text-medium-color); --header-button-hover-text-color: var(--text-color);
             --bottom-bar-bg: var(--card-color); --bottom-bar-border: var(--border-color);
             --mobile-menu-bg: #2a2a2a; --menu-section-border: rgba(255, 255, 255, 0.1);
-            --pattern-range-bg: rgba(57, 255, 20, 0.1); --menu-overlay-bg: rgba(0, 0, 0, 0.5);
+            --pattern-range-bg: rgba(57, 255, 20, 0.1); /* Fondo para rango de patrón */
+            --menu-overlay-bg: rgba(0, 0, 0, 0.5); /* Fondo para overlay del menú */
             --highlight-glow-color: rgba(57, 255, 20, 0.5); /* Verde neón semitransparente para glow */
 
             /* Mapeo */
@@ -102,11 +103,11 @@
         .bottom-action-button span { font-size: 0.85rem; }
         .bottom-action-button:disabled { opacity: 0.5; cursor: not-allowed; color: var(--text-medium-color) !important; }
         .bottom-action-button:hover:not(:disabled) { color: var(--header-button-hover-text-color); }
-        #menuToggleBtnBottom { background: none; border: none; color: var(--header-button-text-color); font-size: 1.5rem; cursor: pointer; padding: 0.4rem; transition: color 0.2s ease, transform 0.3s ease; } /* Added transform transition */
+        #menuToggleBtnBottom { background: none; border: none; color: var(--header-button-text-color); font-size: 1.5rem; cursor: pointer; padding: 0.4rem; transition: color 0.2s ease, transform 0.3s ease; }
         #menuToggleBtnBottom:hover { color: var(--header-button-hover-text-color); }
         /* Animación para botón de menú */
-        .pulsate-glow { animation: pulsate 1.5s infinite ease-in-out; }
-        @keyframes pulsate { 0% { transform: scale(1); box-shadow: 0 0 0 0 var(--highlight-glow-color); } 70% { transform: scale(1.05); box-shadow: 0 0 10px 5px rgba(0,0,0,0); /* Transparent shadow */ } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,0,0,0); /* Transparent shadow */ } }
+        .pulsate-glow { animation: pulsate 1.5s infinite ease-in-out; border-radius: 50%; /* Make glow circular */ }
+        @keyframes pulsate { 0% { transform: scale(1); box-shadow: 0 0 0 0 var(--highlight-glow-color); } 70% { transform: scale(1.05); box-shadow: 0 0 10px 5px rgba(0,0,0,0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,0,0,0); } }
 
         @media (min-width: 768px) { #menuToggleBtnBottom { display: none; } #bottomActions { gap: 0.8rem; } #editShiftsBtnBottom, #startTutorialBtnBottom, #themeToggleBtnBottom { display: inline-flex; } }
         @media (max-width: 767px) { #editShiftsBtnBottom, #startTutorialBtnBottom, #themeToggleBtnBottom { display: none; } #menuToggleBtnBottom { display: block; } }
@@ -121,6 +122,7 @@
         #mobileMenu .menu-item:disabled:hover { color: var(--text-medium-color); }
         #mobileMenu .menu-item i, #mobileMenu .menu-link i { width: 20px; text-align: center; margin-right: 0.25rem; }
         .menu-section { margin-top: 0.5rem; border-top: 1px solid var(--menu-section-border); }
+        .menu-section:first-child { border-top: none; margin-top: 0;} /* Remove top border/margin for first section */
         .menu-section-title { padding: 0.5rem 1.25rem 0.25rem; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; color: var(--text-medium-color); }
         #mobileMenu .menu-item:last-child, #mobileMenu .menu-link:last-child, .menu-section:last-child .menu-item:last-child, .menu-section:last-child .menu-link:last-child { border-bottom: none; }
         .menu-calendar-management { padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--menu-section-border); }
@@ -133,7 +135,8 @@
         #addCalendarBtnMobile { background-color: var(--button-primary-bg); color: var(--button-primary-text); } #addCalendarBtnMobile:hover:not(:disabled) { filter: brightness(1.1); }
         #deleteCalendarBtnMobile { background-color: var(--button-delete-bg); color: var(--button-delete-text); } #deleteCalendarBtnMobile:hover:not(:disabled) { background-color: var(--button-delete-hover-bg); }
         /* Highlight for new calendar input */
-        .highlight-input { box-shadow: 0 0 0 2px var(--highlight-glow-color); }
+        .highlight-input { animation: input-glow 1.5s infinite ease-in-out; }
+        @keyframes input-glow { 0%, 100% { box-shadow: 0 0 0 0px var(--highlight-glow-color); } 50% { box-shadow: 0 0 0 3px var(--highlight-glow-color); } }
 
         /* Menu Overlay */
         #menuOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--menu-overlay-bg); display: none; z-index: 1090; }
@@ -345,11 +348,11 @@
         const defaultShiftForPattern = undefined;
 
         // LocalStorage Keys
-        const CALENDARS_DATA_KEY = 'multiCalendarAppData_v5.3'; // Version bump for hint logic
+        const CALENDARS_DATA_KEY = 'multiCalendarAppData_v5.3'; // Version bump for fixes
         const ACTIVE_CALENDAR_KEY = 'multiCalendarActiveCal';
         const TUTORIAL_COMPLETED_KEY = 'multiCalendarTutorialCompleted_v5.3';
         const THEME_KEY = 'multiCalendarTheme';
-        const APP_VERSION_KEY = 'multiCalendarAppVersion'; // To track version for tutorial/hints
+        const APP_VERSION_KEY = 'multiCalendarAppVersion';
 
         // --- Theme Functions ---
         function applyTheme(theme) { /* ... no changes ... */ const isLight = theme === 'light'; document.body.classList.toggle('light-mode', isLight); document.body.classList.toggle('dark-mode', !isLight); const iconClass = isLight ? 'fa-moon' : 'fa-sun'; const text = isLight ? 'Oscuro' : 'Claro'; const title = isLight ? 'Cambiar a tema oscuro' : 'Cambiar a tema claro'; if (themeToggleBtnBottom) { themeToggleBtnBottom.innerHTML = `<i class="fas ${iconClass} fa-fw"></i> <span>${text}</span>`; themeToggleBtnBottom.title = title; } if (themeToggleBtnMobile) { themeToggleBtnMobile.innerHTML = `<i class="fas ${iconClass} fa-fw"></i> ${text}`; } localStorage.setItem(THEME_KEY, theme); console.log(`Theme applied: ${theme}`); updateCheckboxStyle(theme); }
@@ -361,15 +364,12 @@
         function openMobileMenu() {
             if (mobileMenu) mobileMenu.classList.add('open');
             if (menuOverlay) menuOverlay.style.display = 'block';
-            // Highlight new calendar input on first open if no calendars
             if (firstTimeUser && calendarList.length === 0 && newCalendarNameInputMobile) {
                 newCalendarNameInputMobile.classList.add('highlight-input');
-                // Remove highlight once user interacts or adds calendar
                 newCalendarNameInputMobile.addEventListener('input', () => {
                     newCalendarNameInputMobile.classList.remove('highlight-input');
-                }, { once: true }); // Listener runs only once
+                }, { once: true });
             }
-            // Remove menu button highlight once menu is opened
             if (menuToggleBtnBottom.classList.contains('pulsate-glow')) {
                  menuToggleBtnBottom.classList.remove('pulsate-glow');
             }
@@ -380,12 +380,12 @@
         }
 
         // --- Tutorial Popup Functions ---
-        function showTutorialPopup() { /* ... no changes ... */ console.log("Showing tutorial popup..."); tutorialOverlay.style.display = 'flex'; closeMobileMenu(); }
-        function hideTutorialPopup(markAsCompleted = true) { /* ... no changes ... */ console.log("Hiding tutorial popup..."); tutorialOverlay.style.display = 'none'; if (markAsCompleted) { localStorage.setItem(TUTORIAL_COMPLETED_KEY, 'true'); firstTimeUser = false; /* No longer first time */ } }
+        function showTutorialPopup() { console.log("Showing tutorial popup..."); tutorialOverlay.style.display = 'flex'; closeMobileMenu(); }
+        function hideTutorialPopup(markAsCompleted = true) { console.log("Hiding tutorial popup..."); tutorialOverlay.style.display = 'none'; if (markAsCompleted) { localStorage.setItem(TUTORIAL_COMPLETED_KEY, 'true'); firstTimeUser = false; } }
 
         // --- Data and LocalStorage Functions ---
-        function loadData() { /* ... no changes ... */ const storedData = localStorage.getItem(CALENDARS_DATA_KEY); try { calendarsData = storedData ? JSON.parse(storedData) : {}; if (typeof calendarsData !== 'object' || calendarsData === null || Array.isArray(calendarsData)) { console.warn("Invalid calendar data found in localStorage, resetting."); calendarsData = {}; } } catch (error) { console.error("Error parsing calendar data from localStorage, resetting:", error); calendarsData = {}; } calendarList = Object.keys(calendarsData); activeCalendarName = localStorage.getItem(ACTIVE_CALENDAR_KEY); if (!activeCalendarName || !calendarsData[activeCalendarName]) { activeCalendarName = calendarList.length > 0 ? calendarList[0] : null; if (activeCalendarName) { localStorage.setItem(ACTIVE_CALENDAR_KEY, activeCalendarName); } else { localStorage.removeItem(ACTIVE_CALENDAR_KEY); } } console.log("Data loaded (v5.2):", { calendarsData, calendarList, activeCalendarName }); }
-        function saveData() { /* ... no changes ... */ try { localStorage.setItem(CALENDARS_DATA_KEY, JSON.stringify(calendarsData)); if (activeCalendarName) { localStorage.setItem(ACTIVE_CALENDAR_KEY, activeCalendarName); } else { localStorage.removeItem(ACTIVE_CALENDAR_KEY); } console.log("Data saved (v5.2)."); } catch (error) { console.error("Error saving data to localStorage:", error); } }
+        function loadData() { /* ... no changes ... */ const storedData = localStorage.getItem(CALENDARS_DATA_KEY); try { calendarsData = storedData ? JSON.parse(storedData) : {}; if (typeof calendarsData !== 'object' || calendarsData === null || Array.isArray(calendarsData)) { console.warn("Invalid calendar data found in localStorage, resetting."); calendarsData = {}; } } catch (error) { console.error("Error parsing calendar data from localStorage, resetting:", error); calendarsData = {}; } calendarList = Object.keys(calendarsData); activeCalendarName = localStorage.getItem(ACTIVE_CALENDAR_KEY); if (!activeCalendarName || !calendarsData[activeCalendarName]) { activeCalendarName = calendarList.length > 0 ? calendarList[0] : null; if (activeCalendarName) { localStorage.setItem(ACTIVE_CALENDAR_KEY, activeCalendarName); } else { localStorage.removeItem(ACTIVE_CALENDAR_KEY); } } console.log("Data loaded (v5.3):", { calendarsData, calendarList, activeCalendarName }); }
+        function saveData() { /* ... no changes ... */ try { localStorage.setItem(CALENDARS_DATA_KEY, JSON.stringify(calendarsData)); if (activeCalendarName) { localStorage.setItem(ACTIVE_CALENDAR_KEY, activeCalendarName); } else { localStorage.removeItem(ACTIVE_CALENDAR_KEY); } console.log("Data saved (v5.3)."); } catch (error) { console.error("Error saving data to localStorage:", error); } }
 
         // --- Date Helper Functions ---
         function formatDate(date) { /* ... no changes ... */ if (!(date instanceof Date) || isNaN(date)) { console.error("Invalid date passed to formatDate:", date); return ""; } const year = date.getFullYear(); const month = String(date.getMonth() + 1).padStart(2, '0'); const day = String(date.getDate()).padStart(2, '0'); return `${year}-${month}-${day}`; }
@@ -395,7 +395,7 @@
 
         // --- Calendar Management UI Functions (Now using Mobile Menu elements) ---
         function updateCalendarSelector() { /* ... no changes ... */ const selector = calendarSelectorMobile; selector.innerHTML = ''; const noCalendars = calendarList.length === 0; if (noCalendars) { const o = document.createElement('option'); o.value = ""; o.textContent = "Crea calendario"; o.disabled = true; selector.appendChild(o); selector.disabled = true; deleteCalendarBtnMobile.disabled = true; exportBtnMobile.disabled = true; } else { selector.disabled = false; deleteCalendarBtnMobile.disabled = false; exportBtnMobile.disabled = false; calendarList.forEach(name => { const o = document.createElement('option'); o.value = name; o.textContent = name; if (name === activeCalendarName) o.selected = true; selector.appendChild(o); }); } updateEditButtonsState(); }
-        function addCalendar() { /* ... (Remove input highlight on add) ... */ const input = newCalendarNameInputMobile; const name = input.value.trim(); if (!name) { alert("Por favor, introduce un nombre para el nuevo calendario."); return; } if (calendarsData[name]) { alert(`El calendario "${name}" ya existe. Elige otro nombre.`); return; } console.log(`Adding calendar: ${name}`); calendarsData[name] = {}; calendarList.push(name); calendarList.sort(); activeCalendarName = name; updateCalendarSelector(); input.value = ''; input.classList.remove('highlight-input'); /* Remove highlight */ showMainCalendarArea(true); renderCalendar(currentDate.getFullYear(), currentDate.getMonth()); saveData(); if (editControlsWrapper) editControlsWrapper.style.display = 'none'; if (isSelectingPattern) cancelPatternSelection(true); closeMobileMenu(); }
+        function addCalendar() { /* ... no changes ... */ const input = newCalendarNameInputMobile; const name = input.value.trim(); if (!name) { alert("Por favor, introduce un nombre para el nuevo calendario."); return; } if (calendarsData[name]) { alert(`El calendario "${name}" ya existe. Elige otro nombre.`); return; } console.log(`Adding calendar: ${name}`); calendarsData[name] = {}; calendarList.push(name); calendarList.sort(); activeCalendarName = name; updateCalendarSelector(); input.value = ''; input.classList.remove('highlight-input'); showMainCalendarArea(true); renderCalendar(currentDate.getFullYear(), currentDate.getMonth()); saveData(); if (editControlsWrapper) editControlsWrapper.style.display = 'none'; if (isSelectingPattern) cancelPatternSelection(true); closeMobileMenu(); }
         function selectCalendar() { /* ... no changes ... */ const selector = calendarSelectorMobile; const name = selector.value; if (name && calendarsData[name]) { activeCalendarName = name; console.log(`Active calendar changed to: ${activeCalendarName}`); localStorage.setItem(ACTIVE_CALENDAR_KEY, activeCalendarName); renderCalendar(currentDate.getFullYear(), currentDate.getMonth()); if (isSelectingPattern) cancelPatternSelection(true); showMainCalendarArea(true); if (editControlsWrapper) editControlsWrapper.style.display = 'none'; updateEditButtonsState(); closeMobileMenu(); } else { console.warn("Invalid calendar selected:", name); } }
         function deleteCalendar() { /* ... no changes ... */ const selector = calendarSelectorMobile; const calendarNameToDelete = selector.value; if (!calendarNameToDelete || !calendarsData[calendarNameToDelete]) { alert("No hay un calendario seleccionado para eliminar."); return; } if (confirm(`¿Estás seguro de que quieres eliminar el calendario "${calendarNameToDelete}"?\n\n¡Esta acción no se puede deshacer!`)) { console.log(`Deleting calendar: ${calendarNameToDelete}`); delete calendarsData[calendarNameToDelete]; calendarList = calendarList.filter(name => name !== calendarNameToDelete); if (activeCalendarName === calendarNameToDelete) { activeCalendarName = calendarList.length > 0 ? calendarList[0] : null; if (activeCalendarName) { localStorage.setItem(ACTIVE_CALENDAR_KEY, activeCalendarName); } else { localStorage.removeItem(ACTIVE_CALENDAR_KEY); } } updateCalendarSelector(); if (activeCalendarName) { renderCalendar(currentDate.getFullYear(), currentDate.getMonth()); showMainCalendarArea(true); } else { calendarGrid.innerHTML = ''; calendarGridHeader.innerHTML = ''; currentMonthYearElement.textContent = ""; showMainCalendarArea(false); } saveData(); alert(`Calendario "${calendarNameToDelete}" eliminado.`); if (editControlsWrapper) editControlsWrapper.style.display = 'none'; if (isSelectingPattern) cancelPatternSelection(true); updateEditButtonsState(); } }
         function showMainCalendarArea(show) { /* ... no changes ... */ mainCalendarArea.style.display = show ? 'block' : 'none'; if (!show && editControlsWrapper) { editControlsWrapper.style.display = 'none'; } updateEditButtonsState(); }
@@ -412,23 +412,24 @@
 
         // --- Cell Click and Data Management Functions ---
         function handleDayClick(dateString, cellElement) { /* ... no changes ... */ if (!activeCalendarName) { console.warn("Click ignored: No active calendar."); return; } if (cellElement.classList.contains('week-number-cell')) return; if (cellElement.classList.contains('other-month') && !isSelectingPattern) return; const controlsVisible = editControlsWrapper.style.display !== 'none'; if (isSelectingPattern) { handlePatternSelectionClick(dateString, cellElement); } else if (controlsVisible && selectedShiftType !== null) { applySingleShift(dateString); } else if (!cellElement.classList.contains('other-month')) { openDayDetailModal(dateString); } else { console.log("Click ignored (other month, not selecting pattern or applying shift)."); } }
-        function handleDayDoubleClick(dateString, cellElement) {
+        function handleDayDoubleClick(dateString, cellElement) { /* ... (Corrected safety check) ... */
             if (!activeCalendarName || cellElement.classList.contains('other-month')) return;
             console.log(`Double click on: ${dateString}`);
+            // Ensure active calendar exists in data
+            if (!calendarsData[activeCalendarName]) {
+                 console.error(`Data for active calendar "${activeCalendarName}" not found.`);
+                 return;
+            }
             const calendarData = calendarsData[activeCalendarName];
-            if (!calendarData) { console.error("Error: No data found for active calendar:", activeCalendarName); return; } // Safety check
-            // Ensure day entry exists
             if (!calendarData[dateString]) { calendarData[dateString] = {}; }
-            // Toggle event status
             calendarData[dateString].event = !calendarData[dateString].event;
             if (!calendarData[dateString].event) { delete calendarData[dateString].event; }
             console.log(`Event status for ${dateString}: ${calendarData[dateString]?.event ? 'Marcado' : 'Desmarcado'}`);
-            // Clean up if entry is empty
             if (!calendarData[dateString]?.shift && !calendarData[dateString]?.note && !calendarData[dateString]?.event && !calendarData[dateString]?.extra) {
                 delete calendarData[dateString]; console.log(`Empty entry removed for ${dateString}`);
             }
             saveData();
-            renderCalendar(currentDate.getFullYear(), currentDate.getMonth()); // Re-render needed to show/hide star
+            renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
         }
         function applySingleShift(dateString) { /* ... no changes ... */ if (!activeCalendarName || selectedShiftType === null) return; const calendarData = calendarsData[activeCalendarName]; if (!calendarData[dateString] && selectedShiftType !== 'erase') { calendarData[dateString] = {}; } if (selectedShiftType === 'erase') { if (calendarData[dateString]) { delete calendarData[dateString].shift; console.log(`Shift erased for ${dateString}`); } } else { calendarData[dateString].shift = selectedShiftType; console.log(`Shift '${selectedShiftType}' applied to ${dateString}`); } if (calendarData[dateString] && !calendarData[dateString].shift && !calendarData[dateString].note && !calendarData[dateString].event && !calendarData[dateString]?.extra) { delete calendarData[dateString]; console.log(`Empty entry removed for ${dateString}`); } saveData(); renderCalendar(currentDate.getFullYear(), currentDate.getMonth()); }
 
@@ -439,10 +440,10 @@
 
         // --- Pattern Selection and Application Functions ---
         function togglePatternSelectionMode() { /* ... no changes ... */ if (!activeCalendarName) { return; } if (isSelectingPattern) { cancelPatternSelection(true); } else { isSelectingPattern = true; patternStartDate = null; patternEndDate = null; selectedPatternSequence = []; updateSavedPatternDisplay(); checkApplyButtonState(); patternControlsContainer.classList.add('pattern-selecting-active'); patternInfo.textContent = 'CLIC DÍA INICIO PATRÓN...'; startPatternSelectionBtn.textContent = 'Cancelar'; startPatternSelectionBtn.classList.add('selecting'); calendarGrid.classList.add('selecting-pattern'); patternApplyArea.classList.add('hidden'); patternSelectionArea.classList.remove('hidden'); selectedShiftType = null; shiftSelectorContainer.querySelectorAll('.shift-button.active').forEach(b => b.classList.remove('active')); renderCalendar(currentDate.getFullYear(), currentDate.getMonth()); } }
-        function handlePatternSelectionClick(dateString, cellElement) {
+        function handlePatternSelectionClick(dateString, cellElement) { /* ... (Corrected highlight logic) ... */
              if (!isSelectingPattern) return;
              let tempStartDate = patternStartDate; let tempEndDate = patternEndDate;
-             clearPatternHighlight(false); // Clear previous range highlight but keep start/end
+             clearPatternHighlight(false); // Clear previous range highlight but keep start/end markers
 
              if (!tempStartDate) { // First click (start date)
                  tempStartDate = dateString;
@@ -465,7 +466,7 @@
              highlightPatternSelection(); // Highlight start, end, and range
          }
         function extractAndShowPattern() { /* ... no changes ... */ if (!activeCalendarName || !patternStartDate || !patternEndDate) { console.error("Cannot extract pattern: Missing dates."); selectedPatternSequence = []; updateSavedPatternDisplay(); return; } let start = parseDateString(patternStartDate), end = parseDateString(patternEndDate); if (!start || !end) { alert("Fechas de patrón inválidas."); cancelPatternSelection(true); return; } const calendarData = calendarsData[activeCalendarName]; selectedPatternSequence = []; let iterDate = new Date(Date.UTC(start.getFullYear(), start.getMonth(), start.getDate())); let endDateUTC = new Date(Date.UTC(end.getFullYear(), end.getMonth(), end.getDate())); while (iterDate <= endDateUTC) { const dateStr = formatDate(new Date(iterDate)); selectedPatternSequence.push(calendarData[dateStr]?.shift); iterDate.setUTCDate(iterDate.getUTCDate() + 1); } console.log("Extracted pattern sequence:", selectedPatternSequence); const hasDefinedShift = selectedPatternSequence.some(shift => shift !== undefined && shift !== null); if (!hasDefinedShift) { alert("El patrón seleccionado está vacío (no hay turnos asignados en el rango elegido). Por favor, selecciona un rango con al menos un turno asignado o cancela."); selectedPatternSequence = []; updateSavedPatternDisplay(); return; } updateSavedPatternDisplay(); }
-        function highlightPatternSelection() {
+        function highlightPatternSelection() { /* ... (Corrected range highlighting) ... */
             // Clear previous highlights first (range only)
             clearPatternHighlight(false);
 
@@ -481,40 +482,25 @@
                 // Highlight end date number
                 calendarGrid.querySelector(`.day-cell[data-date="${patternEndDate}"] .day-number`)?.classList.add('pattern-end-date');
 
-                // Highlight range between start and end (inclusive, only visible cells)
-                let iterDate = new Date(start);
-                let endDate = new Date(end);
-                while (iterDate <= endDate) {
-                    const dateStr = formatDate(iterDate);
+                // Highlight range between start and end (inclusive)
+                let iterDate = new Date(Date.UTC(start.getFullYear(), start.getMonth(), start.getDate())); // Use UTC for iteration
+                let endDateUTC = new Date(Date.UTC(end.getFullYear(), end.getMonth(), end.getDate()));
+
+                while (iterDate <= endDateUTC) {
+                    const dateStr = formatDate(new Date(iterDate)); // Convert back for querySelector
                     const cell = calendarGrid.querySelector(`.day-cell[data-date="${dateStr}"]`);
-                    if (cell && !cell.classList.contains('other-month')) { // Only highlight visible, current month cells
-                        cell.classList.add('pattern-range');
+                    // Add range class even to other-month cells for visual continuity if needed,
+                    // but maybe only if they are part of the visible grid? Check if cell exists.
+                    if (cell) {
+                         cell.classList.add('pattern-range');
                     }
-                    iterDate.setDate(iterDate.getDate() + 1);
+                    iterDate.setUTCDate(iterDate.getUTCDate() + 1); // Iterate UTC date
                 }
             }
         }
-        function clearPatternHighlight(clearStartEnd = true) {
-            // Remove range highlight
-            calendarGrid.querySelectorAll('.pattern-range').forEach(c => c.classList.remove('pattern-range'));
-            if (clearStartEnd) {
-                // Remove start/end number highlight
-                calendarGrid.querySelectorAll('.pattern-start-date, .pattern-end-date').forEach(n => n.classList.remove('pattern-start-date', 'pattern-end-date'));
-            }
-        }
+        function clearPatternHighlight(clearStartEnd = true) { /* ... no changes ... */ calendarGrid.querySelectorAll('.pattern-range').forEach(c => c.classList.remove('pattern-range')); if (clearStartEnd) { calendarGrid.querySelectorAll('.pattern-start-date, .pattern-end-date').forEach(n => n.classList.remove('pattern-start-date', 'pattern-end-date')); } }
         function applySelectedPattern() { /* ... no changes ... */ if (!activeCalendarName || !patternStartDate || !patternEndDate) { alert("Error: Fechas del patrón original no definidas."); return; } if (selectedPatternSequence.length === 0) { alert("No hay patrón seleccionado."); return; } const untilValue = applyUntilDateInput.value; if (!untilValue) { alert("Selecciona fecha 'Extender hasta'."); return; } const untilDate = parseDateString(untilValue); const patternEndOriginal = parseDateString(patternEndDate); if (!untilDate || !patternEndOriginal) { alert("Fechas inválidas."); return; } let repeatStart = new Date(Date.UTC(patternEndOriginal.getFullYear(), patternEndOriginal.getMonth(), patternEndOriginal.getDate())); repeatStart.setUTCDate(repeatStart.getUTCDate() + 1); let untilDateUTC = new Date(Date.UTC(untilDate.getFullYear(), untilDate.getMonth(), untilDate.getDate())); if (repeatStart > untilDateUTC) { alert("'Extender hasta' debe ser posterior al fin del patrón."); return; } const patternLen = selectedPatternSequence.length; let pIndex = 0; const calendarData = calendarsData[activeCalendarName]; const patternStr = selectedPatternSequence.map(s => s || '-').join('-'); if (!confirm(`Extender patrón TURNOS (${patternStr}) en "${activeCalendarName}" desde ${formatDate(new Date(repeatStart))} hasta ${formatDate(new Date(untilDateUTC))}?\n(Sobrescribirá turnos, NO notas ni eventos)`)) { return; } let currentApply = new Date(repeatStart); let daysAffected = 0; while (currentApply <= untilDateUTC) { const dateStr = formatDate(new Date(currentApply)); const shiftToApply = selectedPatternSequence[pIndex % patternLen]; if (!calendarData[dateStr] && shiftToApply && shiftTypes[shiftToApply]) { calendarData[dateStr] = {}; } if (calendarData[dateStr]) { if (shiftToApply && shiftTypes[shiftToApply]) { calendarData[dateStr].shift = shiftToApply; } else { delete calendarData[dateStr].shift; } if (!calendarData[dateString].shift && !calendarData[dateString].note && !calendarData[dateString].event && !calendarData[dateString]?.extra) { delete calendarData[dateStr]; } } currentApply.setUTCDate(currentApply.getUTCDate() + 1); pIndex++; daysAffected++; } console.log(`Pattern applied. ${daysAffected} days processed.`); saveData(); cancelPatternSelection(true); renderCalendar(currentDate.getFullYear(), currentDate.getMonth()); alert(`Patrón extendido hasta ${formatDate(new Date(untilDateUTC))}.`); }
-        function cancelPatternSelection(clearSequenceAndDate = true) {
-             const wasSelecting = isSelectingPattern; isSelectingPattern = false;
-             patternStartDate = null; patternEndDate = null;
-             if (clearSequenceAndDate) { selectedPatternSequence = []; updateSavedPatternDisplay(); applyUntilDateInput.value = ''; }
-             patternControlsContainer.classList.remove('pattern-selecting-active');
-             startPatternSelectionBtn.textContent = 'Seleccionar Patrón'; startPatternSelectionBtn.classList.remove('selecting');
-             patternInfo.textContent = ''; calendarGrid.classList.remove('selecting-pattern');
-             clearPatternHighlight(true); // Clear start, end, and range highlights
-             patternApplyArea.classList.add('hidden'); patternSelectionArea.classList.remove('hidden');
-              if (wasSelecting) { renderCalendar(currentDate.getFullYear(), currentDate.getMonth()); }
-              checkApplyButtonState(); console.log("Pattern selection cancelled.");
-          }
+        function cancelPatternSelection(clearSequenceAndDate = true) { /* ... (Ensure range highlight is cleared) ... */ const wasSelecting = isSelectingPattern; isSelectingPattern = false; patternStartDate = null; patternEndDate = null; if (clearSequenceAndDate) { selectedPatternSequence = []; updateSavedPatternDisplay(); applyUntilDateInput.value = ''; } patternControlsContainer.classList.remove('pattern-selecting-active'); startPatternSelectionBtn.textContent = 'Seleccionar Patrón'; startPatternSelectionBtn.classList.remove('selecting'); patternInfo.textContent = ''; calendarGrid.classList.remove('selecting-pattern'); clearPatternHighlight(true); // Clear start, end, and range highlights patternApplyArea.classList.add('hidden'); patternSelectionArea.classList.remove('hidden'); if (wasSelecting) { renderCalendar(currentDate.getFullYear(), currentDate.getMonth()); } checkApplyButtonState(); console.log("Pattern selection cancelled."); }
         function updateSavedPatternDisplay() { /* ... no changes ... */ if (selectedPatternSequence.length > 0) { const patternHtml = selectedPatternSequence.map(shiftKey => { if (!shiftKey) return `<span class="inline-block px-1.5 py-0.5 text-xs font-semibold rounded mr-1 border border-[var(--border-color)] text-[var(--text-medium-color)]" title="Sin Turno">-</span>`; const shiftInfo = shiftTypes[shiftKey]; if (shiftInfo) return `<span class="inline-block px-1.5 py-0.5 text-xs font-semibold rounded mr-1 ${shiftInfo.colorClass}" title="${shiftInfo.label}">${shiftKey}</span>`; return '?'; }).join(''); selectedPatternDisplay.innerHTML = `Patrón: ${patternHtml}`; } else { selectedPatternDisplay.innerHTML = ""; } }
         function checkApplyButtonState() { /* ... no changes ... */ applySelectedPatternBtn.disabled = !(selectedPatternSequence.length > 0 && applyUntilDateInput.value !== ''); }
         applyUntilDateInput.addEventListener('change', checkApplyButtonState);
@@ -545,7 +531,7 @@
 
         // --- Application Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
-            console.log("DOM loaded. Initializing application v5.2 (Pattern/Menu Fixes)...");
+            console.log("DOM loaded. Initializing application v5.3 (UX Fixes)..."); // Version bump
 
             loadInitialTheme(); loadData(); updateCalendarSelector(); createShiftSelectorButtons();
 
@@ -574,7 +560,7 @@
 
             // Action Listeners (Bottom Bar - Desktop)
             if (editShiftsBtnBottom) editShiftsBtnBottom.addEventListener('click', toggleEditControlsVisibility);
-            if (startTutorialBtnBottom) startTutorialBtnBottom.addEventListener('click', showTutorialPopup); // Corrected listener
+            if (startTutorialBtnBottom) startTutorialBtnBottom.addEventListener('click', showTutorialPopup);
             if (themeToggleBtnBottom) themeToggleBtnBottom.addEventListener('click', toggleTheme);
 
             // Tutorial Listeners
@@ -602,7 +588,7 @@
 
             // First time user checks and hints
             const storedVersion = localStorage.getItem(APP_VERSION_KEY);
-            const currentVersion = 'v5.2'; // Match version in console log
+            const currentVersion = 'v5.3'; // Match version in console log
             const tutorialCompleted = localStorage.getItem(TUTORIAL_COMPLETED_KEY);
             firstTimeUser = !tutorialCompleted; // Set flag
 
@@ -610,14 +596,17 @@
                  // Highlight menu button if first time and no calendars
                  if (menuToggleBtnBottom) {
                      menuToggleBtnBottom.classList.add('pulsate-glow');
+                     // Remove glow once clicked
+                     menuToggleBtnBottom.addEventListener('click', () => {
+                        menuToggleBtnBottom.classList.remove('pulsate-glow');
+                     }, { once: true });
                  }
-                 // Show tutorial automatically only if truly first time (no tutorial completed flag)
+                 // Show tutorial automatically only if truly first time
                  setTimeout(showTutorialPopup, 500);
             } else if (storedVersion !== currentVersion) {
-                 // If version changed, maybe show tutorial again or a "What's new" popup
                  console.log(`App updated from ${storedVersion} to ${currentVersion}.`);
                  // Optionally show tutorial again if major changes:
-                 // if (firstTimeUser) setTimeout(showTutorialPopup, 500);
+                 // if (!tutorialCompleted) setTimeout(showTutorialPopup, 500); // Show only if they never completed old one
             }
             // Update stored version
             localStorage.setItem(APP_VERSION_KEY, currentVersion);
