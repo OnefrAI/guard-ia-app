@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const generateReportButton = document.getElementById('generateReportButton');
   const takePhotoButton = document.getElementById('takePhotoButton');
   const factsTextarea = document.getElementById('facts');
+  const photoPreview = document.getElementById('photoPreview'); // Referencia para la vista previa
 
   // Variables para la cámara
   const cameraModal = document.getElementById('cameraModal');
@@ -11,36 +12,34 @@ document.addEventListener('DOMContentLoaded', () => {
   const captureButton = document.getElementById('captureButton');
   const cancelCaptureButton = document.getElementById('cancelCaptureButton');
   let mediaStream = null;
-  let capturedPhotoDataUrl = null; // Aquí se guardará la foto capturada
+  let capturedPhotoDataUrl = null; 
 
-  // Guardar la nota (se incluye la foto si se capturó, pero al compartir solo se usa el texto)
   noteForm.addEventListener('submit', (e) => {
     e.preventDefault();
     saveNote();
   });
 
   async function saveNote() {
-    // Obtener la fecha y hora actual y formatearla a DD/MM/AAAA HH:mm
     const now = new Date();
     const day = String(now.getDate()).padStart(2, '0');
-    const month = String(now.getMonth() + 1).padStart(2, '0'); // Meses son de 0 a 11
+    const month = String(now.getMonth() + 1).padStart(2, '0');
     const year = now.getFullYear();
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const formattedTimestamp = `${day}/${month}/${year} ${hours}:${minutes}`;
 
-
     const noteData = {
       interventionLocation: document.getElementById('interventionLocation').value,
       documentNumber: document.getElementById('documentNumber').value,
       fullName: document.getElementById('fullName').value,
+      birthPlace: document.getElementById('birthPlace').value, // NUEVO CAMPO
       birthdate: document.getElementById('birthdate').value,
       parentsName: document.getElementById('parentsName').value,
       address: document.getElementById('address').value,
       phone: document.getElementById('phone').value,
       facts: factsTextarea.value,
-      photoUrl: capturedPhotoDataUrl || '', // Se almacena la foto, pero no se comparte
-      timestamp: formattedTimestamp // Guarda la fecha y hora formateada
+      photoUrl: capturedPhotoDataUrl || '',
+      timestamp: formattedTimestamp
     };
 
     const notes = JSON.parse(localStorage.getItem('notes')) || [];
@@ -50,17 +49,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     noteForm.reset();
     factsTextarea.value = '';
-    // Reiniciar la foto capturada para la siguiente nota
     capturedPhotoDataUrl = null;
+    
+    // OCULTAR Y LIMPIAR VISTA PREVIA
+    if (photoPreview) {
+      photoPreview.src = '#'; 
+      photoPreview.style.display = 'none';
+    }
     alert("Nota guardada exitosamente.");
   }
 
-  // Función para compartir la nota usando Web Share API (intenta compartir texto y foto)
   async function shareNote(noteData) {
     let shareText = `Nota Policial:
 Fecha y Hora: ${noteData.timestamp || 'N/A'}
 Documento: ${noteData.documentNumber || 'N/A'}
 Nombre: ${noteData.fullName || 'N/A'}
+Lugar de Nacimiento: ${noteData.birthPlace || 'N/A'} 
 Fecha de Nacimiento: ${noteData.birthdate || 'N/A'}
 Padres: ${noteData.parentsName || 'N/A'}
 Dirección: ${noteData.address || 'N/A'}
@@ -71,23 +75,16 @@ Hechos: ${noteData.facts || 'N/A'}`;
     const shareOptions = {
       title: 'Nota Policial',
       text: shareText,
-      // Según la especificación de la Web Share API, se puede incluir texto y archivos.
-      // Si la plataforma de destino solo soporta uno, podría omitir el otro.
     };
 
-    // Si hay foto, añadirla a las opciones de compartir
     if (noteData.photoUrl) {
       try {
-        // Convertir Data URL a Blob
         const response = await fetch(noteData.photoUrl);
         const blob = await response.blob();
-        // Crear un objeto File a partir del Blob para compartir
         const photoFile = new File([blob], 'foto_nota.png', { type: 'image/png' });
         shareOptions.files = [photoFile];
       } catch (error) {
         console.error('Error al convertir la foto para compartir:', error);
-        // Si falla la conversión de la foto, se intentará compartir solo el texto
-        // No es necesario lanzar un error aquí, ya que queremos que el texto se comparta de todos modos.
       }
     }
 
@@ -96,13 +93,11 @@ Hechos: ${noteData.facts || 'N/A'}`;
         await navigator.share(shareOptions);
         console.log('Nota compartida exitosamente.');
       } else {
-        // Fallback para navegadores que no soportan Web Share API
         alert('La función de compartir nativa no es compatible con este navegador. Usa las opciones de "Copiar Texto" o "Descargar Foto".');
         console.log('Web Share API no soportada.');
       }
     } catch (err) {
       console.error('Error al compartir la nota:', err);
-      // Manejar errores específicos, por ejemplo, si el usuario cancela la acción de compartir
       if (err.name === 'AbortError') {
          console.log('Compartir cancelado por el usuario.');
       } else {
@@ -111,12 +106,12 @@ Hechos: ${noteData.facts || 'N/A'}`;
     }
   }
 
-  // Función para copiar el texto de la nota al portapapeles
   async function copyNoteText(noteData) {
       let noteText = `Nota Policial:
 Fecha y Hora: ${noteData.timestamp || 'N/A'}
 Documento: ${noteData.documentNumber || 'N/A'}
 Nombre: ${noteData.fullName || 'N/A'}
+Lugar de Nacimiento: ${noteData.birthPlace || 'N/A'}
 Fecha de Nacimiento: ${noteData.birthdate || 'N/A'}
 Padres: ${noteData.parentsName || 'N/A'}
 Dirección: ${noteData.address || 'N/A'}
@@ -132,7 +127,6 @@ Hechos: ${noteData.facts || 'N/A'}`;
       }
   }
 
-  // Función para descargar la foto de la nota
   function downloadNotePhoto(photoUrl) {
       if (photoUrl) {
           const a = document.createElement('a');
@@ -146,8 +140,6 @@ Hechos: ${noteData.facts || 'N/A'}`;
       }
   }
 
-
-  // Mostrar las notas guardadas (ahora con botones adicionales y contenedor flex)
   function displayNotes() {
     const notes = JSON.parse(localStorage.getItem('notes')) || [];
     if (notes.length === 0) {
@@ -160,13 +152,15 @@ Hechos: ${noteData.facts || 'N/A'}`;
           <p><strong>Lugar de Intervención:</strong> ${note.interventionLocation || 'N/A'}</p>
           <p><strong>Documento:</strong> ${note.documentNumber || 'N/A'}</p>
           <p><strong>Nombre:</strong> ${note.fullName || 'N/A'}</p>
+          <p><strong>Lugar de nacimiento:</strong> ${note.birthPlace || 'N/A'}</p>
           <p><strong>Fecha de nacimiento:</strong> ${note.birthdate || 'N/A'}</p>
           <p><strong>Padres:</strong> ${note.parentsName || 'N/A'}</p>
           <p><strong>Dirección:</strong> ${note.address || 'N/A'}</p>
           <p><strong>Teléfono:</strong> ${note.phone || 'N/A'}</p>
           <p><strong>Hechos:</strong> ${note.facts || 'N/A'}</p>
           ${note.photoUrl ? `<img src="${note.photoUrl}" alt="Foto del documento" class="note-photo">` : ''}
-          <div class="note-actions">  <button class="btn btn-delete" onclick="deleteNote(${index})">Eliminar</button>
+          <div class="note-actions">
+             <button class="btn btn-delete" onclick="deleteNote(${index})">Eliminar</button>
              <button class="btn btn-share" onclick="shareNoteFromIndex(${index})">Compartir</button>
              <button class="btn btn-copy" onclick="copyNoteTextFromIndex(${index})">Copiar Texto</button>
              ${note.photoUrl ? `<button class="btn btn-download" onclick="downloadNotePhotoFromIndex(${index})">Descargar Foto</button>` : ''}
@@ -191,7 +185,6 @@ Hechos: ${noteData.facts || 'N/A'}`;
     }
   };
 
-  // Funciones auxiliares para llamar a las nuevas funciones desde el HTML
   window.copyNoteTextFromIndex = function(index) {
       const notes = JSON.parse(localStorage.getItem('notes')) || [];
       if (index >= 0 && index < notes.length) {
@@ -208,8 +201,6 @@ Hechos: ${noteData.facts || 'N/A'}`;
       }
   };
 
-
-  // Generar informe en formato de texto
   generateReportButton.addEventListener('click', generateReport);
 
   function generateReport() {
@@ -219,10 +210,11 @@ Hechos: ${noteData.facts || 'N/A'}`;
     notes.forEach((note, index) => {
       reportText += `Intervención ${index + 1}\\n`;
       reportText += '---------------------------------\\n';
-      reportText += `Fecha y Hora: ${note.timestamp || 'N/A'}\\n`; // Añadir al reporte
+      reportText += `Fecha y Hora: ${note.timestamp || 'N/A'}\\n`;
       reportText += `Lugar de Intervención: ${note.interventionLocation || 'N/A'}\\n`;
       reportText += `Documento: ${note.documentNumber || 'N/A'}\\n`;
       reportText += `Nombre: ${note.fullName || 'N/A'}\\n`;
+      reportText += `Lugar de Nacimiento: ${note.birthPlace || 'N/A'}\\n`;
       reportText += `Fecha de Nacimiento: ${note.birthdate || 'N/A'}\\n`;
       reportText += `Padres: ${note.parentsName || 'N/A'}\\n`;
       reportText += `Dirección: ${note.address || 'N/A'}\\n`;
@@ -231,7 +223,7 @@ Hechos: ${noteData.facts || 'N/A'}`;
       reportText += '---------------------------------\\n\\n';
     });
 
-    const blob = new Blob([reportText], { type: 'text/plain' });
+    const blob = new Blob([reportText.replace(/\\n/g, '\n')], { type: 'text/plain' }); // Asegurar saltos de línea correctos
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -240,7 +232,6 @@ Hechos: ${noteData.facts || 'N/A'}`;
     URL.revokeObjectURL(url);
   }
 
-  // Abrir la cámara y mostrar el modal (forzando el uso de la cámara trasera)
   takePhotoButton.addEventListener('click', openCameraModal);
 
   function openCameraModal() {
@@ -261,7 +252,6 @@ Hechos: ${noteData.facts || 'N/A'}`;
     }
   }
 
-  // Capturar la foto del video y guardarla
   captureButton.addEventListener('click', () => {
     const canvas = document.createElement('canvas');
     canvas.width = video.videoWidth;
@@ -269,11 +259,22 @@ Hechos: ${noteData.facts || 'N/A'}`;
     const context = canvas.getContext('2d');
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
     capturedPhotoDataUrl = canvas.toDataURL('image/png');
+    
+    // MOSTRAR VISTA PREVIA
+    if (photoPreview) {
+      photoPreview.src = capturedPhotoDataUrl;
+      photoPreview.style.display = 'block';
+    }
+    
     closeCameraModal();
   });
 
-  // Cancelar captura y cerrar el modal
-  cancelCaptureButton.addEventListener('click', closeCameraModal);
+  cancelCaptureButton.addEventListener('click', () => {
+    // Opcional: si se cancela la captura, se podría limpiar `capturedPhotoDataUrl` 
+    // y la vista previa si no se quiere mantener una foto previamente capturada para la nota actual.
+    // Por ahora, solo cierra el modal, la foto se limpiará al guardar la nota.
+    closeCameraModal();
+  });
 
   function closeCameraModal() {
     if (mediaStream) {
