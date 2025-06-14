@@ -73,7 +73,6 @@
              --shift-m-bg: #60a5fa; --shift-t-bg: #fbbf24; --shift-n-bg: #a78bfa; --shift-l-bg: #34d399;
              --shift-text-light: #ffffff; --shift-text-dark: #1f2937; --note-text-color: var(--text-medium-color);
         }
-
         .home-button {
             position: fixed; top: 1rem; left: 1rem; z-index: 1101;
             background: #1f2937; color: white; padding: 0.6rem 0.8rem;
@@ -273,6 +272,7 @@
     const calendarGridHeader = document.getElementById('calendarGridHeader');
     const currentMonthYearElement = document.getElementById('currentMonthYear');
     const shiftSelectorContainer = document.getElementById('shiftSelector');
+    const editControlsWrapper = document.getElementById('editControlsWrapper');
     
     let currentDate = new Date();
     let calendarsData = {};
@@ -300,7 +300,7 @@
             currentUserId = user.uid;
             loadUserCalendars();
         } else {
-            document.body.innerHTML = `<div class="flex items-center justify-center h-screen bg-[var(--bg-color)] text-[var(--text-color)] text-center text-xl">Por favor, <a href="../../index.html" class="font-bold underline mx-2">inicia sesión</a> para usar el calendario.</div>`;
+             document.body.innerHTML = `<div class="flex items-center justify-center h-screen bg-[var(--bg-color)] text-[var(--text-color)] text-center text-xl">Por favor, <a href="../../index.html" class="font-bold underline mx-2">inicia sesión</a> para usar el calendario.</div>`;
         }
     });
 
@@ -435,9 +435,10 @@
     function handleDayDoubleClickWrapper(e) { handleDayDoubleClick(e.currentTarget.dataset.date); }
     
     function handleDayClick(dateString, cell) {
+        const controlsVisible = editControlsWrapper.style.display !== 'none';
         if (isSelectingPattern) {
             // Pattern logic here
-        } else if (selectedShiftType) {
+        } else if (controlsVisible && selectedShiftType) {
             if (!calendarsData[dateString]) calendarsData[dateString] = {};
             if (selectedShiftType === 'erase') delete calendarsData[dateString].shift;
             else calendarsData[dateString].shift = selectedShiftType;
@@ -490,6 +491,11 @@
         }
     }
     
+    function toggleEditControlsVisibility() {
+        const isHidden = editControlsWrapper.style.display === 'none';
+        editControlsWrapper.style.display = isHidden ? 'block' : 'none';
+    }
+
     // --- Event Listeners ---
     document.addEventListener('DOMContentLoaded', () => {
         createShiftSelectorButtons();
@@ -505,6 +511,15 @@
             currentDate = new Date();
             renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
         });
+
+        document.getElementById('editShiftsBtnBottom').addEventListener('click', toggleEditControlsVisibility);
+        document.getElementById('editShiftsBtnMobile').addEventListener('click', () => {
+            toggleEditControlsVisibility();
+            // Cierra el menú si está en móvil
+            document.getElementById('mobileMenu').classList.remove('open');
+            document.getElementById('menuOverlay').style.display = 'none';
+        });
+
     });
     
     function updateCalendarSelector() {
