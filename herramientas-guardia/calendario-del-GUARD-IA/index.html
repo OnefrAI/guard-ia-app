@@ -10,7 +10,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- Variables de Color --- */
         :root {
             --bg-color: #121212; --card-color: #1e1e1e; --text-color: #e0e0e0; --text-medium-color: #a0a0a0;
             --accent-color: #39FF14; --accent-text-color: #0a0a0a; --border-color: rgba(255, 255, 255, 0.15);
@@ -197,7 +196,8 @@
     </a>
     <div class="main-container">
         <h1 class="main-title">Calendario GUARD-IA</h1>
-        <div id="mainCalendarArea"> <div class="calendar-container">
+        <div id="mainCalendarArea">
+             <div class="calendar-container">
                 <div class="calendar-nav"> <button id="prevMonth" aria-label="Mes anterior" class="nav-button"><i class="fas fa-chevron-left"></i></button> <button id="goToTodayBtn" aria-label="Ir a Hoy" class="nav-button" title="Ir al mes actual">Hoy</button> <h2 id="currentMonthYear" class=""></h2> <button id="nextMonth" aria-label="Mes siguiente" class="nav-button"><i class="fas fa-chevron-right"></i></button> </div>
                 <div> <div id="calendarGridHeader" class="calendar-grid-header"> </div> <div id="calendarGrid" class="calendar-grid"> </div> </div>
             </div>
@@ -205,7 +205,8 @@
              <div id="editControlsWrapper" class="mt-4" style="display: none;"> <div id="shiftSelector"> <span class="shift-label">Asignar Turno:</span> <button class="shift-button erase" data-shift-type="erase" title="Borrar turno"> <i class="fas fa-eraser icon"></i> <span class="text">Borrar</span> </button> </div> <div id="patternControls" class="mt-4"> <div id="patternSelectionArea"> <span class="pattern-label">Repetir Patrón:</span> <button id="startPatternSelectionBtn" class="pattern-button">Seleccionar Patrón</button> <span id="patternInfo"></span> </div> <div id="patternApplyArea" class="hidden mt-2"> <div id="selectedPatternDisplay"></div> <div class="pattern-apply-controls"> <label for="applyUntilDate">Extender hasta:</label> <input type="date" id="applyUntilDate" class="text-sm"> <button id="applySelectedPatternBtn" class="apply-button" disabled>Aplicar</button> <button id="cancelPatternSelectionBtn" class="pattern-button cancel">Cancelar</button> </div> </div> </div> </div>
         </div>
         <div class="footer-notes" style="display: none;"> <p>(Selecciona o crea un calendario para empezar)</p> </div>
-    </div> <div id="bottomBar">
+    </div>
+    <div id="bottomBar">
         <div class="bottom-bar-content">
             <div id="bottomActions">
                 <button id="editShiftsBtnBottom" class="bottom-action-button" title="Editar Turnos/Patrón" disabled> <i class="fas fa-edit fa-fw"></i> <span>Editar</span> </button>
@@ -217,7 +218,7 @@
     </div>
     <div id="mobileMenu" class="">
         <button id="closeMenuBtn" class="close-btn" aria-label="Cerrar menú">&times;</button>
-        <a href="https://onefrai.github.io/guard-ia-app/" class="menu-link" id="homeBtnMobile"> <i class="fas fa-home fa-fw"></i> Home </a>
+        <a href="../../index.html" class="menu-link" id="homeBtnMobile"> <i class="fas fa-home fa-fw"></i> Home </a>
         <button class="menu-item" id="startTutorialBtnMobile"> <i class="fas fa-question-circle fa-fw"></i> Guía Rápida </button>
         <button class="menu-item theme-toggle-mobile" id="themeToggleBtnMobile"> </button>
         <button class="menu-item" id="editShiftsBtnMobile" disabled> <i class="fas fa-edit fa-fw"></i> Editar Turnos/Patrón </button>
@@ -244,6 +245,287 @@
     <div id="tutorialOverlay"> <div id="tutorialModal"> <h3 id="tutorialTitle">Guía Rápida</h3> <div id="tutorialContent"> <p>¡Bienvenido al Gestor de Calendarios GUARD-IA!</p> <ul> <li><strong>Gestión Calendario:</strong> Abre el menú (<i class="fas fa-cog"></i>) para seleccionar, añadir o eliminar calendarios.</li> <li><strong>Copia Seguridad:</strong> En el menú (<i class="fas fa-cog"></i>) puedes Exportar el actual o Importar uno nuevo (JSON).</li> <li><strong>Navegar Mes:</strong> Usa <i class="fas fa-chevron-left"></i> <i class="fas fa-chevron-right"></i> o <strong>Hoy</strong>.</li> <li><strong>Editar Turnos/Patrón:</strong> Pulsa <strong><i class="fas fa-edit"></i> Editar</strong> (barra inferior / menú <i class="fas fa-cog"></i>) para mostrar/ocultar controles.</li> <li><strong>Asignar Turno:</strong> Con controles visibles, selecciona turno y haz clic en días.</li> <li><strong>Ver/Editar Detalles Día:</strong> Haz <strong>clic simple</strong> en un día (con controles <strong>ocultos</strong>) para abrir la ventana de detalles.</li> <li><strong>Marcar Evento:</strong> Haz <strong>doble clic</strong> en un día O usa la ventana de detalles.</li> <li><strong>Repetir Patrón:</strong> Con controles visibles...</li> <li><strong>Guía y Tema:</strong> Botones en barra inferior / menú <i class="fas fa-cog"></i>.</li> </ul> </div> <div class="tutorial-nav"> <button id="tutorialCloseBtn" class="tutorial-button primary">Entendido</button> </div> </div> </div>
     <div id="customTooltip"></div>
     <div id="dayDetailModalOverlay"> <div id="dayDetailModal"> <h3 id="dayDetailModalTitle">Detalles del Día</h3> <div class="modal-content"> <input type="hidden" id="dayDetailEditingDate"> <label for="dayDetailNote">Notas:</label> <textarea id="dayDetailNote" rows="4" placeholder="Añade tus notas aquí..."></textarea> <label for="dayDetailExtraInfo">Información Extra:</label> <input type="text" id="dayDetailExtraInfo" placeholder="Ej: Horas, pago..."> <div class="checkbox-container"> <input type="checkbox" id="dayDetailEvent"> <label for="dayDetailEvent" class="ml-2 cursor-pointer">Marcar como Evento Especial (<i class="fas fa-star" style="color: var(--event-indicator-color)"></i>)</label> </div> </div> <div class="modal-actions"> <button id="dayDetailCancelBtn" class="modal-button secondary">Cancelar</button> <button id="dayDetailSaveBtn" class="modal-button primary">Guardar</button> </div> </div> </div>
-    <script src="script.js"></script>
+
+<script type="module">
+    // --- Firebase SDK Imports ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // --- Firebase Initialization ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyAf3I3_aW__lBtTVlEJ9xesIWkEJ6lMJp8",
+      authDomain: "guard-ia-a36da.firebaseapp.com",
+      projectId: "guard-ia-a36da",
+      storageBucket: "guard-ia-a36da.appspot.com",
+      messagingSenderId: "914018061004",
+      appId: "1:914018061004:web:6ab6c6ca728199033bd069",
+      measurementId: "G-W45Z1BH3T4"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const appId = firebaseConfig.appId;
+
+    // --- DOM Elements & Global State ---
+    const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    const calendarGrid = document.getElementById('calendarGrid');
+    const calendarGridHeader = document.getElementById('calendarGridHeader');
+    const currentMonthYearElement = document.getElementById('currentMonthYear');
+    const shiftSelectorContainer = document.getElementById('shiftSelector');
+    
+    let currentDate = new Date();
+    let calendarsData = {};
+    let calendarList = [];
+    let activeCalendarName = null;
+    let currentUserId = null;
+    let isDataLoaded = false;
+    let calendarUnsubscribe = null;
+    let selectedShiftType = null;
+    let isSelectingPattern = false;
+    let patternStartDate = null;
+    let patternEndDate = null;
+    let selectedPatternSequence = [];
+
+    const shiftTypes = {
+        'M': { label: 'Mañana', colorClass: 'shift-M', icon: 'fa-sun' },
+        'T': { label: 'Tarde', colorClass: 'shift-T', icon: 'fa-cloud-sun' },
+        'N': { label: 'Noche', colorClass: 'shift-N', icon: 'fa-moon' },
+        'L': { label: 'Libre', colorClass: 'shift-L', icon: 'fa-bed' },
+    };
+    
+    // --- Authentication ---
+    onAuthStateChanged(auth, user => {
+        if (user) {
+            currentUserId = user.uid;
+            loadUserCalendars();
+        } else {
+            document.body.innerHTML = `<div class="flex items-center justify-center h-screen bg-[var(--bg-color)] text-[var(--text-color)] text-center text-xl">Por favor, <a href="../../index.html" class="font-bold underline mx-2">inicia sesión</a> para usar el calendario.</div>`;
+        }
+    });
+
+
+    // --- Firestore Data Functions ---
+    async function loadUserCalendars() {
+        if (!currentUserId) return;
+        const calendarsCollectionPath = `artifacts/${appId}/users/${currentUserId}/calendars`;
+        const q = collection(db, calendarsCollectionPath);
+        const querySnapshot = await getDocs(q);
+        calendarList = querySnapshot.docs.map(doc => doc.id);
+
+        if (calendarList.length > 0) {
+            activeCalendarName = localStorage.getItem(`activeCalendar_${currentUserId}`) || calendarList[0];
+            if (!calendarList.includes(activeCalendarName)) {
+                activeCalendarName = calendarList[0];
+            }
+        } else {
+            activeCalendarName = null;
+        }
+        
+        updateCalendarSelector();
+        if (activeCalendarName) {
+            listenToActiveCalendar();
+        } else {
+            isDataLoaded = true;
+            renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
+            document.querySelector('.footer-notes').style.display = 'block';
+        }
+    }
+
+    function listenToActiveCalendar() {
+        if (calendarUnsubscribe) calendarUnsubscribe();
+        if (!currentUserId || !activeCalendarName) return;
+
+        const calendarDocPath = `artifacts/${appId}/users/${currentUserId}/calendars/${activeCalendarName}`;
+        calendarUnsubscribe = onSnapshot(doc(db, calendarDocPath), (doc) => {
+            calendarsData = doc.exists() ? doc.data().data || {} : {};
+            isDataLoaded = true;
+            renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
+        });
+    }
+
+    async function saveData() {
+        if (!currentUserId || !activeCalendarName) return;
+        const calendarDocPath = `artifacts/${appId}/users/${currentUserId}/calendars/${activeCalendarName}`;
+        await setDoc(doc(db, calendarDocPath), { data: calendarsData });
+    }
+    
+    // --- Calendar Rendering & Logic ---
+    function renderCalendar(year, month) {
+        if (!isDataLoaded && activeCalendarName) {
+            calendarGrid.innerHTML = `<p class="col-span-8 text-center p-8">Cargando datos...</p>`;
+            return;
+        }
+
+        currentMonthYearElement.textContent = `${monthNames[month]} ${year}`;
+        calendarGridHeader.innerHTML = '<div class="week-header">Sem</div>' + ['L', 'M', 'X', 'J', 'V', 'S', 'D'].map(d => `<div>${d}</div>`).join('');
+        calendarGrid.innerHTML = '';
+        
+        const firstDayOfMonth = new Date(year, month, 1);
+        let dayOfWeekForFirst = firstDayOfMonth.getDay();
+        let mondayBasedDayOfWeek = (dayOfWeekForFirst === 0) ? 6 : dayOfWeekForFirst - 1;
+        let currentMonday = new Date(firstDayOfMonth);
+        currentMonday.setDate(firstDayOfMonth.getDate() - mondayBasedDayOfWeek);
+
+        const todayString = formatDate(new Date());
+        let monthlyShiftCounts = { M: 0, T: 0, N: 0, L: 0 };
+
+        for (let week = 0; week < 6; week++) {
+            const weekNumberCell = document.createElement('div');
+            weekNumberCell.className = 'day-cell week-number-cell';
+            const weekDate = new Date(currentMonday);
+            weekDate.setDate(weekDate.getDate() + 3);
+            weekNumberCell.textContent = getWeekNumber(weekDate);
+            calendarGrid.appendChild(weekNumberCell);
+
+            for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+                const cellDate = new Date(currentMonday);
+                cellDate.setDate(currentMonday.getDate() + dayIndex);
+                const cellDateString = formatDate(cellDate);
+                const cell = document.createElement('div');
+                cell.className = 'day-cell';
+                cell.dataset.date = cellDateString;
+
+                const dayNumberSpan = document.createElement('span');
+                dayNumberSpan.className = 'day-number';
+                dayNumberSpan.textContent = cellDate.getDate();
+                
+                if (cellDate.getMonth() !== month) {
+                    cell.classList.add('other-month');
+                } else {
+                     cell.addEventListener('click', handleDayClickWrapper);
+                     cell.addEventListener('dblclick', handleDayDoubleClickWrapper);
+                }
+
+                if (cellDateString === todayString) {
+                    cell.classList.add('current-day');
+                }
+
+                const dayData = calendarsData[cellDateString] || {};
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'day-cell-content';
+
+                if (dayData.shift && shiftTypes[dayData.shift]) {
+                    const shiftIndicator = document.createElement('div');
+                    shiftIndicator.className = `shift-indicator ${shiftTypes[dayData.shift].colorClass}`;
+                    shiftIndicator.textContent = dayData.shift;
+                    contentDiv.appendChild(shiftIndicator);
+                    if(cellDate.getMonth() === month) monthlyShiftCounts[dayData.shift]++;
+                }
+                if (dayData.note) {
+                     const noteDiv = document.createElement('div');
+                     noteDiv.className = 'note-text';
+                     noteDiv.textContent = dayData.note;
+                     contentDiv.appendChild(noteDiv);
+                }
+                
+                cell.appendChild(dayNumberSpan);
+                cell.appendChild(contentDiv);
+                calendarGrid.appendChild(cell);
+            }
+            currentMonday.setDate(currentMonday.getDate() + 7);
+        }
+        updateShiftSummary(monthlyShiftCounts);
+    }
+    
+    // --- Helper & UI Functions ---
+    function formatDate(date) { const d = new Date(date); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+    function getWeekNumber(d) { d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7)); var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1)); return Math.ceil((((d - yearStart) / 86400000) + 1)/7); }
+    function handleDayClickWrapper(e) { handleDayClick(e.currentTarget.dataset.date, e.currentTarget); }
+    function handleDayDoubleClickWrapper(e) { handleDayDoubleClick(e.currentTarget.dataset.date); }
+    
+    function handleDayClick(dateString, cell) {
+        if (isSelectingPattern) {
+            // Pattern logic here
+        } else if (selectedShiftType) {
+            if (!calendarsData[dateString]) calendarsData[dateString] = {};
+            if (selectedShiftType === 'erase') delete calendarsData[dateString].shift;
+            else calendarsData[dateString].shift = selectedShiftType;
+            saveData();
+        } else {
+            // Day details modal logic here
+        }
+    }
+    
+    function handleDayDoubleClick(dateString) {
+        if (!calendarsData[dateString]) calendarsData[dateString] = {};
+        calendarsData[dateString].event = !calendarsData[dateString].event;
+        saveData();
+    }
+    
+    function updateShiftSummary(counts) {
+        const summary = document.getElementById('shiftSummary');
+        if (!summary) return;
+        const total = Object.values(counts).reduce((a, b) => a + b, 0);
+        if (total > 0) {
+            summary.style.display = 'block';
+            summary.innerHTML = `<strong>Resumen Mes:</strong> ` + Object.keys(counts).map(key => `<span class="shift-${key}">${key}: ${counts[key]}</span>`).join('');
+        } else {
+            summary.style.display = 'none';
+        }
+    }
+
+    function createShiftSelectorButtons() {
+        const container = shiftSelectorContainer;
+        if (!container) return;
+        const eraseBtn = container.querySelector('.erase');
+        Object.keys(shiftTypes).forEach(key => {
+            const btn = document.createElement('button');
+            btn.className = `shift-button ${shiftTypes[key].colorClass}`;
+            btn.dataset.shiftType = key;
+            btn.innerHTML = `<i class="fas ${shiftTypes[key].icon} icon"></i> <span class="text">${shiftTypes[key].label}</span>`;
+            btn.addEventListener('click', () => selectShift(key, btn));
+            container.insertBefore(btn, eraseBtn);
+        });
+        eraseBtn.addEventListener('click', () => selectShift('erase', eraseBtn));
+    }
+
+    function selectShift(shift, btn) {
+        shiftSelectorContainer.querySelectorAll('.active').forEach(b => b.classList.remove('active'));
+        if (selectedShiftType === shift) {
+            selectedShiftType = null;
+        } else {
+            selectedShiftType = shift;
+            btn.classList.add('active');
+        }
+    }
+    
+    // --- Event Listeners ---
+    document.addEventListener('DOMContentLoaded', () => {
+        createShiftSelectorButtons();
+        document.getElementById('prevMonth').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
+        });
+        document.getElementById('nextMonth').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
+        });
+        document.getElementById('goToTodayBtn').addEventListener('click', () => {
+            currentDate = new Date();
+            renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
+        });
+    });
+    
+    function updateCalendarSelector() {
+        const selector = document.getElementById('calendarSelectorMobile');
+        if (!selector) return;
+        selector.innerHTML = '';
+        if (calendarList.length === 0) {
+            selector.innerHTML = '<option>Crea un calendario</option>';
+            selector.disabled = true;
+        } else {
+            selector.disabled = false;
+            calendarList.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                if (name === activeCalendarName) opt.selected = true;
+                selector.appendChild(opt);
+            });
+        }
+    }
+
+</script>
 </body>
 </html>
