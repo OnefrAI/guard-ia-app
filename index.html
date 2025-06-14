@@ -103,12 +103,12 @@
         <section class="py-10 relative z-10">
          <h2 class="text-3xl sm:text-4xl font-bold text-center mb-6 sm:mb-8 drop-shadow-lg">CANALES DE<br>ACCIÓN POLICIAL</h2>
          <div class="max-w-lg mx-auto px-4 sm:px-0 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-           <a href="https://www.youtube.com/@PoliceActivity" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> PoliceActivity</a>
-           <a href="https://www.youtube.com/@RealWorldPolice" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> Real World Police</a>
-           <a href="https://www.youtube.com/@CodeBlueCam" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> Code Blue Cam</a>
-           <a href="https://www.youtube.com/@AuditTheAudit" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-gavel"></i> Audit the Audit</a>
-           <a href="https://www.youtube.com/@DonutOperator" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> Donut Operator</a>
-           <a href="https://www.youtube.com/@FreeFieldTraining" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-chalkboard-teacher"></i> FreeFieldTraining</a>
+           <a href="https://www.youtube.com/@PoliceActivity" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> PoliceActivity</a>
+           <a href="https://www.youtube.com/@RealWorldPolice" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> Real World Police</a>
+           <a href="https://www.youtube.com/@CodeBlueCam" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> Code Blue Cam</a>
+           <a href="https://www.youtube.com/@AuditTheAudit" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-gavel"></i> Audit the Audit</a>
+           <a href="https://www.youtube.com/@DonutOperator" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> Donut Operator</a>
+           <a href="https://www.youtube.com/@FreeFieldTraining" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-chalkboard-teacher"></i> FreeFieldTraining</a>
          </div>
         </section>
         <section class="py-10 relative z-10">
@@ -133,16 +133,13 @@
             </a>
         </footer>
     </div>
-
-    <!-- Modal para info de botones -->
     <div class="modal-overlay" id="infoModalOverlay">
      <div class="modal">
-       <button class="modal-close-button" onclick="closeInfoModal()" aria-label="Cerrar modal"><i class="fas fa-times"></i></button>
+       <button class="modal-close-button" onclick="closeInfoModal()"><i class="fas fa-times"></i></button>
        <h2 id="modalTitle" class="text-2xl font-bold mb-4 text-[var(--accent-color)]"></h2>
        <p id="modalText" class="text-base"></p>
      </div>
     </div>
-
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -206,25 +203,26 @@
     });
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        signInWithEmailAndPassword(auth, loginForm.email.value, loginForm.password.value)
+        signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value, document.getElementById('loginPassword').value)
             .catch(error => { authError.textContent = getFirebaseAuthErrorMessage(error.code); });
     });
     registerForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        createUserWithEmailAndPassword(auth, registerForm.email.value, registerForm.password.value)
+        createUserWithEmailAndPassword(auth, document.getElementById('registerEmail').value, document.getElementById('registerPassword').value)
             .catch(error => { authError.textContent = getFirebaseAuthErrorMessage(error.code); });
     });
     function getFirebaseAuthErrorMessage(errorCode) {
         switch (errorCode) {
             case 'auth/invalid-email': return 'El formato del correo no es válido.';
-            case 'auth/user-not-found': case 'auth/wrong-password': case 'auth/invalid-credential': return 'Correo o contraseña incorrectos.';
+            case 'auth/user-not-found':
+            case 'auth/wrong-password':
+            case 'auth/invalid-credential': return 'Correo o contraseña incorrectos.';
             case 'auth/email-already-in-use': return 'Este correo ya está registrado.';
             case 'auth/weak-password': return 'La contraseña debe tener al menos 6 caracteres.';
             default: return 'Ha ocurrido un error inesperado.';
         }
     }
 
-    // --- UI Initialization for Logged-in Users ---
     const infoModalOverlay = document.getElementById('infoModalOverlay');
     const modalTitle = document.getElementById('modalTitle');
     const modalText = document.getElementById('modalText');
