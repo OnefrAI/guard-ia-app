@@ -30,11 +30,6 @@
          integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
          crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
-
-
    <style>
      /* --- Theme Variables --- */
      :root {
@@ -48,12 +43,6 @@
        --glow-color: rgba(57, 255, 20, 0.5); --modal-close-hover: var(--accent-color);
        --link-hover-color: var(--accent-color); --info-fixed-bg: var(--accent-color);
        --info-fixed-text: var(--bg-color); /* Texto del botón de envío/info */
-       /* Nuevas variables para Swiper */
-       --swiper-theme-color: var(--accent-color);
-       --swiper-navigation-color: var(--accent-color);
-       --swiper-pagination-color: var(--accent-color);
-       --swiper-pagination-bullet-inactive-color: var(--text-medium-color);
-       --swiper-pagination-bullet-inactive-opacity: 0.5;
      }
      body.light-mode {
        --bg-color: #f8f9fa; --bg-color-rgb: 248, 249, 250;
@@ -65,11 +54,6 @@
        --glow-color: rgba(0, 123, 255, 0.4); --modal-close-hover: var(--accent-color);
        --link-hover-color: var(--accent-color); --info-fixed-bg: var(--accent-color);
        --info-fixed-text: #ffffff; /* Texto del botón de envío/info en modo claro */
-       /* Swiper en modo claro */
-       --swiper-theme-color: var(--accent-color);
-       --swiper-navigation-color: var(--accent-color);
-       --swiper-pagination-color: var(--accent-color);
-       --swiper-pagination-bullet-inactive-color: var(--text-medium-color);
      }
 
      /* --- Base Styles & Transitions --- */
@@ -146,150 +130,6 @@
      body.light-mode footer { background-color: rgba(var(--bg-color-rgb), 0.8); border-color: var(--border-color); }
      body.light-mode footer a { color: var(--text-color); }
      body.light-mode footer a:hover { color: var(--link-hover-color); }
-     body.light-mode #feedbackText { background-color: var(--card-color); color: var(--text-color); border-color: var(--border-color); } /* Estilo textarea modo claro */
-     body.light-mode #feedbackText::placeholder { color: var(--text-medium-color); }
-     body.light-mode #feedbackText:focus { border-color: var(--accent-color); --tw-ring-color: var(--accent-color); } /* Ajuste ring color */
-     body.light-mode #submitFeedbackBtn { background-color: var(--accent-color); color: var(--info-fixed-text);}
-
-     /* --- Estilos para Rating Stars --- */
-      #ratingStars i:hover,
-      #ratingStars i.hovered {
-        color: var(--accent-color); /* Color al pasar el ratón o seleccionado */
-        transform: scale(1.1); /* Efecto ligero al pasar el ratón */
-      }
-      #ratingStars i.selected {
-         color: var(--accent-color); /* Mantiene el color si está seleccionada */
-      }
-
-      /* Asegurar que las variables de color funcionen bien en ambos modos */
-      body.light-mode #ratingStars i:hover,
-      body.light-mode #ratingStars i.hovered,
-      body.light-mode #ratingStars i.selected {
-         color: var(--accent-color);
-      }
-      body.light-mode #ratingMessage {
-          color: var(--accent-color);
-      }
-
-      /* Estilos para el Carrusel de Reseñas (Vertical) */
-     #reviewsCarouselContainer {
-         max-width: 700px;
-         width: 100%; /* MODIFICADO: Asegurar que ocupe el ancho disponible */
-         margin: 2rem auto;
-         padding: 0 1rem; /* Padding base */
-         /* Padding mayor en pantallas más grandes para botones de navegación */
-         padding-left: 2.5rem;
-         padding-right: 2.5rem;
-         position: relative; /* Necesario para posicionar botones */
-         box-sizing: border-box; /* Incluir padding en el ancho total */
-     }
-     .swiper-slide {
-         background-color: var(--card-color);
-         border: 1px solid var(--border-color);
-         border-radius: 12px;
-         padding: 1.5rem;
-         color: var(--text-color);
-         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-         min-height: 150px; /* Ajusta según necesites */
-         display: flex;
-         flex-direction: column;
-         justify-content: center;
-         align-items: center;
-         text-align: center;
-         transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-         box-sizing: border-box; /* Incluir padding en el tamaño */
-     }
-     body.light-mode .swiper-slide {
-         background-color: var(--card-color);
-         border-color: var(--border-color);
-         color: var(--text-color);
-     }
-     .review-stars {
-         margin-bottom: 0.75rem;
-         font-size: 1.1rem;
-         color: var(--accent-color);
-     }
-      body.light-mode .review-stars {
-          color: var(--accent-color);
-      }
-     .review-comment {
-         font-size: 0.95rem;
-         line-height: 1.5;
-         color: var(--text-color);
-         word-break: break-word;
-         width: 100%;
-     }
-      body.light-mode .review-comment {
-          color: var(--text-color);
-      }
-     .review-comment.no-comment {
-         color: var(--text-medium-color);
-         font-style: italic;
-     }
-      body.light-mode .review-comment.no-comment {
-          color: var(--text-medium-color);
-      }
-
-     /* Estilos para los botones de navegación de Swiper */
-     .swiper-button-prev,
-     .swiper-button-next {
-         color: var(--swiper-navigation-color);
-         transition: color 0.3s ease;
-         top: 50%;
-         width: calc(var(--swiper-navigation-size) / 44 * 27);
-         height: var(--swiper-navigation-size);
-         margin-top: calc(0px - (var(--swiper-navigation-size) / 2));
-         /* Posicionamiento absoluto respecto al contenedor del carrusel */
-         position: absolute;
-         z-index: 10; /* Asegurar que estén por encima */
-     }
-     .swiper-button-prev {
-         left: 5px; /* Separación del borde izquierdo */
-     }
-     .swiper-button-next {
-         right: 5px; /* Separación del borde derecho */
-     }
-
-     /* Ajustes responsivos para botones y padding */
-     @media (max-width: 640px) {
-        #reviewsCarouselContainer {
-            padding-left: 1rem; /* Reducir padding en móvil */
-            padding-right: 1rem;
-        }
-        .swiper-button-prev,
-        .swiper-button-next {
-            /* Opcional: Ocultar botones en pantallas muy pequeñas */
-            /* display: none; */
-            /* O hacerlos más pequeños */
-             width: calc(var(--swiper-navigation-size) / 44 * 20);
-             height: calc(var(--swiper-navigation-size) / 44 * 30);
-             margin-top: calc(0px - (var(--swiper-navigation-size) / 2) + 7px); /* Ajuste vertical */
-        }
-         .swiper-button-prev::after,
-         .swiper-button-next::after {
-            font-size: 1.2rem; /* Flechas más pequeñas */
-         }
-     }
-
-
-     /* Estilos para la paginación de Swiper (sin cambios) */
-     .swiper-pagination-bullet {
-         background-color: var(--swiper-pagination-bullet-inactive-color);
-         opacity: var(--swiper-pagination-bullet-inactive-opacity);
-         transition: background-color 0.3s ease, opacity 0.3s ease;
-     }
-     .swiper-pagination-bullet-active {
-         background-color: var(--swiper-pagination-color);
-         opacity: 1;
-     }
-     #reviewsLoading, #noReviewsMessage {
-         text-align: center;
-         color: var(--text-medium-color);
-         padding: 2rem;
-     }
-      body.light-mode #reviewsLoading, body.light-mode #noReviewsMessage {
-          color: var(--text-medium-color);
-      }
 
    </style>
 </head>
@@ -401,51 +241,8 @@
      <div id="sliderIndicators" class="flex justify-center space-x-2 mt-4"></div>
     </section>
 
-    <section id="reviewsCarouselContainer" class="relative z-10">
-        <h2 class="text-2xl sm:text-3xl font-bold text-center mb-6 drop-shadow-lg">Opiniones de Usuarios</h2>
-        <div class="swiper" id="reviewsCarousel">
-            <div class="swiper-wrapper" id="reviewsSwiperWrapper">
-                 </div>
-            <div class="swiper-pagination"></div>
-            <div class="swiper-button-prev"></div>
-            <div class="swiper-button-next"></div>
-        </div>
-        <div id="reviewsLoading" style="display: none;">Cargando reseñas...</div>
-        <div id="noReviewsMessage" style="display: none;">Aún no hay reseñas. ¡Sé el primero!</div>
-    </section>
-
-    <section class="py-8 relative z-10 border-t border-[var(--border-color)] mt-8">
-     <h3 class="text-xl font-semibold text-center mb-4">¿Te resulta útil esta página? ¡Valórala!</h3>
-     <div class="flex justify-center items-center space-x-1 text-2xl sm:text-3xl text-[var(--text-medium-color)] mb-4" id="ratingStars">
-       <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="1" aria-label="Valorar con 1 estrella"></i>
-       <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="2" aria-label="Valorar con 2 estrellas"></i>
-       <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="3" aria-label="Valorar con 3 estrellas"></i>
-       <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="4" aria-label="Valorar con 4 estrellas"></i>
-       <i class="far fa-star cursor-pointer transition-colors duration-200" data-value="5" aria-label="Valorar con 5 estrellas"></i>
-     </div>
-     <div class="max-w-md mx-auto px-4">
-         <textarea
-             id="feedbackText"
-             rows="2"
-             class="w-full p-2 rounded border bg-[var(--card-color)] text-[var(--text-color)] border-[var(--border-color)] focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)] resize-y text-sm placeholder:text-[var(--text-medium-color)]"
-             placeholder="Comentario opcional..."
-             aria-label="Comentario opcional sobre la valoración"
-         ></textarea>
-     </div>
-     <div class="text-center mt-4">
-         <button
-             id="submitFeedbackBtn"
-             type="button"
-             disabled
-             class="px-6 py-2 rounded bg-[var(--accent-color)] text-[var(--info-fixed-text)] font-semibold transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-         >
-             Enviar Valoración
-         </button>
-     </div>
-     <p id="ratingMessage" class="text-center text-[var(--accent-color)] mt-3 h-5"></p>
-    </section>
-
-    <footer class="mt-0 py-4 pb-6 sm:py-4 text-center relative z-10"> <a href="https://t.me/OnefraGT" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 text-base sm:text-lg">
+    <footer class="mt-auto py-4 pb-6 sm:py-4 text-center relative z-10">
+      <a href="https://t.me/OnefraGT" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 text-base sm:text-lg">
         <i class="fab fa-telegram-plane text-xl sm:text-2xl"></i> Contacta con @OnefraGT
       </a>
     </footer>
@@ -460,89 +257,141 @@
     </div>
 
 <script>
-     // ***** Variables Globales para Supabase y Swiper *****
-     const SUPABASE_URL = 'https://gczozcergpdgwwdbyabo.supabase.co'; // TU URL REAL
-     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdjem96Y2VyZ3BkZ3d3ZGJ5YWJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE5NjM0NTMsImV4cCI6MjA1NzUzOTQ1M30.NsgzC0gpM3yAE9I9UClgAY0WgC0lgyN5vCI7kFWCgBo'; // TU CLAVE ANON REAL
-     let supabase = null; // Se inicializará en DOMContentLoaded
-     let reviewsSwiper = null; // Se inicializará después de cargar reseñas
+     // --- Modal Logic ---
+     const modalOverlay = document.getElementById("modalOverlay");
+     const modalTitle = document.getElementById("modalTitle");
+     const modalText = document.getElementById("modalText");
 
-     // --- Modal Logic --- (Sin cambios)
-     const modalOverlay = document.getElementById("modalOverlay"); const modalTitle = document.getElementById("modalTitle"); const modalText = document.getElementById("modalText"); function showModal(title, text) { if(modalOverlay && modalTitle && modalText){ modalTitle.innerText = title; modalText.innerText = text; modalOverlay.classList.add("active"); } else { console.error("Modal elements not found!"); } } function closeModal() { if(modalOverlay) modalOverlay.classList.remove("active"); } function showButtonInfo(buttonElement) { if (buttonElement && typeof buttonElement.getAttribute === 'function') { var title = buttonElement.getAttribute("data-title"); var text = buttonElement.getAttribute("data-text"); if (title !== null && text !== null) { showModal(title, text); } else { console.error("Info button attributes missing.", buttonElement); } } else { console.error("Invalid element passed to showButtonInfo:", buttonElement); } } function closeModalOnClickOutside(event) { if (event.target === modalOverlay) { closeModal(); } }
+     function showModal(title, text) {
+         if(modalOverlay && modalTitle && modalText){
+             modalTitle.innerText = title;
+             modalText.innerText = text;
+             modalOverlay.classList.add("active");
+         } else {
+             console.error("Modal elements not found!");
+         }
+     }
 
-     // --- Slider Logic --- (Sin cambios)
-     const sliderWrapper = document.getElementById('sliderWrapper'); const indicatorsContainer = document.getElementById('sliderIndicators'); let currentSlide = 0; let totalSlides = 0; if (sliderWrapper) { totalSlides = sliderWrapper.children.length; } function updateSliderIndicatorsActiveColor() { if (indicatorsContainer) { Array.from(indicatorsContainer.children).forEach((indicator, index) => { if (indicator instanceof HTMLElement) { indicator.classList.remove('active-indicator'); indicator.style.backgroundColor = index === currentSlide ? 'var(--accent-color)' : 'var(--text-medium-color)'; indicator.style.opacity = index === currentSlide ? '1' : '0.6'; } }); } } function createIndicators() { if (!indicatorsContainer || totalSlides <= 0) return; indicatorsContainer.innerHTML = ''; for (let i = 0; i < totalSlides; i++) { const indicator = document.createElement('button'); indicator.className = `w-2.5 h-2.5 rounded-full transition-colors duration-300 ease-in-out`; indicator.style.backgroundColor = 'var(--text-medium-color)'; indicator.style.opacity = '0.6'; indicator.setAttribute('aria-label', `Ir a slide ${i + 1}`); indicator.onclick = () => goToSlide(i); indicatorsContainer.appendChild(indicator); } updateSliderIndicatorsActiveColor(); } function updateSlider() { if (!sliderWrapper || totalSlides <= 0) return; sliderWrapper.style.transform = `translateX(-${currentSlide * 100}%)`; updateSliderIndicatorsActiveColor(); } function nextSlide() { if (totalSlides <= 0) return; currentSlide = (currentSlide + 1) % totalSlides; updateSlider(); } function prevSlide() { if (totalSlides <= 0) return; currentSlide = (currentSlide - 1 + totalSlides) % totalSlides; updateSlider(); } function goToSlide(slideIndex) { if (totalSlides <= 0 || slideIndex < 0 || slideIndex >= totalSlides) return; currentSlide = slideIndex; updateSlider(); }
+     function closeModal() {
+         if(modalOverlay) modalOverlay.classList.remove("active");
+     }
 
-     // --- Theme Toggle Logic --- (Sin cambios)
-     const themeToggleButton = document.getElementById('theme-toggle'); const themeToggleIcon = themeToggleButton ? themeToggleButton.querySelector('i') : null; const setTheme = (theme) => { localStorage.setItem('theme', theme); if (theme === 'light') { document.body.classList.add('light-mode'); if(themeToggleIcon) themeToggleIcon.className = 'fas fa-moon'; } else { document.body.classList.remove('light-mode'); if(themeToggleIcon) themeToggleIcon.className = 'fas fa-sun'; } updateSliderIndicatorsActiveColor(); }; const currentTheme = localStorage.getItem('theme') || 'dark'; setTheme(currentTheme); if (themeToggleButton) { themeToggleButton.addEventListener('click', () => { let newTheme = document.body.classList.contains('light-mode') ? 'dark' : 'light'; setTheme(newTheme); }); }
+     function showButtonInfo(buttonElement) {
+         if (buttonElement && typeof buttonElement.getAttribute === 'function') {
+             var title = buttonElement.getAttribute("data-title");
+             var text = buttonElement.getAttribute("data-text");
+             if (title !== null && text !== null) {
+                 showModal(title, text);
+             } else {
+                 console.error("Info button attributes missing.", buttonElement);
+             }
+         } else {
+             console.error("Invalid element passed to showButtonInfo:", buttonElement);
+         }
+     }
 
-     // --- Rating Stars Logic --- (Sin cambios funcionales)
-     const ratingContainer = document.getElementById('ratingStars'); const ratingStars = ratingContainer ? ratingContainer.querySelectorAll('i') : []; const ratingMessage = document.getElementById('ratingMessage'); const feedbackInput = document.getElementById('feedbackText'); const submitFeedbackBtn = document.getElementById('submitFeedbackBtn'); let currentRating = 0; function updateStarsVisual(ratingValue) { ratingStars.forEach(star => { const starValue = parseInt(star.dataset.value, 10); if (starValue <= ratingValue) { star.classList.remove('far'); star.classList.add('fas'); star.classList.add('selected'); } else { star.classList.remove('fas'); star.classList.add('far'); star.classList.remove('selected'); star.classList.remove('hovered'); } }); } function handleStarHover(event) { if (!event.target.matches('#ratingStars i')) return; const hoverValue = parseInt(event.target.dataset.value, 10); ratingStars.forEach(star => { const starValue = parseInt(star.dataset.value, 10); if (starValue <= hoverValue) { star.classList.add('hovered'); star.classList.remove('far'); star.classList.add('fas'); } else { star.classList.remove('hovered'); if (!star.classList.contains('selected')) { star.classList.remove('fas'); star.classList.add('far'); } } }); } function resetStarHover() { updateStarsVisual(currentRating); ratingStars.forEach(star => star.classList.remove('hovered')); } function handleStarClick(event) { if (!event.target.matches('#ratingStars i')) return; const clickedValue = parseInt(event.target.dataset.value, 10); currentRating = clickedValue; updateStarsVisual(currentRating); if (submitFeedbackBtn && submitFeedbackBtn.disabled && supabase) { submitFeedbackBtn.disabled = false; submitFeedbackBtn.textContent = 'Enviar Valoración'; submitFeedbackBtn.style.backgroundColor = ''; submitFeedbackBtn.style.cursor = 'pointer'; } }
+     function closeModalOnClickOutside(event) {
+         if (event.target === modalOverlay) {
+             closeModal();
+         }
+     }
 
-     // --- sendFeedback (Usa Supabase y actualiza carrusel) --- (Sin cambios funcionales)
-     async function sendFeedback() { if (currentRating === 0) { if (ratingMessage) ratingMessage.textContent = 'Por favor, selecciona una puntuación.'; setTimeout(() => { if (ratingMessage && ratingMessage.textContent === 'Por favor, selecciona una puntuación.') { ratingMessage.textContent = ''; } }, 3000); return; } const userFeedback = feedbackInput ? feedbackInput.value.trim() : ''; if (submitFeedbackBtn) submitFeedbackBtn.disabled = true; if (ratingMessage) ratingMessage.textContent = 'Enviando...'; if (!supabase) { console.error("Supabase client not available."); if (ratingMessage) ratingMessage.textContent = 'Error de conexión.'; return; } try { const reviewData = { rating: currentRating, comment: userFeedback || null }; const { data, error } = await supabase.from('reviews').insert([reviewData]).select(); if (error) { throw new Error(error.message); } console.log('Reseña guardada en Supabase:', data); if (ratingMessage) ratingMessage.textContent = '¡Gracias por tu valoración!'; if (feedbackInput) feedbackInput.value = ''; currentRating = 0; updateStarsVisual(0); await fetchAndDisplayReviews(); } catch (error) { console.error('Error durante el envío a Supabase:', error); if (ratingMessage) ratingMessage.textContent = 'Error al enviar.'; if (submitFeedbackBtn && supabase) { submitFeedbackBtn.disabled = false; /* ... restaurar estilo ... */ } } finally { setTimeout(() => { if (ratingMessage) ratingMessage.textContent = ''; }, 4000); } }
+     // --- Slider Logic ---
+     const sliderWrapper = document.getElementById('sliderWrapper');
+     const indicatorsContainer = document.getElementById('sliderIndicators');
+     let currentSlide = 0;
+     let totalSlides = 0;
+     if (sliderWrapper) {
+         totalSlides = sliderWrapper.children.length;
+     }
 
-     // --- Lógica del Carrusel de Reseñas --- (Sin cambios funcionales)
-     function displayStars(rating) { let starsHTML = ''; for (let i = 1; i <= 5; i++) { if (i <= rating) { starsHTML += '<i class="fas fa-star"></i>'; } else { starsHTML += '<i class="far fa-star"></i>'; } } return starsHTML; }
-     async function fetchAndDisplayReviews() { const wrapper = document.getElementById('reviewsSwiperWrapper'); const loadingDiv = document.getElementById('reviewsLoading'); const noReviewsDiv = document.getElementById('noReviewsMessage'); const carouselElement = document.getElementById('reviewsCarousel'); if (!wrapper || !loadingDiv || !noReviewsDiv || !carouselElement) { console.error('Elementos del carrusel no encontrados.'); return; } if (!supabase) { console.warn('Supabase no inicializado, no se pueden cargar reseñas.'); noReviewsDiv.textContent = 'Error al cargar reseñas (conexión).'; noReviewsDiv.style.display = 'block'; loadingDiv.style.display = 'none'; carouselElement.style.display = 'none'; return; } loadingDiv.style.display = 'block'; noReviewsDiv.style.display = 'none'; wrapper.innerHTML = ''; if (reviewsSwiper) { reviewsSwiper.destroy(true, true); reviewsSwiper = null; } try { let { data: reviews, error } = await supabase.from('reviews').select('*').order('created_at', { ascending: false }).limit(15); if (error) { throw error; } loadingDiv.style.display = 'none'; if (reviews && reviews.length > 0) { carouselElement.style.display = 'block'; reviews.forEach(review => { const slide = document.createElement('div'); slide.classList.add('swiper-slide'); const starsDiv = document.createElement('div'); starsDiv.classList.add('review-stars'); starsDiv.innerHTML = displayStars(review.rating); const commentP = document.createElement('p'); commentP.classList.add('review-comment'); if (review.comment && review.comment.trim() !== '') { commentP.textContent = review.comment; } else { commentP.textContent = 'Sin comentario.'; commentP.classList.add('no-comment'); } slide.appendChild(starsDiv); slide.appendChild(commentP); wrapper.appendChild(slide); }); reviewsSwiper = new Swiper('#reviewsCarousel', { loop: reviews.length > 1, slidesPerView: 1, spaceBetween: 20, pagination: { el: '.swiper-pagination', clickable: true, }, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev', }, breakpoints: { 640: { slidesPerView: 2, spaceBetween: 20 }, 1024: { slidesPerView: 3, spaceBetween: 30 } }, autoplay: { delay: 5000, disableOnInteraction: false, }, }); } else { noReviewsDiv.style.display = 'block'; carouselElement.style.display = 'none'; } } catch (error) { console.error('Error al obtener reseñas:', error); loadingDiv.style.display = 'none'; noReviewsDiv.textContent = 'Error al cargar las reseñas.'; noReviewsDiv.style.display = 'block'; carouselElement.style.display = 'none'; } }
+     function updateSliderIndicatorsActiveColor() {
+         if (indicatorsContainer) {
+             Array.from(indicatorsContainer.children).forEach((indicator, index) => {
+                 if (indicator instanceof HTMLElement) {
+                     indicator.classList.remove('active-indicator');
+                     indicator.style.backgroundColor = index === currentSlide ? 'var(--accent-color)' : 'var(--text-medium-color)';
+                     indicator.style.opacity = index === currentSlide ? '1' : '0.6';
+                 }
+             });
+         }
+     }
+
+     function createIndicators() {
+         if (!indicatorsContainer || totalSlides <= 0) return;
+         indicatorsContainer.innerHTML = '';
+         for (let i = 0; i < totalSlides; i++) {
+             const indicator = document.createElement('button');
+             indicator.className = `w-2.5 h-2.5 rounded-full transition-colors duration-300 ease-in-out`;
+             indicator.style.backgroundColor = 'var(--text-medium-color)';
+             indicator.style.opacity = '0.6';
+             indicator.setAttribute('aria-label', `Ir a slide ${i + 1}`);
+             indicator.onclick = () => goToSlide(i);
+             indicatorsContainer.appendChild(indicator);
+         }
+         updateSliderIndicatorsActiveColor();
+     }
+
+     function updateSlider() {
+         if (!sliderWrapper || totalSlides <= 0) return;
+         sliderWrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
+         updateSliderIndicatorsActiveColor();
+     }
+
+     function nextSlide() {
+         if (totalSlides <= 0) return;
+         currentSlide = (currentSlide + 1) % totalSlides;
+         updateSlider();
+     }
+
+     function prevSlide() {
+         if (totalSlides <= 0) return;
+         currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+         updateSlider();
+     }
+
+     function goToSlide(slideIndex) {
+         if (totalSlides <= 0 || slideIndex < 0 || slideIndex >= totalSlides) return;
+         currentSlide = slideIndex;
+         updateSlider();
+     }
+
+     // --- Theme Toggle Logic ---
+     const themeToggleButton = document.getElementById('theme-toggle');
+     const themeToggleIcon = themeToggleButton ? themeToggleButton.querySelector('i') : null;
+
+     const setTheme = (theme) => {
+         localStorage.setItem('theme', theme);
+         if (theme === 'light') {
+             document.body.classList.add('light-mode');
+             if(themeToggleIcon) themeToggleIcon.className = 'fas fa-moon';
+         } else {
+             document.body.classList.remove('light-mode');
+             if(themeToggleIcon) themeToggleIcon.className = 'fas fa-sun';
+         }
+         updateSliderIndicatorsActiveColor();
+     };
+
+     const currentTheme = localStorage.getItem('theme') || 'dark';
+     setTheme(currentTheme);
+
+     if (themeToggleButton) {
+         themeToggleButton.addEventListener('click', () => {
+             let newTheme = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+             setTheme(newTheme);
+         });
+     }
 
      // --- Inicialización General dentro de DOMContentLoaded ---
      document.addEventListener('DOMContentLoaded', () => {
-
-         // ***** PASO 1: Intentar Inicializar Supabase *****
-         console.log("DOMContentLoaded event fired. Intentando inicializar Supabase...");
-         try {
-             if (!SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_URL.includes('TU_SUPABASE_URL') || SUPABASE_ANON_KEY.includes('TU_SUPABASE_ANON_KEY')) {
-                 throw new Error('Supabase URL or Anon Key is missing or contains placeholder text.');
-             }
-             if (typeof window.supabase === 'undefined' || typeof window.supabase.createClient !== 'function') {
-                 console.error("Supabase library object (window.supabase) or createClient function not found.");
-                 console.log("Window object at DOMContentLoaded:", window);
-                 throw new Error('Supabase client library not loaded or invalid.');
-             } else {
-                 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                 console.log('Supabase client initialized successfully.');
-                 if (!supabase) {
-                    throw new Error('Supabase client creation returned null or undefined.');
-                 }
-             }
-         } catch (error) {
-             console.error("Error initializing Supabase client:", error);
-             alert("Error conectando con el sistema de reseñas. La carga y envío de reseñas no funcionará. Detalles en la consola (F12).");
-             const submitBtn = document.getElementById('submitFeedbackBtn');
-             if(submitBtn) {
-                 submitBtn.disabled = true;
-                 submitBtn.textContent = 'Error Conexión';
-                 submitBtn.style.backgroundColor = '#ef4444';
-                 submitBtn.style.cursor = 'not-allowed';
-             }
-             const reviewsContainer = document.getElementById('reviewsCarouselContainer');
-             if (reviewsContainer) reviewsContainer.style.display = 'none';
-             return; // Detener si falla
-         }
-
-         // ***** PASO 2: Inicializar otras partes (solo si Supabase funcionó) *****
-         console.log("Inicializando otras partes...");
+         console.log("DOMContentLoaded event fired. Initializing components...");
 
          // Slider de Libros
-         if (sliderWrapper && totalSlides > 0) { createIndicators(); updateSlider(); }
-
-         // Lógica de Rating
-         if (ratingContainer && ratingStars.length > 0) {
-              if (submitFeedbackBtn) { submitFeedbackBtn.disabled = true; } // Deshabilitado al inicio
-              ratingStars.forEach(star => { star.addEventListener('mouseover', handleStarHover); star.addEventListener('click', handleStarClick); });
-              ratingContainer.addEventListener('mouseleave', resetStarHover);
-              if (submitFeedbackBtn) { submitFeedbackBtn.addEventListener('click', sendFeedback); }
+         if (sliderWrapper && totalSlides > 0) {
+             createIndicators();
+             updateSlider();
          }
-
-         // Cargar reseñas
-         fetchAndDisplayReviews();
-
-         // Verificar Swiper
-         if (typeof Swiper === 'undefined') {
-             console.warn('Swiper library not loaded. Carousel might not work.');
-         }
-
-     }); // Fin de DOMContentLoaded
+     });
 
 </script>
 
