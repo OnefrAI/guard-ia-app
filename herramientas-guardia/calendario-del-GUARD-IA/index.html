@@ -536,6 +536,10 @@
             mainCalendarArea.style.display = 'none';
             footerStatusText.textContent = "(Selecciona o crea un calendario para empezar)";
             if(calendarUnsubscribe) calendarUnsubscribe();
+            
+            // Show tutorial if first time and no calendars
+            const tutorialCompleted = localStorage.getItem(TUTORIAL_COMPLETED_KEY);
+            if (!tutorialCompleted) { setTimeout(showTutorialPopup, 500); }
         }
     }
     
@@ -870,8 +874,14 @@
             alert("Por favor, selecciona una fecha final válida.");
             return;
         }
+        
+        const patternEndOriginal = parseDateString(patternEndDate);
+        if (untilDate <= patternEndOriginal) {
+            alert("La fecha final debe ser posterior al final del patrón seleccionado.");
+            return;
+        }
 
-        let currentDateToApply = parseDateString(patternEndDate);
+        let currentDateToApply = new Date(patternEndOriginal);
         currentDateToApply.setDate(currentDateToApply.getDate() + 1);
 
         let patternIndex = 0;
