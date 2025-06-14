@@ -16,11 +16,11 @@
             --cell-border-color: rgba(255, 255, 255, 0.1); --button-hover-bg: rgba(255, 255, 255, 0.08);
             --cancel-button-bg: #b91c1c; --cancel-button-text: #ffffff; --week-number-color: var(--text-medium-color);
             --input-bg: #2a2a2a; --input-border: var(--border-color); --input-text: var(--text-color);
-            --button-primary-bg: var(--accent-color); --button-primary-text: var(--accent-text-color);
-            --button-secondary-bg: #3a3a3a; --button-secondary-text: var(--text-color);
-            --button-delete-bg: var(--cancel-button-bg); --button-delete-text: var(--cancel-button-text);
+            --button-primary-bg: var(--accent-color); --button-primary-text: var(--accent-text-color); --button-primary-hover-bg: #2aff00;
+            --button-secondary-bg: #3a3a3a; --button-secondary-text: var(--text-color); --button-secondary-hover-bg: #4a4a4a;
+            --button-delete-bg: var(--cancel-button-bg); --button-delete-text: var(--cancel-button-text); --button-delete-hover-bg: #991b1b;
             --shift-m-bg: #2563eb; --shift-t-bg: #d97706; --shift-n-bg: #7c3aed; --shift-l-bg: #059669;
-            --shift-text-light: #ffffff; --shift-text-dark: #ffffff;
+            --shift-text-light: #ffffff; --shift-text-dark: #ffffff; --note-text-color: var(--text-medium-color);
         }
         .home-button { position: fixed; top: 1rem; left: 1rem; z-index: 1101; background: #1f2937; color: white; padding: 0.6rem 0.8rem; border-radius: 0.6rem; font-size: 1rem; text-decoration: none; }
         .loader-container { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
@@ -33,7 +33,8 @@
         .calendar-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
         .calendar-grid-header { display: grid; grid-template-columns: repeat(8, 1fr); text-align: center; padding-bottom: 0.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid #374151; }
         .calendar-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 1px; }
-        .day-cell { min-height: 6rem; background-color: #2b2b2b; padding: 0.25rem; transition: background-color 0.2s; position: relative; }
+        .day-cell { min-height: 6rem; background-color: #2b2b2b; padding: 0.25rem; transition: background-color 0.2s; position: relative; border-right: 1px solid var(--cell-border-color); border-bottom: 1px solid var(--cell-border-color); }
+        .calendar-grid .day-cell:nth-child(8n) { border-right: none; }
         .day-cell:not(.other-month):hover { background-color: #4b4b4b; cursor: pointer; }
         .day-number { font-weight: 500; font-size: 0.875rem; }
         .other-month { color: #6b7280; pointer-events: none; }
@@ -42,6 +43,7 @@
         .note-text { font-size: 0.65rem; color: #a0a0a0; margin-top: 0.15rem; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
         .shift-button { padding: 0.5rem 0.75rem; border: 2px solid var(--border-color); border-radius: 0.375rem; cursor: pointer; }
         .shift-button.active { border-color: var(--accent-color); }
+        .week-number-cell { color: var(--week-number-color); font-size: 0.75rem; font-weight: 500; display:flex; align-items:center; justify-content:center; }
     </style>
 </head>
 <body class="">
@@ -69,6 +71,7 @@
                     <div class="calendar-nav">
                         <button id="prevMonth" class="bg-gray-700 p-2 rounded">&lt;</button>
                         <h2 id="currentMonthYear" class="text-xl font-semibold"></h2>
+                        <button id="goToTodayBtn" class="bg-gray-700 p-2 rounded text-sm">Hoy</button>
                         <button id="nextMonth" class="bg-gray-700 p-2 rounded">&gt;</button>
                     </div>
                     <div id="calendarGridHeader" class="grid grid-cols-8 text-center font-bold"></div>
@@ -104,9 +107,7 @@
     const loaderContainer = document.getElementById('loader-container');
     const appContainer = document.getElementById('app-container');
     let currentUserId = null;
-    let calendarUnsubscribe = null;
-    let calendarData = {};
-
+    
     onAuthStateChanged(auth, user => {
         loaderContainer.classList.add('hidden');
         if (user) {
@@ -134,6 +135,8 @@
         let currentDate = new Date();
         let activeCalendarName = null;
         let selectedShift = null;
+        let calendarData = {};
+        let calendarUnsubscribe = null;
 
         const shiftTypes = { 
             'M': { label: 'Mañana', colorClass: 'shift-m-bg' }, 
@@ -188,6 +191,8 @@
             calendarUnsubscribe = onSnapshot(calendarDocRef, (doc) => {
                 calendarData = doc.exists() ? doc.data().data || {} : {};
                 renderCalendar();
+            }, (error) => {
+                console.error("Error escuchando el calendario:", error);
             });
         }
 
@@ -209,55 +214,59 @@
             let startOfWeek = new Date(firstDayOfMonth);
             startOfWeek.setDate(startOfWeek.getDate() - (firstDayOfMonth.getDay() === 0 ? 6 : firstDayOfMonth.getDay() - 1));
 
-            for (let i = 0; i < 42; i++) { // Render 6 weeks
-                if (i % 7 === 0) {
-                     const weekNumberCell = document.createElement('div');
-                     weekNumberCell.className = 'day-cell flex items-center justify-center text-xs text-gray-400';
-                     weekNumberCell.textContent = getWeekNumber(startOfWeek);
-                     calendarGrid.appendChild(weekNumberCell);
-                }
+            for (let i = 0; i < 6; i++) {
+                const weekNumberCell = document.createElement('div');
+                weekNumberCell.className = 'day-cell week-number-cell';
+                weekNumberCell.textContent = getWeekNumber(startOfWeek);
+                calendarGrid.appendChild(weekNumberCell);
 
-                 const cellDate = new Date(startOfWeek);
-                 const cellDateString = formatDate(cellDate);
-                 const cell = document.createElement('div');
-                 cell.className = 'day-cell border p-2 text-center border-gray-700 relative';
-                 
-                 const dayNumber = document.createElement('span');
-                 dayNumber.className = 'day-number';
-                 dayNumber.textContent = cellDate.getDate();
-                 cell.appendChild(dayNumber);
+                for (let j = 0; j < 7; j++) {
+                    const cellDate = new Date(startOfWeek);
+                    const cellDateString = formatDate(cellDate);
+                    const cell = document.createElement('div');
+                    cell.className = 'day-cell';
+                    
+                    const dayNumber = document.createElement('span');
+                    dayNumber.className = 'day-number';
+                    dayNumber.textContent = cellDate.getDate();
+                    cell.appendChild(dayNumber);
 
-                 if(cellDate.getMonth() !== month) {
-                     cell.classList.add('other-month');
-                 } else {
-                     if (formatDate(new Date()) === cellDateString) {
-                        dayNumber.classList.add('current-day');
-                     }
-
-                     if (calendarData[cellDateString] && calendarData[cellDateString].shift) {
-                        const shift = calendarData[cellDateString].shift;
-                        cell.classList.add(shiftTypes[shift].colorClass);
-                     }
-
-                     cell.addEventListener('click', async () => {
-                        if (selectedShift) {
-                            const currentData = calendarData[cellDateString] || {};
-                            if (selectedShift === 'erase') {
-                                 delete currentData.shift;
-                            } else {
-                               currentData.shift = selectedShift;
-                            }
-                            if (Object.keys(currentData).length === 0) {
-                                delete calendarData[cellDateString];
-                            } else {
-                               calendarData[cellDateString] = currentData;
-                            }
-                            await setDoc(doc(db, `artifacts/${firebaseConfig.appId}/users/${userId}/calendars/${activeCalendarName}`), { data: calendarData });
+                    if (cellDate.getMonth() !== month) {
+                        cell.classList.add('other-month');
+                    } else {
+                        if (formatDate(new Date()) === cellDateString) {
+                           dayNumber.classList.add('current-day');
                         }
-                    });
-                 }
-                 calendarGrid.appendChild(cell);
-                 startOfWeek.setDate(startOfWeek.getDate() + 1);
+
+                        if (calendarData[cellDateString] && calendarData[cellDateString].shift) {
+                           const shift = calendarData[cellDateString].shift;
+                           cell.classList.add(shiftTypes[shift].colorClass);
+                           const shiftIndicator = document.createElement('div');
+                           shiftIndicator.className = 'shift-indicator text-white';
+                           shiftIndicator.textContent = shift;
+                           cell.appendChild(shiftIndicator);
+                        }
+
+                        cell.addEventListener('click', async () => {
+                           if (selectedShift) {
+                               const currentData = calendarData[cellDateString] || {};
+                               if (selectedShift === 'erase') {
+                                    delete currentData.shift;
+                               } else {
+                                  currentData.shift = selectedShift;
+                               }
+                               if (Object.keys(currentData).length === 0) {
+                                   delete calendarData[cellDateString];
+                               } else {
+                                  calendarData[cellDateString] = currentData;
+                               }
+                               await setDoc(doc(db, `artifacts/${firebaseConfig.appId}/users/${userId}/calendars/${activeCalendarName}`), { data: calendarData });
+                           }
+                       });
+                    }
+                    calendarGrid.appendChild(cell);
+                    startOfWeek.setDate(startOfWeek.getDate() + 1);
+                }
             }
         }
         
@@ -274,8 +283,8 @@
             shiftSelector.innerHTML = '';
             Object.keys(shiftTypes).forEach(key => {
                 const btn = document.createElement('button');
-                btn.textContent = key;
-                btn.className = `shift-button p-2 rounded ${shiftTypes[key].colorClass}`;
+                btn.textContent = shiftTypes[key].label;
+                btn.className = `shift-button p-2 rounded ${shiftTypes[key].colorClass} text-white`;
                 btn.onclick = () => { 
                     selectedShift = key;
                     document.querySelectorAll('.shift-button').forEach(b => b.classList.remove('active'));
@@ -285,7 +294,7 @@
             });
             const eraseBtn = document.createElement('button');
             eraseBtn.textContent = 'Borrar';
-            eraseBtn.className = 'shift-button p-2 rounded bg-red-600';
+            eraseBtn.className = 'shift-button p-2 rounded bg-red-600 text-white';
             eraseBtn.onclick = () => { 
                 selectedShift = 'erase'; 
                 document.querySelectorAll('.shift-button').forEach(b => b.classList.remove('active'));
@@ -298,14 +307,9 @@
             shiftSelector.classList.toggle('hidden');
         });
 
-        document.getElementById('prevMonth').addEventListener('click', () => {
-            currentDate.setMonth(currentDate.getMonth() - 1);
-            renderCalendar();
-        });
-        document.getElementById('nextMonth').addEventListener('click', () => {
-            currentDate.setMonth(currentDate.getMonth() + 1);
-            renderCalendar();
-        });
+        document.getElementById('prevMonth').addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(); });
+        document.getElementById('nextMonth').addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(); });
+        document.getElementById('goToTodayBtn').addEventListener('click', () => { currentDate = new Date(); renderCalendar(); });
 
         addCalendarBtn.addEventListener('click', async () => {
             const name = newCalendarNameInput.value.trim();
