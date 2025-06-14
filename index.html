@@ -3,35 +3,15 @@
 <head>
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Herramientas GUARD-IA</title>
+   <title>Acceso a Herramientas GUARD-IA</title>
    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
-   <script>
-     // Configuración base de Tailwind (sin cambios)
-     tailwind.config = {
-       theme: {
-         extend: {
-           fontFamily: {
-             sans: ['Inter', 'sans-serif'],
-           },
-             colors: { // Referencia, pero usaremos CSS vars
-               'neon-green': '#39FF14', 'dark-bg': '#0a0a0a',
-               'card-bg': '#1a1a1a', 'light-text': '#e0e0e0',
-               'medium-text': '#a0a0a0',
-             },
-             boxShadow: { 'glow-neon': '0 0 15px var(--glow-color)', }
-         }
-       }
-     }
-   </script>
    <link rel="preconnect" href="https://fonts.googleapis.com">
    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-         integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
-         crossorigin="anonymous" referrerpolicy="no-referrer" />
+   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" xintegrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
    <style>
-     /* --- Theme Variables --- */
+     /* --- Base Variables --- */
      :root {
        --bg-color: #0a0a0a; --bg-color-rgb: 10, 10, 10;
        --card-color: #1a1a1a; --card-color-rgb: 26, 26, 26;
@@ -39,360 +19,345 @@
        --accent-color: #39FF14; --border-color: rgba(255, 255, 255, 0.2);
        --modal-bg-color: rgba(30, 30, 30, 0.98);
        --button-hover-bg: rgba(255, 255, 255, 0.1);
-       --scroll-thumb-color: var(--accent-color); --scroll-track-color: var(--bg-color);
-       --glow-color: rgba(57, 255, 20, 0.5); --modal-close-hover: var(--accent-color);
-       --link-hover-color: var(--accent-color); --info-fixed-bg: var(--accent-color);
-       --info-fixed-text: var(--bg-color); /* Texto del botón de envío/info */
-     }
-     body.light-mode {
-       --bg-color: #f8f9fa; --bg-color-rgb: 248, 249, 250;
-       --card-color: #ffffff; --card-color-rgb: 255, 255, 255;
-       --text-color: #212529; --text-medium-color: #6c757d;
-       --accent-color: #007bff; --border-color: rgba(0, 0, 0, 0.1);
-       --modal-bg-color: rgba(255, 255, 255, 0.98); --button-hover-bg: rgba(0, 0, 0, 0.05);
-       --scroll-thumb-color: var(--accent-color); --scroll-track-color: #dee2e6;
-       --glow-color: rgba(0, 123, 255, 0.4); --modal-close-hover: var(--accent-color);
-       --link-hover-color: var(--accent-color); --info-fixed-bg: var(--accent-color);
-       --info-fixed-text: #ffffff; /* Texto del botón de envío/info en modo claro */
-     }
-
-     /* --- Base Styles & Transitions --- */
-     html {
-         scroll-behavior: smooth; /* Desplazamiento suave */
+       --input-bg: #2a2a2a; --input-border: rgba(255, 255, 255, 0.1);
+       --info-fixed-text: #0a0a0a;
      }
      body {
          background-color: var(--bg-color);
          color: var(--text-color);
          font-family: 'Inter', sans-serif;
-         transition: background-color 0.3s ease, color 0.3s ease;
-         overflow-x: hidden; /* MODIFICADO: Prevenir scroll horizontal */
-         -webkit-tap-highlight-color: transparent; /* Evitar resaltado azul en taps móviles */
      }
-     h1, h2, h3 { color: var(--text-color); transition: color 0.3s ease; }
-     h1 > span, h1 > i.fa-shield-alt { color: var(--accent-color); transition: color 0.3s ease;} /* Title H1 accent */
-     p { color: var(--text-color); transition: color 0.3s ease; }
-     .text-medium-text { color: var(--text-medium-color); transition: color 0.3s ease; }
-     footer { background-color: rgba(var(--bg-color-rgb), 0.8); border-top: 1px solid var(--border-color); transition: background-color 0.3s ease, border-color 0.3s ease; }
-     footer a { color: var(--text-color); transition: color 0.3s ease; }
-     footer a:hover { color: var(--link-hover-color); }
+     .hidden { display: none; }
+     
+     /* --- Auth Screen Styles --- */
+     .auth-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 1rem;
+     }
+     .auth-box {
+        background-color: var(--card-color);
+        border: 1px solid var(--border-color);
+        border-radius: 0.75rem;
+        padding: 2rem;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+     }
+     h1 > span { color: var(--accent-color); }
+     .auth-input {
+        background-color: var(--input-bg); border: 1px solid var(--input-border);
+        color: var(--text-color); transition: border-color 0.2s, box-shadow 0.2s;
+     }
+     .auth-input:focus {
+        outline: none; border-color: var(--accent-color);
+        box-shadow: 0 0 0 2px rgba(57, 255, 20, 0.2);
+     }
+     .auth-tab {
+         border-bottom: 2px solid transparent; color: var(--text-medium-color);
+         transition: border-color 0.2s, color 0.2s;
+     }
+     .auth-tab.active { border-color: var(--accent-color); color: var(--text-color); }
+     .submit-btn {
+        background-color: var(--accent-color); color: var(--info-fixed-text);
+        transition: opacity 0.2s;
+     }
+     .submit-btn:hover { opacity: 0.9; }
 
-     /* Component Base Styles */
-     .bg-card-bg { background-color: var(--card-color); border-color: var(--border-color); color: var(--text-color); transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
-     a.bg-card-bg:hover { background-color: var(--button-hover-bg); transition: background-color 0.2s ease, transform 0.2s ease; }
-     .info-button-integrated { background: none; border: none; padding: 0.5rem; cursor: pointer; color: var(--text-medium-color); transition: color 0.2s ease, transform 0.2s ease; font-size: 0.8rem; line-height: 1; align-self: center; }
+     /* --- Main App Styles --- */
+     .bg-card-bg { background-color: var(--card-color); border-color: var(--border-color); }
+     a.bg-card-bg:hover { background-color: var(--button-hover-bg); transform: translateY(-0.25rem); }
+     .info-button-integrated { background: none; border: none; padding: 0.5rem; cursor: pointer; color: var(--text-medium-color); transition: color 0.2s ease, transform 0.2s ease; font-size: 0.8rem; }
      .info-button-integrated:hover { color: var(--text-color); transform: scale(1.1); }
-     #theme-toggle { background-color: var(--card-color); border: 1px solid var(--border-color); color: var(--text-medium-color); box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
-     #theme-toggle:hover { color: var(--accent-color); }
-     .fixed-info-button { background-color: var(--info-fixed-bg); color: var(--info-fixed-text); transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease; }
-     ::-webkit-scrollbar { width: 8px; }
-     ::-webkit-scrollbar-track { background: var(--scroll-track-color); transition: background-color 0.3s ease; }
-     ::-webkit-scrollbar-thumb { background: var(--scroll-thumb-color); border-radius: 4px; transition: background-color 0.3s ease; }
-     ::-webkit-scrollbar-thumb:hover { filter: brightness(1.2); }
-     .slider-nav-button { background-color: rgba(var(--card-color-rgb), 0.5); border: 1px solid var(--border-color); color: var(--text-color); transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
-     .slider-nav-button:hover { background-color: rgba(var(--card-color-rgb), 0.8); }
-     #sliderIndicators button { background-color: var(--text-medium-color); opacity: 0.6; transition: background-color 0.3s ease, opacity 0.3s ease; }
-     #sliderIndicators button.active-indicator { background-color: var(--accent-color); opacity: 1; }
-
-     /* --- Modal CSS (Revisado) --- */
-     .modal-overlay { display: none; position: fixed; inset: 0; background-color: rgba(var(--bg-color-rgb), 0.8); z-index: 100; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease, background-color 0.3s ease; padding: 1rem; }
-     .modal-overlay.active { display: flex !important; opacity: 1 !important; }
-     .modal { background-color: var(--modal-bg-color); color: var(--text-color); padding: 25px 35px; border-radius: 12px; max-width: 500px; width: 100%; position: relative; transform: scale(0.95); opacity: 0; transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease-out, opacity 0.3s ease-out; box-shadow: 0 5px 20px rgba(0,0,0,0.25); }
-     .modal-overlay.active .modal { transform: scale(1); opacity: 1; }
-     .modal h2#modalTitle { color: var(--accent-color); transition: color 0.3s ease; margin-bottom: 1rem; font-size: 1.5rem; }
-     .modal p#modalText { color: var(--text-color); transition: color 0.3s ease; line-height: 1.6; }
-     .modal-close-button { position: absolute; top: 10px; right: 10px; background: none; border: none; padding: 0.4rem; cursor: pointer; line-height: 1; }
-     .modal-close-button i.fa-times { font-size: 1.4rem; color: var(--text-medium-color); transition: color 0.2s ease; }
-     .modal-close-button:hover i.fa-times { color: var(--modal-close-hover); }
-
-     /* --- Light Mode Specific Overrides --- */
-     body.light-mode .bg-card-bg { background-color: var(--card-color); border-color: var(--border-color); color: var(--text-color); }
-     body.light-mode a.bg-card-bg:hover { background-color: var(--button-hover-bg); }
-     body.light-mode .max-w-lg a.bg-card-bg span, body.light-mode .max-w-lg a.bg-card-bg i:not(.fa-info-circle) { color: var(--text-color); }
-     body.light-mode .max-w-lg .grid a.bg-card-bg, body.light-mode .max-w-lg .grid a.bg-card-bg i { color: var(--text-color); }
-     body.light-mode #sliderWrapper h3 { color: var(--text-color); }
-     body.light-mode #sliderWrapper p.text-medium-text { color: var(--text-medium-color); }
-     body.light-mode .info-button-integrated { color: var(--text-medium-color); }
-     body.light-mode .info-button-integrated:hover { color: var(--text-color); }
-     body.light-mode #theme-toggle { background-color: var(--card-color); border-color: var(--border-color); color: var(--text-medium-color); }
-     body.light-mode #theme-toggle:hover { color: var(--accent-color); }
-     body.light-mode .fixed-info-button { background-color: var(--info-fixed-bg); color: var(--info-fixed-text); box-shadow: 0 0 15px var(--glow-color); }
-     body.light-mode .modal-overlay { background-color: rgba(var(--bg-color-rgb), 0.8); }
-     body.light-mode .modal { background-color: var(--modal-bg-color); color: var(--text-color); }
-     body.light-mode .modal p#modalText { color: var(--text-color); }
-     body.light-mode .modal-close-button i.fa-times { color: var(--text-medium-color); }
-     body.light-mode .modal-close-button:hover i.fa-times { color: var(--modal-close-hover); }
-     body.light-mode ::-webkit-scrollbar-track { background: var(--scroll-track-color); }
-     body.light-mode ::-webkit-scrollbar-thumb { background: var(--scroll-thumb-color); }
-     body.light-mode .slider-nav-button { background-color: rgba(var(--card-color-rgb), 0.8); border-color: var(--border-color); color: var(--text-color); }
-     body.light-mode .slider-nav-button:hover { background-color: rgba(var(--card-color-rgb), 0.95); }
-     body.light-mode #sliderIndicators button { background-color: var(--text-medium-color); }
-     body.light-mode #sliderIndicators button.active-indicator { background-color: var(--accent-color); }
-     body.light-mode footer { background-color: rgba(var(--bg-color-rgb), 0.8); border-color: var(--border-color); }
-     body.light-mode footer a { color: var(--text-color); }
-     body.light-mode footer a:hover { color: var(--link-hover-color); }
-
+     .slider-nav-button { background-color: rgba(var(--card-color-rgb), 0.5); border: 1px solid var(--border-color); color: var(--text-color); }
+     #sliderIndicators button { background-color: var(--text-medium-color); }
+     #sliderIndicators button.active { background-color: var(--accent-color); }
+     .modal-overlay { display: none; position: fixed; inset: 0; background-color: rgba(var(--bg-color-rgb), 0.8); z-index: 100; align-items: center; justify-content: center; }
+     .modal-overlay.active { display: flex; }
+     .modal { background-color: var(--modal-bg-color); padding: 25px 35px; border-radius: 12px; max-width: 500px; width: 90%; position: relative; }
+     .modal-close-button { position: absolute; top: 10px; right: 10px; background: none; border: none; cursor: pointer; }
+     .modal-close-button i { color: var(--text-medium-color); transition: color 0.2s ease; }
+     .modal-close-button:hover i { color: var(--accent-color); }
    </style>
 </head>
-<body class="relative min-h-screen flex flex-col">
+<body>
 
-   <button id="theme-toggle" class="fixed top-2 left-2 sm:top-4 sm:left-4 z-50 w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-base sm:text-lg shadow-lg" aria-label="Cambiar tema">
-       <i class="fas fa-sun"></i>
-   </button>
+    <!-- Pantalla de Login (Visible por defecto) -->
+    <div id="login-screen" class="auth-container">
+        <h1 class="text-4xl font-bold text-center mb-4">
+            Herramientas <span>GUARD-IA</span>
+        </h1>
+        <p class="text-center text-[var(--text-medium-color)] max-w-md mb-8">
+            Bienvenido a la nueva versión segura. Para proteger tu privacidad, ahora tus datos se cifran en tu dispositivo y se asocian a tu cuenta. Solo tú puedes acceder a ellos.
+        </p>
 
-   <div class="fixed-info-button fixed top-2 right-2 sm:top-4 sm:right-4 z-50 w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-base sm:text-lg transition-transform hover:scale-110 cursor-pointer shadow-glow-neon" onclick="showModal('Información General', 'Esta página ofrece herramientas útiles y gratuitas. El creador no recibe compensación por su uso. Todo se guarda localmente cuando aplica (ej. Bloc de Notas), asegurando tu privacidad. El uso de estas herramientas es responsabilidad del usuario.')">
-       <i class="fas fa-question"></i>
-   </div>
-
-   <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-16 sm:pt-16 relative z-10 flex-grow"> <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-center mb-8 sm:mb-12 drop-shadow-lg">
-       Herramientas<br>
-       GUARD<span>-</span>IA <i class="fas fa-shield-alt ml-1 sm:ml-2"></i> </h1>
-
-     <div class="max-w-lg mx-auto space-y-3 sm:space-y-4">
-       <a href="https://chatgpt.com/g/g-6766e58171cc81918eb92f23b79f66ae-guard-ia" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
-         <span class="flex items-center gap-2 sm:gap-3">
-           <i class="fas fa-robot text-lg w-5 sm:text-xl sm:w-6 text-center"></i>
-           <span>ChatGPT GUARD-IA</span>
-         </span>
-         <button class="info-button-integrated" data-title="ChatGPT GUARD-IA" data-text="Interactúa con una versión personalizada de ChatGPT diseñada para GUARD-IA." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();">
-           <i class="fas fa-info-circle text-lg"></i> </button>
-       </a>
-       <a href="herramientas-guardia/calculadora-de-drogas/index.html" target="_self" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
-         <span class="flex items-center gap-2 sm:gap-3">
-           <i class="fas fa-calculator text-lg w-5 sm:text-xl sm:w-6 text-center"></i>
-           <span>Calculadora de Drogas</span>
-         </span>
-        <button class="info-button-integrated" data-title="Calculadora de Drogas" data-text="Herramienta para cálculos relacionados con drogas. Uso bajo responsabilidad del usuario." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();">
-           <i class="fas fa-info-circle text-lg"></i>
-         </button>
-       </a>
-        <a href="herramientas-guardia/bloc-de-notas/index.html" target="_self" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
-         <span class="flex items-center gap-2 sm:gap-3">
-           <i class="fas fa-sticky-note text-lg w-5 sm:text-xl sm:w-6 text-center"></i>
-           <span>Bloc de Notas</span>
-         </span>
-         <button class="info-button-integrated" data-title="Bloc de Notas" data-text="Un bloc de notas digital que guarda tus notas localmente en tu dispositivo." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();">
-             <i class="fas fa-info-circle text-lg"></i>
-         </button>
-        </a>
-        <a href="https://saferlayer.com/" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
-         <span class="flex items-center gap-2 sm:gap-3">
-             <i class="fas fa-tint text-lg w-5 sm:text-xl sm:w-6 text-center"></i>
-             <span>Marca de agua by Saferlayer</span>
-         </span>
-         <button class="info-button-integrated" data-title="Marca de agua by Saferlayer" data-text="Herramienta externa para agregar marcas de agua a tus archivos." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();">
-           <i class="fas fa-info-circle text-lg"></i>
-         </button>
-        </a>
-        <a href="herramientas-guardia/calendario-del-GUARD-IA/index.html" target="_self" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform hover:-translate-y-1 shadow-lg">
-         <span class="flex items-center gap-2 sm:gap-3">
-             <i class="fas fa-calendar-alt text-lg w-5 sm:text-xl sm:w-6 text-center"></i> <span>Calendario del GUARD-IA</span> </span>
-         <button class="info-button-integrated"
-                 data-title="Calendario del GUARD-IA"
-                 data-text="Calendario de turnos que se guarda solo de manera local. Si borra el caché del dispositivo todo lo anotado en él, desaparecerá. Solo podrá ver la información creada usando el mismo navegador, si cambia de navegador no la podrá ver (Proximanente funciones on-line)"
-                 onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();">
-           <i class="fas fa-info-circle text-lg"></i>
-         </button>
-        </a>
+        <div class="auth-box">
+            <div class="flex border-b border-[var(--border-color)] mb-6">
+                <button id="loginTab" class="auth-tab flex-1 py-2 text-center font-semibold active">Iniciar Sesión</button>
+                <button id="registerTab" class="auth-tab flex-1 py-2 text-center font-semibold">Registrarse</button>
+            </div>
+            <form id="loginForm">
+                <input type="email" id="loginEmail" placeholder="Correo electrónico" class="auth-input w-full p-3 rounded mb-4" required>
+                <input type="password" id="loginPassword" placeholder="Contraseña" class="auth-input w-full p-3 rounded mb-6" required>
+                <button type="submit" class="submit-btn w-full py-3 rounded font-semibold">Entrar</button>
+            </form>
+            <form id="registerForm" class="hidden">
+                <input type="email" id="registerEmail" placeholder="Correo electrónico" class="auth-input w-full p-3 rounded mb-4" required>
+                <input type="password" id="registerPassword" placeholder="Contraseña (mín. 6 caracteres)" class="auth-input w-full p-3 rounded mb-6" required>
+                <button type="submit" class="submit-btn w-full py-3 rounded font-semibold">Crear Cuenta</button>
+            </form>
+            <p id="authError" class="text-red-500 text-sm text-center mt-4 h-4"></p>
         </div>
     </div>
 
-    <section class="py-10 relative z-10">
-     <h2 class="text-3xl sm:text-4xl font-bold text-center mb-6 sm:mb-8 drop-shadow-lg">
-       CANALES DE<br>ACCIÓN POLICIAL
-     </h2>
-     <div class="max-w-lg mx-auto px-4 sm:px-0 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-       <a href="https://www.youtube.com/@PoliceActivity" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-video"></i> PoliceActivity </a>
-       <a href="https://www.youtube.com/@RealWorldPolice" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-video"></i> Real World Police </a>
-       <a href="https://www.youtube.com/@CodeBlueCam" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-video"></i> Code Blue Cam </a>
-       <a href="https://www.youtube.com/@AuditTheAudit" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-gavel"></i> Audit the Audit </a>
-       <a href="https://www.youtube.com/@DonutOperator" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-video"></i> Donut Operator </a>
-       <a href="https://www.youtube.com/@FreeFieldTraining" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"> <i class="fas fa-chalkboard-teacher"></i> FreeFieldTraining </a>
-     </div>
-    </section>
+    <!-- Contenido Principal de la App (Oculto por defecto) -->
+    <div id="main-app-content" class="hidden">
+        
+        <header class="p-4 z-50 flex justify-between items-center bg-[var(--card-color)] border-b border-[var(--border-color)] sticky top-0">
+            <h2 class="text-lg font-semibold text-[var(--accent-color)]">GUARD-IA</h2>
+            <div id="user-info" class="text-right"></div>
+        </header>
 
-    <section class="py-10 relative z-10">
-     <h2 class="text-3xl sm:text-4xl font-bold text-center mb-6 sm:mb-8 drop-shadow-lg"> LECTURAS POLICIALES<br>RECOMENDADAS </h2>
-     <div class="relative max-w-lg mx-auto px-4 sm:px-0"> <button class="slider-nav-button absolute top-1/2 left-2 sm:left-0 transform -translate-y-1/2 sm:-translate-x-full p-2 rounded-full text-xl sm:text-2xl z-30 bg-opacity-75 sm:bg-opacity-50 hover:bg-opacity-90" onclick="prevSlide()" aria-label="Anterior Slide">❮</button>
-       <div class="overflow-hidden rounded-lg border border-[var(--border-color)]"> <div class="flex transition-transform duration-500 ease-in-out" id="sliderWrapper">
-             <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg">
-                 <img src="https://imgs.search.brave.com/VNMdgeChtgIurBN_p-DnqmSakN2ak7bRrP0Yo1n3ef8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuY2RuMi5idXNj/YWxpYnJlLmNvbS9m/aXQtaW4vNTIweDUy/MC8yZS80YS8yZTRh/YzYyZmIxMTJhOWNh/NDdmMTMwMGY4NzVk/OTUwNC5qcGc" alt="Portada del libro Sobre el Combate" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto">
-                 <h3 class="text-lg sm:text-xl font-semibold">Sobre el Combate</h3>
-                 <p class="text-sm sm:text-base text-medium-text">Dave Grossman</p>
-             </div>
-             <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg">
-                 <img src="https://imgs.search.brave.com/8-PdIHSHt2WqbYUGXhLD_4Bpw8RWitCfRvV2KiHgqpo/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuY2RuMy5idXNj/YWxpYnJlLmNvbS9m/aXQtaW4vNTIweDUy/MC9mZC82Yy9mZDZj/Mjc3ZDBmZDMyZmU3/NmJiN2MyZGMwZTc3/YjZhYi5qcGc" alt="Portada del libro Matar" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto">
-                 <h3 class="text-lg sm:text-xl font-semibold">Matar</h3>
-                 <p class="text-sm sm:text-base text-medium-text">Dave Grossman</p>
-             </div>
-             <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg">
-                 <img src="https://imgs.search.brave.com/pOsg_as-IHCw3Y7BqzG17ZB9cw9PJCLFMZQ8GrqlEMI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9waWN0/dXJlcy5hYmVib29r/cy5jb20vaXNibi85/Nzg4NDMwOTczNzA1/LWVzLTMwMC5qcGc" alt="Portada del libro En la Línea de Fuego" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto">
-                 <h3 class="text-lg sm:text-xl font-semibold">En la Línea de Fuego</h3>
-                 <p class="text-sm sm:text-base text-medium-text">Ernesto Pérez Vera y Fernando Pérez Pacho</p>
-             </div>
-             <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg">
-                 <img src="https://imgs.search.brave.com/SK2GxbZt59aSZEreTfVwkKxKWMVepLCnmRS1vzvnaFA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9waWN0/dXJlcy5hYmVib29r/cy5jb20vaXNibi85/Nzg4NDE1MzczNzU5/LWVzLmpwZw" alt="Portada del libro Tiroteo en Miami" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto">
-                 <h3 class="text-lg sm:text-xl font-semibold">Tiroteo en Miami</h3>
-                 <p class="text-sm sm:text-base text-medium-text">Edmundo Mireles Jr.</p>
-             </div>
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-10 relative z-10 flex-grow">
+            <!-- Herramientas -->
+            <div class="max-w-lg mx-auto space-y-3 sm:space-y-4">
+               <a href="https://chatgpt.com/g/g-6766e58171cc81918eb92f23b79f66ae-guard-ia" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform">
+                 <span class="flex items-center gap-2 sm:gap-3"><i class="fas fa-robot text-lg w-5 sm:text-xl sm:w-6 text-center"></i><span>ChatGPT GUARD-IA</span></span>
+                 <button class="info-button-integrated" data-title="ChatGPT GUARD-IA" data-text="Interactúa con una versión personalizada de ChatGPT diseñada para GUARD-IA." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();"><i class="fas fa-info-circle text-lg"></i></button>
+               </a>
+               <a href="herramientas-guardia/calculadora-de-drogas/index.html" target="_self" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform">
+                 <span class="flex items-center gap-2 sm:gap-3"><i class="fas fa-calculator text-lg w-5 sm:text-xl sm:w-6 text-center"></i><span>Calculadora de Drogas</span></span>
+                <button class="info-button-integrated" data-title="Calculadora de Drogas" data-text="Herramienta para cálculos relacionados con drogas. Uso bajo responsabilidad del usuario." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();"><i class="fas fa-info-circle text-lg"></i></button>
+               </a>
+                <a href="herramientas-guardia/bloc-de-notas/index.html" target="_self" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform">
+                 <span class="flex items-center gap-2 sm:gap-3"><i class="fas fa-sticky-note text-lg w-5 sm:text-xl sm:w-6 text-center"></i><span>Bloc de Notas</span></span>
+                 <button class="info-button-integrated" data-title="Bloc de Notas" data-text="Un bloc de notas digital que guarda tus notas de forma segura en la nube en tu cuenta personal." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();"><i class="fas fa-info-circle text-lg"></i></button>
+                </a>
+                <a href="https://saferlayer.com/" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform">
+                 <span class="flex items-center gap-2 sm:gap-3"><i class="fas fa-tint text-lg w-5 sm:text-xl sm:w-6 text-center"></i><span>Marca de agua by Saferlayer</span></span>
+                 <button class="info-button-integrated" data-title="Marca de agua by Saferlayer" data-text="Herramienta externa para agregar marcas de agua a tus archivos." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();"><i class="fas fa-info-circle text-lg"></i></button>
+                </a>
+                <a href="herramientas-guardia/calendario-del-GUARD-IA/index.html" target="_self" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform">
+                 <span class="flex items-center gap-2 sm:gap-3"><i class="fas fa-calendar-alt text-lg w-5 sm:text-xl sm:w-6 text-center"></i> <span>Calendario del GUARD-IA</span> </span>
+                 <button class="info-button-integrated" data-title="Calendario del GUARD-IA" data-text="Calendario de turnos que guarda tus datos en la nube de forma segura y privada." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();"><i class="fas fa-info-circle text-lg"></i></button>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Canales -->
+        <section class="py-10 relative z-10">
+         <h2 class="text-3xl sm:text-4xl font-bold text-center mb-6 sm:mb-8 drop-shadow-lg">CANALES DE<br>ACCIÓN POLICIAL</h2>
+         <div class="max-w-lg mx-auto px-4 sm:px-0 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+           <a href="https://www.youtube.com/@PoliceActivity" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> PoliceActivity</a>
+           <a href="https://www.youtube.com/@RealWorldPolice" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> Real World Police</a>
+           <a href="https://www.youtube.com/@CodeBlueCam" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> Code Blue Cam</a>
+           <a href="https://www.youtube.com/@AuditTheAudit" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-gavel"></i> Audit the Audit</a>
+           <a href="https://www.youtube.com/@DonutOperator" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> Donut Operator</a>
+           <a href="https://www.youtube.com/@FreeFieldTraining" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-chalkboard-teacher"></i> FreeFieldTraining</a>
          </div>
-       </div>
-       <button class="slider-nav-button absolute top-1/2 right-2 sm:right-0 transform -translate-y-1/2 sm:translate-x-full p-2 rounded-full text-xl sm:text-2xl z-30 bg-opacity-75 sm:bg-opacity-50 hover:bg-opacity-90" onclick="nextSlide()" aria-label="Siguiente Slide">❯</button>
-     </div>
-     <div id="sliderIndicators" class="flex justify-center space-x-2 mt-4"></div>
-    </section>
+        </section>
 
-    <footer class="mt-auto py-4 pb-6 sm:py-4 text-center relative z-10">
-      <a href="https://t.me/OnefraGT" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 text-base sm:text-lg">
-        <i class="fab fa-telegram-plane text-xl sm:text-2xl"></i> Contacta con @OnefraGT
-      </a>
-    </footer>
-
-    <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnClickOutside(event)">
+        <!-- Lecturas -->
+        <section class="py-10 relative z-10">
+         <h2 class="text-3xl sm:text-4xl font-bold text-center mb-6 sm:mb-8 drop-shadow-lg"> LECTURAS POLICIALES<br>RECOMENDADAS </h2>
+         <div class="relative max-w-lg mx-auto px-4 sm:px-0">
+           <button class="slider-nav-button absolute top-1/2 left-2 sm:left-0 transform -translate-y-1/2 sm:-translate-x-full p-2 rounded-full text-xl sm:text-2xl z-30" onclick="prevSlide()" aria-label="Anterior Slide">❮</button>
+           <div class="overflow-hidden rounded-lg border border-[var(--border-color)]">
+             <div class="flex transition-transform duration-500 ease-in-out" id="sliderWrapper">
+                 <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg"><img src="https://imgs.search.brave.com/VNMdgeChtgIurBN_p-DnqmSakN2ak7bRrP0Yo1n3ef8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuY2RuMi5idXNj/YWxpYnJlLmNvbS9m/aXQtaW4vNTIweDUy/MC8yZS80YS8yZTRh/YzYyZmIxMTJhOWNh/NDdmMTMwMGY4NzVk/OTUwNC5qcGc" alt="Portada del libro Sobre el Combate" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto"><h3 class="text-lg sm:text-xl font-semibold">Sobre el Combate</h3><p class="text-sm sm:text-base text-medium-text">Dave Grossman</p></div>
+                 <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg"><img src="https://imgs.search.brave.com/8-PdIHSHt2WqbYUGXhLD_4Bpw8RWitCfRvV2KiHgqpo/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuY2RuMy5idXNj/YWxpYnJlLmNvbS9m/aXQtaW4vNTIweDUy/MC9mZC82Yy9mZDZj/Mjc3ZDBmZDMyZmU3/NmJiN2MyZGMwZTc3/YjZhYi5qcGc" alt="Portada del libro Matar" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto"><h3 class="text-lg sm:text-xl font-semibold">Matar</h3><p class="text-sm sm:text-base text-medium-text">Dave Grossman</p></div>
+                 <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg"><img src="https://imgs.search.brave.com/pOsg_as-IHCw3Y7BqzG17ZB9cw9PJCLFMZQ8GrqlEMI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9waWN0/dXJlcy5hYmVib29r/cy5jb20vaXNibi85/Nzg4NDMwOTczNzA1/LWVzLTMwMC5qcGc" alt="Portada del libro En la Línea de Fuego" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto"><h3 class="text-lg sm:text-xl font-semibold">En la Línea de Fuego</h3><p class="text-sm sm:text-base text-medium-text">Ernesto Pérez Vera y Fernando Pérez Pacho</p></div>
+                 <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg"><img src="https://imgs.search.brave.com/SK2GxbZt59aSZEreTfVwkKxKWMVepLCnmRS1vzvnaFA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9waWN0/dXJlcy5hYmVib29r/cy5jb20vaXNibi85/Nzg4NDE1MzczNzU5/LWVzLmpwZw" alt="Portada del libro Tiroteo en Miami" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto"><h3 class="text-lg sm:text-xl font-semibold">Tiroteo en Miami</h3><p class="text-sm sm:text-base text-medium-text">Edmundo Mireles Jr.</p></div>
+             </div>
+           </div>
+           <button class="slider-nav-button absolute top-1/2 right-2 sm:right-0 transform -translate-y-1/2 sm:translate-x-full p-2 rounded-full text-xl sm:text-2xl z-30" onclick="nextSlide()" aria-label="Siguiente Slide">❯</button>
+         </div>
+         <div id="sliderIndicators" class="flex justify-center space-x-2 mt-4"></div>
+        </section>
+        
+        <footer class="mt-auto py-4 pb-6 sm:py-4 text-center relative z-10 border-t border-[var(--border-color)]">
+            <a href="https://t.me/OnefraGT" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 text-base sm:text-lg">
+                <i class="fab fa-telegram-plane text-xl sm:text-2xl"></i> Contacta con @OnefraGT
+            </a>
+        </footer>
+    </div>
+    
+    <!-- Modal para info de botones -->
+    <div class="modal-overlay" id="infoModalOverlay" onclick="closeInfoModal(event)">
      <div class="modal">
-       <button class="modal-close-button" onclick="closeModal()" aria-label="Cerrar modal">
-         <i class="fas fa-times"></i>
-       </button>
-       <h2 id="modalTitle" class="text-xl sm:text-2xl font-bold mb-4"></h2> <p id="modalText" class="text-base"></p>
+       <button class="modal-close-button" onclick="closeInfoModal(event)" aria-label="Cerrar modal"><i class="fas fa-times"></i></button>
+       <h2 id="modalTitle" class="text-2xl font-bold mb-4 text-[var(--accent-color)]"></h2>
+       <p id="modalText" class="text-base"></p>
      </div>
     </div>
 
-<script>
-     // --- Modal Logic ---
-     const modalOverlay = document.getElementById("modalOverlay");
-     const modalTitle = document.getElementById("modalTitle");
-     const modalText = document.getElementById("modalText");
 
-     function showModal(title, text) {
-         if(modalOverlay && modalTitle && modalText){
-             modalTitle.innerText = title;
-             modalText.innerText = text;
-             modalOverlay.classList.add("active");
-         } else {
-             console.error("Modal elements not found!");
-         }
-     }
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import {
+        getAuth,
+        onAuthStateChanged,
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+        signOut
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-     function closeModal() {
-         if(modalOverlay) modalOverlay.classList.remove("active");
-     }
+    const firebaseConfig = {
+      apiKey: "AIzaSyAf3I3_aW__lBtTVlEJ9xesIWkEJ6lMJp8",
+      authDomain: "guard-ia-a36da.firebaseapp.com",
+      projectId: "guard-ia-a36da",
+      storageBucket: "guard-ia-a36da.appspot.com",
+      messagingSenderId: "914018061004",
+      appId: "1:914018061004:web:6ab6c6ca728199033bd069",
+      measurementId: "G-W45Z1BH3T4"
+    };
 
-     function showButtonInfo(buttonElement) {
-         if (buttonElement && typeof buttonElement.getAttribute === 'function') {
-             var title = buttonElement.getAttribute("data-title");
-             var text = buttonElement.getAttribute("data-text");
-             if (title !== null && text !== null) {
-                 showModal(title, text);
-             } else {
-                 console.error("Info button attributes missing.", buttonElement);
-             }
-         } else {
-             console.error("Invalid element passed to showButtonInfo:", buttonElement);
-         }
-     }
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-     function closeModalOnClickOutside(event) {
-         if (event.target === modalOverlay) {
-             closeModal();
-         }
-     }
+    const loginScreen = document.getElementById('login-screen');
+    const mainAppContent = document.getElementById('main-app-content');
+    const userInfo = document.getElementById('user-info');
+    const loginTab = document.getElementById('loginTab');
+    const registerTab = document.getElementById('registerTab');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const authError = document.getElementById('authError');
+    let uiInitialized = false;
 
-     // --- Slider Logic ---
-     const sliderWrapper = document.getElementById('sliderWrapper');
-     const indicatorsContainer = document.getElementById('sliderIndicators');
-     let currentSlide = 0;
-     let totalSlides = 0;
-     if (sliderWrapper) {
-         totalSlides = sliderWrapper.children.length;
-     }
+    // --- Lógica de Autenticación y UI ---
+    onAuthStateChanged(auth, user => {
+        if (user) {
+            loginScreen.classList.add('hidden');
+            mainAppContent.classList.remove('hidden');
+            userInfo.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-sm text-[var(--text-medium-color)] hidden sm:inline">${user.email}</span>
+                    <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-red-700 transition">Salir</button>
+                </div>
+            `;
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                signOut(auth).catch(error => console.error('Error al cerrar sesión:', error));
+            });
+            if (!uiInitialized) {
+                initializeAppUI();
+                uiInitialized = true;
+            }
+        } else {
+            loginScreen.classList.remove('hidden');
+            mainAppContent.classList.add('hidden');
+            uiInitialized = false;
+        }
+    });
 
-     function updateSliderIndicatorsActiveColor() {
-         if (indicatorsContainer) {
-             Array.from(indicatorsContainer.children).forEach((indicator, index) => {
-                 if (indicator instanceof HTMLElement) {
-                     indicator.classList.remove('active-indicator');
-                     indicator.style.backgroundColor = index === currentSlide ? 'var(--accent-color)' : 'var(--text-medium-color)';
-                     indicator.style.opacity = index === currentSlide ? '1' : '0.6';
-                 }
-             });
-         }
-     }
+    // --- Lógica de Formularios ---
+    loginTab.addEventListener('click', () => {
+        loginTab.classList.add('active');
+        registerTab.classList.remove('active');
+        loginForm.classList.remove('hidden');
+        registerForm.classList.add('hidden');
+        authError.textContent = '';
+    });
+    registerTab.addEventListener('click', () => {
+        registerTab.classList.add('active');
+        loginTab.classList.remove('active');
+        registerForm.classList.remove('hidden');
+        loginForm.classList.add('hidden');
+        authError.textContent = '';
+    });
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        signInWithEmailAndPassword(auth, email, password)
+            .catch(error => {
+                authError.textContent = getFirebaseAuthErrorMessage(error.code);
+            });
+    });
+    registerForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('registerEmail').value;
+        const password = document.getElementById('registerPassword').value;
+        createUserWithEmailAndPassword(auth, email, password)
+            .catch(error => {
+                authError.textContent = getFirebaseAuthErrorMessage(error.code);
+            });
+    });
 
-     function createIndicators() {
-         if (!indicatorsContainer || totalSlides <= 0) return;
-         indicatorsContainer.innerHTML = '';
-         for (let i = 0; i < totalSlides; i++) {
-             const indicator = document.createElement('button');
-             indicator.className = `w-2.5 h-2.5 rounded-full transition-colors duration-300 ease-in-out`;
-             indicator.style.backgroundColor = 'var(--text-medium-color)';
-             indicator.style.opacity = '0.6';
-             indicator.setAttribute('aria-label', `Ir a slide ${i + 1}`);
-             indicator.onclick = () => goToSlide(i);
-             indicatorsContainer.appendChild(indicator);
-         }
-         updateSliderIndicatorsActiveColor();
-     }
+    // --- Funciones de Ayuda ---
+    function getFirebaseAuthErrorMessage(errorCode) {
+        switch (errorCode) {
+            case 'auth/invalid-email': return 'El formato del correo no es válido.';
+            case 'auth/user-not-found':
+            case 'auth/wrong-password':
+            case 'auth/invalid-credential': return 'Correo o contraseña incorrectos.';
+            case 'auth/email-already-in-use': return 'Este correo ya está registrado.';
+            case 'auth/weak-password': return 'La contraseña debe tener al menos 6 caracteres.';
+            case 'auth/operation-not-allowed': return 'Este método de inicio de sesión no está habilitado en la consola de Firebase.';
+            default: console.error(errorCode); return 'Ha ocurrido un error inesperado.';
+        }
+    }
+    
+    const infoModalOverlay = document.getElementById('infoModalOverlay');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalText = document.getElementById('modalText');
+    window.showButtonInfo = function(button) {
+        modalTitle.textContent = button.dataset.title;
+        modalText.textContent = button.dataset.text;
+        infoModalOverlay.classList.add('active');
+    }
+    window.closeInfoModal = function(event) {
+        if (event.target === infoModalOverlay || event.target.closest('.modal-close-button')) {
+            infoModalOverlay.classList.remove('active');
+        }
+    }
 
-     function updateSlider() {
-         if (!sliderWrapper || totalSlides <= 0) return;
-         sliderWrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
-         updateSliderIndicatorsActiveColor();
-     }
+    function initializeAppUI() {
+        const sliderWrapper = document.getElementById('sliderWrapper');
+        if (!sliderWrapper) return;
+        const indicatorsContainer = document.getElementById('sliderIndicators');
+        let currentSlide = 0;
+        const totalSlides = sliderWrapper.children.length;
 
-     function nextSlide() {
-         if (totalSlides <= 0) return;
-         currentSlide = (currentSlide + 1) % totalSlides;
-         updateSlider();
-     }
-
-     function prevSlide() {
-         if (totalSlides <= 0) return;
-         currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
-         updateSlider();
-     }
-
-     function goToSlide(slideIndex) {
-         if (totalSlides <= 0 || slideIndex < 0 || slideIndex >= totalSlides) return;
-         currentSlide = slideIndex;
-         updateSlider();
-     }
-
-     // --- Theme Toggle Logic ---
-     const themeToggleButton = document.getElementById('theme-toggle');
-     const themeToggleIcon = themeToggleButton ? themeToggleButton.querySelector('i') : null;
-
-     const setTheme = (theme) => {
-         localStorage.setItem('theme', theme);
-         if (theme === 'light') {
-             document.body.classList.add('light-mode');
-             if(themeToggleIcon) themeToggleIcon.className = 'fas fa-moon';
-         } else {
-             document.body.classList.remove('light-mode');
-             if(themeToggleIcon) themeToggleIcon.className = 'fas fa-sun';
-         }
-         updateSliderIndicatorsActiveColor();
-     };
-
-     const currentTheme = localStorage.getItem('theme') || 'dark';
-     setTheme(currentTheme);
-
-     if (themeToggleButton) {
-         themeToggleButton.addEventListener('click', () => {
-             let newTheme = document.body.classList.contains('light-mode') ? 'dark' : 'light';
-             setTheme(newTheme);
-         });
-     }
-
-     // --- Inicialización General dentro de DOMContentLoaded ---
-     document.addEventListener('DOMContentLoaded', () => {
-         console.log("DOMContentLoaded event fired. Initializing components...");
-
-         // Slider de Libros
-         if (sliderWrapper && totalSlides > 0) {
-             createIndicators();
-             updateSlider();
-         }
-     });
-
+        function createIndicators() {
+            if (!indicatorsContainer) return;
+            indicatorsContainer.innerHTML = '';
+            for (let i = 0; i < totalSlides; i++) {
+                const indicator = document.createElement('button');
+                indicator.className = "w-2.5 h-2.5 rounded-full opacity-60 transition";
+                indicator.onclick = () => goToSlide(i);
+                indicatorsContainer.appendChild(indicator);
+            }
+        }
+        function updateIndicators() {
+            if (!indicatorsContainer) return;
+            Array.from(indicatorsContainer.children).forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === currentSlide);
+            });
+        }
+        function updateSlider() {
+            sliderWrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
+            updateIndicators();
+        }
+        window.nextSlide = function() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateSlider();
+        }
+        window.prevSlide = function() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            updateSlider();
+        }
+        window.goToSlide = function(slideIndex) {
+            currentSlide = slideIndex;
+            updateSlider();
+        }
+        
+        createIndicators();
+        updateSlider();
+    }
 </script>
 
 </body>
