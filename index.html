@@ -11,89 +11,37 @@
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" xintegrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
    <style>
-     /* --- Base Variables --- */
      :root {
-       --bg-color: #0a0a0a; --bg-color-rgb: 10, 10, 10;
-       --card-color: #1a1a1a; --card-color-rgb: 26, 26, 26;
-       --text-color: #e0e0e0; --text-medium-color: #a0a0a0;
+       --bg-color: #0a0a0a; --card-color: #1a1a1a; --text-color: #e0e0e0; --text-medium-color: #a0a0a0;
        --accent-color: #39FF14; --border-color: rgba(255, 255, 255, 0.2);
-       --modal-bg-color: rgba(30, 30, 30, 0.98);
-       --button-hover-bg: rgba(255, 255, 255, 0.1);
-       --input-bg: #2a2a2a; --input-border: rgba(255, 255, 255, 0.1);
-       --info-fixed-text: #0a0a0a;
+       --input-bg: #2a2a2a; --input-border: rgba(255, 255, 255, 0.1); --info-fixed-text: #0a0a0a;
      }
-     body {
-         background-color: var(--bg-color);
-         color: var(--text-color);
-         font-family: 'Inter', sans-serif;
-     }
+     body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; }
      .hidden { display: none; }
-     
-     /* --- Auth Screen Styles --- */
-     .auth-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        padding: 1rem;
-     }
-     .auth-box {
-        background-color: var(--card-color);
-        border: 1px solid var(--border-color);
-        border-radius: 0.75rem;
-        padding: 2rem;
-        width: 100%;
-        max-width: 400px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-     }
+     .auth-container { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 1rem; }
+     .auth-box { background-color: var(--card-color); border: 1px solid var(--border-color); border-radius: 0.75rem; padding: 2rem; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
      h1 > span { color: var(--accent-color); }
-     .auth-input {
-        background-color: var(--input-bg); border: 1px solid var(--input-border);
-        color: var(--text-color); transition: border-color 0.2s, box-shadow 0.2s;
-     }
-     .auth-input:focus {
-        outline: none; border-color: var(--accent-color);
-        box-shadow: 0 0 0 2px rgba(57, 255, 20, 0.2);
-     }
-     .auth-tab {
-         border-bottom: 2px solid transparent; color: var(--text-medium-color);
-         transition: border-color 0.2s, color 0.2s;
-     }
+     .auth-input { background-color: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-color); transition: border-color 0.2s, box-shadow 0.2s; }
+     .auth-input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 2px rgba(57, 255, 20, 0.2); }
+     .auth-tab { border-bottom: 2px solid transparent; color: var(--text-medium-color); transition: border-color 0.2s, color 0.2s; }
      .auth-tab.active { border-color: var(--accent-color); color: var(--text-color); }
-     .submit-btn {
-        background-color: var(--accent-color); color: var(--info-fixed-text);
-        transition: opacity 0.2s;
-     }
+     .submit-btn { background-color: var(--accent-color); color: var(--info-fixed-text); transition: opacity 0.2s; }
      .submit-btn:hover { opacity: 0.9; }
-
-     /* --- Main App Styles --- */
-     .bg-card-bg { background-color: var(--card-color); border-color: var(--border-color); }
-     a.bg-card-bg:hover { background-color: var(--button-hover-bg); transform: translateY(-0.25rem); }
-     .info-button-integrated { background: none; border: none; padding: 0.5rem; cursor: pointer; color: var(--text-medium-color); transition: color 0.2s ease, transform 0.2s ease; font-size: 0.8rem; }
-     .info-button-integrated:hover { color: var(--text-color); transform: scale(1.1); }
-     .slider-nav-button { background-color: rgba(var(--card-color-rgb), 0.5); border: 1px solid var(--border-color); color: var(--text-color); }
-     #sliderIndicators button { background-color: var(--text-medium-color); }
-     #sliderIndicators button.active { background-color: var(--accent-color); }
-     .modal-overlay { display: none; position: fixed; inset: 0; background-color: rgba(var(--bg-color-rgb), 0.8); z-index: 100; align-items: center; justify-content: center; }
-     .modal-overlay.active { display: flex; }
-     .modal { background-color: var(--modal-bg-color); padding: 25px 35px; border-radius: 12px; max-width: 500px; width: 90%; position: relative; }
-     .modal-close-button { position: absolute; top: 10px; right: 10px; background: none; border: none; cursor: pointer; }
-     .modal-close-button i { color: var(--text-medium-color); transition: color 0.2s ease; }
-     .modal-close-button:hover i { color: var(--accent-color); }
+     .loader-container { display: flex; justify-content: center; align-items: center; height: 100vh; }
+     .loader { border: 4px solid var(--border-color); border-top: 4px solid var(--accent-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+     a.bg-card-bg:hover { transform: translateY(-0.25rem); }
    </style>
 </head>
 <body>
+    
+    <div id="loader" class="loader-container">
+        <div class="loader"></div>
+    </div>
 
-    <!-- Pantalla de Login (Visible por defecto) -->
-    <div id="login-screen" class="auth-container">
-        <h1 class="text-4xl font-bold text-center mb-4">
-            Herramientas <span>GUARD-IA</span>
-        </h1>
-        <p class="text-center text-[var(--text-medium-color)] max-w-md mb-8">
-            Bienvenido a la nueva versión segura. Para proteger tu privacidad, ahora tus datos se cifran en tu dispositivo y se asocian a tu cuenta. Solo tú puedes acceder a ellos.
-        </p>
-
+    <div id="login-screen" class="auth-container hidden">
+        <h1 class="text-4xl font-bold text-center mb-4">Herramientas <span>GUARD-IA</span></h1>
+        <p class="text-center text-[var(--text-medium-color)] max-w-md mb-8">Bienvenido a la nueva versión segura. Para proteger tu privacidad, ahora tus datos se cifran en tu dispositivo y se asocian a tu cuenta. Solo tú puedes acceder a ellos.</p>
         <div class="auth-box">
             <div class="flex border-b border-[var(--border-color)] mb-6">
                 <button id="loginTab" class="auth-tab flex-1 py-2 text-center font-semibold active">Iniciar Sesión</button>
@@ -113,97 +61,54 @@
         </div>
     </div>
 
-    <!-- Contenido Principal de la App (Oculto por defecto) -->
     <div id="main-app-content" class="hidden">
-        
         <header class="p-4 z-50 flex justify-between items-center bg-[var(--card-color)] border-b border-[var(--border-color)] sticky top-0">
             <h2 class="text-lg font-semibold text-[var(--accent-color)]">GUARD-IA</h2>
             <div id="user-info" class="text-right"></div>
         </header>
-
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-10 relative z-10 flex-grow">
-            <!-- Herramientas -->
             <div class="max-w-lg mx-auto space-y-3 sm:space-y-4">
                <a href="https://chatgpt.com/g/g-6766e58171cc81918eb92f23b79f66ae-guard-ia" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform">
                  <span class="flex items-center gap-2 sm:gap-3"><i class="fas fa-robot text-lg w-5 sm:text-xl sm:w-6 text-center"></i><span>ChatGPT GUARD-IA</span></span>
-                 <button class="info-button-integrated" data-title="ChatGPT GUARD-IA" data-text="Interactúa con una versión personalizada de ChatGPT diseñada para GUARD-IA." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();"><i class="fas fa-info-circle text-lg"></i></button>
                </a>
                <a href="herramientas-guardia/calculadora-de-drogas/index.html" target="_self" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform">
                  <span class="flex items-center gap-2 sm:gap-3"><i class="fas fa-calculator text-lg w-5 sm:text-xl sm:w-6 text-center"></i><span>Calculadora de Drogas</span></span>
-                <button class="info-button-integrated" data-title="Calculadora de Drogas" data-text="Herramienta para cálculos relacionados con drogas. Uso bajo responsabilidad del usuario." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();"><i class="fas fa-info-circle text-lg"></i></button>
                </a>
                 <a href="herramientas-guardia/bloc-de-notas/index.html" target="_self" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform">
                  <span class="flex items-center gap-2 sm:gap-3"><i class="fas fa-sticky-note text-lg w-5 sm:text-xl sm:w-6 text-center"></i><span>Bloc de Notas</span></span>
-                 <button class="info-button-integrated" data-title="Bloc de Notas" data-text="Un bloc de notas digital que guarda tus notas de forma segura en la nube en tu cuenta personal." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();"><i class="fas fa-info-circle text-lg"></i></button>
                 </a>
                 <a href="https://saferlayer.com/" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform">
                  <span class="flex items-center gap-2 sm:gap-3"><i class="fas fa-tint text-lg w-5 sm:text-xl sm:w-6 text-center"></i><span>Marca de agua by Saferlayer</span></span>
-                 <button class="info-button-integrated" data-title="Marca de agua by Saferlayer" data-text="Herramienta externa para agregar marcas de agua a tus archivos." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();"><i class="fas fa-info-circle text-lg"></i></button>
                 </a>
                 <a href="herramientas-guardia/calendario-del-GUARD-IA/index.html" target="_self" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform">
-                 <span class="flex items-center gap-2 sm:gap-3"><i class="fas fa-calendar-alt text-lg w-5 sm:text-xl sm:w-6 text-center"></i> <span>Calendario del GUARD-IA</span> </span>
-                 <button class="info-button-integrated" data-title="Calendario del GUARD-IA" data-text="Calendario de turnos que guarda tus datos en la nube de forma segura y privada." onclick="showButtonInfo(this); event.stopPropagation(); event.preventDefault();"><i class="fas fa-info-circle text-lg"></i></button>
+                 <span class="flex items-center gap-2 sm:gap-3"><i class="fas fa-calendar-alt text-lg w-5 sm:text-xl sm:w-6 text-center"></i> <span>Calendario del GUARD-IA</span></span>
                 </a>
             </div>
         </div>
-        
-        <!-- Canales -->
         <section class="py-10 relative z-10">
          <h2 class="text-3xl sm:text-4xl font-bold text-center mb-6 sm:mb-8 drop-shadow-lg">CANALES DE<br>ACCIÓN POLICIAL</h2>
          <div class="max-w-lg mx-auto px-4 sm:px-0 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-           <a href="https://www.youtube.com/@PoliceActivity" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> PoliceActivity</a>
-           <a href="https://www.youtube.com/@RealWorldPolice" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> Real World Police</a>
-           <a href="https://www.youtube.com/@CodeBlueCam" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> Code Blue Cam</a>
-           <a href="https://www.youtube.com/@AuditTheAudit" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-gavel"></i> Audit the Audit</a>
-           <a href="https://www.youtube.com/@DonutOperator" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> Donut Operator</a>
-           <a href="https://www.youtube.com/@FreeFieldTraining" target="_blank" rel="noopener noreferrer" class="bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-chalkboard-teacher"></i> FreeFieldTraining</a>
+           <a href="https://www.youtube.com/@PoliceActivity" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> PoliceActivity</a>
+           <a href="https://www.youtube.com/@RealWorldPolice" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> Real World Police</a>
+           <a href="https://www.youtube.com/@CodeBlueCam" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> Code Blue Cam</a>
+           <a href="https://www.youtube.com/@AuditTheAudit" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-gavel"></i> Audit the Audit</a>
+           <a href="https://www.youtube.com/@DonutOperator" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> Donut Operator</a>
+           <a href="https://www.youtube.com/@FreeFieldTraining" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-chalkboard-teacher"></i> FreeFieldTraining</a>
          </div>
         </section>
-
-        <!-- Lecturas -->
         <section class="py-10 relative z-10">
          <h2 class="text-3xl sm:text-4xl font-bold text-center mb-6 sm:mb-8 drop-shadow-lg"> LECTURAS POLICIALES<br>RECOMENDADAS </h2>
-         <div class="relative max-w-lg mx-auto px-4 sm:px-0">
-           <button class="slider-nav-button absolute top-1/2 left-2 sm:left-0 transform -translate-y-1/2 sm:-translate-x-full p-2 rounded-full text-xl sm:text-2xl z-30" onclick="prevSlide()" aria-label="Anterior Slide">❮</button>
-           <div class="overflow-hidden rounded-lg border border-[var(--border-color)]">
-             <div class="flex transition-transform duration-500 ease-in-out" id="sliderWrapper">
-                 <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg"><img src="https://imgs.search.brave.com/VNMdgeChtgIurBN_p-DnqmSakN2ak7bRrP0Yo1n3ef8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuY2RuMi5idXNj/YWxpYnJlLmNvbS9m/aXQtaW4vNTIweDUy/MC8yZS80YS8yZTRh/YzYyZmIxMTJhOWNh/NDdmMTMwMGY4NzVk/OTUwNC5qcGc" alt="Portada del libro Sobre el Combate" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto"><h3 class="text-lg sm:text-xl font-semibold">Sobre el Combate</h3><p class="text-sm sm:text-base text-medium-text">Dave Grossman</p></div>
-                 <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg"><img src="https://imgs.search.brave.com/8-PdIHSHt2WqbYUGXhLD_4Bpw8RWitCfRvV2KiHgqpo/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuY2RuMy5idXNj/YWxpYnJlLmNvbS9m/aXQtaW4vNTIweDUy/MC9mZC82Yy9mZDZj/Mjc3ZDBmZDMyZmU3/NmJiN2MyZGMwZTc3/YjZhYi5qcGc" alt="Portada del libro Matar" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto"><h3 class="text-lg sm:text-xl font-semibold">Matar</h3><p class="text-sm sm:text-base text-medium-text">Dave Grossman</p></div>
-                 <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg"><img src="https://imgs.search.brave.com/pOsg_as-IHCw3Y7BqzG17ZB9cw9PJCLFMZQ8GrqlEMI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9waWN0/dXJlcy5hYmVib29r/cy5jb20vaXNibi85/Nzg4NDMwOTczNzA1/LWVzLTMwMC5qcGc" alt="Portada del libro En la Línea de Fuego" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto"><h3 class="text-lg sm:text-xl font-semibold">En la Línea de Fuego</h3><p class="text-sm sm:text-base text-medium-text">Ernesto Pérez Vera y Fernando Pérez Pacho</p></div>
-                 <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg"><img src="https://imgs.search.brave.com/SK2GxbZt59aSZEreTfVwkKxKWMVepLCnmRS1vzvnaFA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9waWN0/dXJlcy5hYmVib29r/cy5jb20vaXNibi85/Nzg4NDE1MzczNzU5/LWVzLmpwZw" alt="Portada del libro Tiroteo en Miami" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto"><h3 class="text-lg sm:text-xl font-semibold">Tiroteo en Miami</h3><p class="text-sm sm:text-base text-medium-text">Edmundo Mireles Jr.</p></div>
-             </div>
-           </div>
-           <button class="slider-nav-button absolute top-1/2 right-2 sm:right-0 transform -translate-y-1/2 sm:translate-x-full p-2 rounded-full text-xl sm:text-2xl z-30" onclick="nextSlide()" aria-label="Siguiente Slide">❯</button>
-         </div>
-         <div id="sliderIndicators" class="flex justify-center space-x-2 mt-4"></div>
         </section>
-        
         <footer class="mt-auto py-4 pb-6 sm:py-4 text-center relative z-10 border-t border-[var(--border-color)]">
             <a href="https://t.me/OnefraGT" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 text-base sm:text-lg">
                 <i class="fab fa-telegram-plane text-xl sm:text-2xl"></i> Contacta con @OnefraGT
             </a>
         </footer>
     </div>
-    
-    <!-- Modal para info de botones -->
-    <div class="modal-overlay" id="infoModalOverlay" onclick="closeInfoModal(event)">
-     <div class="modal">
-       <button class="modal-close-button" onclick="closeInfoModal(event)" aria-label="Cerrar modal"><i class="fas fa-times"></i></button>
-       <h2 id="modalTitle" class="text-2xl font-bold mb-4 text-[var(--accent-color)]"></h2>
-       <p id="modalText" class="text-base"></p>
-     </div>
-    </div>
-
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import {
-        getAuth,
-        onAuthStateChanged,
-        createUserWithEmailAndPassword,
-        signInWithEmailAndPassword,
-        signOut
-    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAf3I3_aW__lBtTVlEJ9xesIWkEJ6lMJp8",
@@ -218,6 +123,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
+    const loader = document.getElementById('loader');
     const loginScreen = document.getElementById('login-screen');
     const mainAppContent = document.getElementById('main-app-content');
     const userInfo = document.getElementById('user-info');
@@ -226,34 +132,24 @@
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
     const authError = document.getElementById('authError');
-    let uiInitialized = false;
-
-    // --- Lógica de Autenticación y UI ---
+    
     onAuthStateChanged(auth, user => {
+        loader.classList.add('hidden');
         if (user) {
-            loginScreen.classList.add('hidden');
             mainAppContent.classList.remove('hidden');
+            loginScreen.classList.add('hidden');
             userInfo.innerHTML = `
                 <div class="flex items-center gap-3">
                     <span class="text-sm text-[var(--text-medium-color)] hidden sm:inline">${user.email}</span>
                     <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-red-700 transition">Salir</button>
-                </div>
-            `;
-            document.getElementById('logoutBtn').addEventListener('click', () => {
-                signOut(auth).catch(error => console.error('Error al cerrar sesión:', error));
-            });
-            if (!uiInitialized) {
-                initializeAppUI();
-                uiInitialized = true;
-            }
+                </div>`;
+            document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
         } else {
             loginScreen.classList.remove('hidden');
             mainAppContent.classList.add('hidden');
-            uiInitialized = false;
         }
     });
 
-    // --- Lógica de Formularios ---
     loginTab.addEventListener('click', () => {
         loginTab.classList.add('active');
         registerTab.classList.remove('active');
@@ -261,6 +157,7 @@
         registerForm.classList.add('hidden');
         authError.textContent = '';
     });
+
     registerTab.addEventListener('click', () => {
         registerTab.classList.add('active');
         loginTab.classList.remove('active');
@@ -268,26 +165,25 @@
         loginForm.classList.add('hidden');
         authError.textContent = '';
     });
+
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const email = document.getElementById('loginEmail').value;
         const password = document.getElementById('loginPassword').value;
-        signInWithEmailAndPassword(auth, email, password)
-            .catch(error => {
-                authError.textContent = getFirebaseAuthErrorMessage(error.code);
-            });
+        signInWithEmailAndPassword(auth, email, password).catch(error => {
+            authError.textContent = getFirebaseAuthErrorMessage(error.code);
+        });
     });
+
     registerForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const email = document.getElementById('registerEmail').value;
         const password = document.getElementById('registerPassword').value;
-        createUserWithEmailAndPassword(auth, email, password)
-            .catch(error => {
-                authError.textContent = getFirebaseAuthErrorMessage(error.code);
-            });
+        createUserWithEmailAndPassword(auth, email, password).catch(error => {
+            authError.textContent = getFirebaseAuthErrorMessage(error.code);
+        });
     });
 
-    // --- Funciones de Ayuda ---
     function getFirebaseAuthErrorMessage(errorCode) {
         switch (errorCode) {
             case 'auth/invalid-email': return 'El formato del correo no es válido.';
@@ -297,66 +193,8 @@
             case 'auth/email-already-in-use': return 'Este correo ya está registrado.';
             case 'auth/weak-password': return 'La contraseña debe tener al menos 6 caracteres.';
             case 'auth/operation-not-allowed': return 'Este método de inicio de sesión no está habilitado en la consola de Firebase.';
-            default: console.error(errorCode); return 'Ha ocurrido un error inesperado.';
+            default: return 'Ha ocurrido un error inesperado.';
         }
-    }
-    
-    const infoModalOverlay = document.getElementById('infoModalOverlay');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalText = document.getElementById('modalText');
-    window.showButtonInfo = function(button) {
-        modalTitle.textContent = button.dataset.title;
-        modalText.textContent = button.dataset.text;
-        infoModalOverlay.classList.add('active');
-    }
-    window.closeInfoModal = function(event) {
-        if (event.target === infoModalOverlay || event.target.closest('.modal-close-button')) {
-            infoModalOverlay.classList.remove('active');
-        }
-    }
-
-    function initializeAppUI() {
-        const sliderWrapper = document.getElementById('sliderWrapper');
-        if (!sliderWrapper) return;
-        const indicatorsContainer = document.getElementById('sliderIndicators');
-        let currentSlide = 0;
-        const totalSlides = sliderWrapper.children.length;
-
-        function createIndicators() {
-            if (!indicatorsContainer) return;
-            indicatorsContainer.innerHTML = '';
-            for (let i = 0; i < totalSlides; i++) {
-                const indicator = document.createElement('button');
-                indicator.className = "w-2.5 h-2.5 rounded-full opacity-60 transition";
-                indicator.onclick = () => goToSlide(i);
-                indicatorsContainer.appendChild(indicator);
-            }
-        }
-        function updateIndicators() {
-            if (!indicatorsContainer) return;
-            Array.from(indicatorsContainer.children).forEach((indicator, index) => {
-                indicator.classList.toggle('active', index === currentSlide);
-            });
-        }
-        function updateSlider() {
-            sliderWrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
-            updateIndicators();
-        }
-        window.nextSlide = function() {
-            currentSlide = (currentSlide + 1) % totalSlides;
-            updateSlider();
-        }
-        window.prevSlide = function() {
-            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
-            updateSlider();
-        }
-        window.goToSlide = function(slideIndex) {
-            currentSlide = slideIndex;
-            updateSlider();
-        }
-        
-        createIndicators();
-        updateSlider();
     }
 </script>
 
