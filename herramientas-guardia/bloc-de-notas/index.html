@@ -8,12 +8,54 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" 
         xintegrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" 
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    /* Estilos para el nuevo encabezado */
+    .app-header {
+      padding: 1rem;
+      z-index: 50;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--color-bg-secondary); /* Usando colores del CSS existente */
+      border-bottom: 1px solid var(--color-border);
+      position: sticky;
+      top: 0;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+    }
+    .back-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--color-text);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .back-link:hover {
+      color: var(--color-primary);
+    }
+    .back-link i {
+      font-size: 1.25rem;
+    }
+    .back-link h2 {
+      font-size: 1.125rem;
+      font-weight: 600;
+    }
+    /* FIX: Override para el layout del body y evitar el centrado vertical */
+    body {
+        display: block;
+        padding: 0;
+    }
+  </style>
 </head>
-<body class="text-light-text font-sans relative">
+<body class="text-light-text font-sans">
 
-  <a href="../../index.html" class="home-button" title="Volver a GUARD-IA">
-    <i class="fas fa-house"></i>
-  </a>
+  <!-- ENCABEZADO CORREGIDO -->
+  <header class="app-header">
+      <a href="../../index.html" class="back-link">
+           <i class="fas fa-arrow-left"></i>
+          <h2 class="text-lg font-semibold">Volver a GUARD-IA</h2>
+      </a>
+  </header>
 
   <div class="container mx-auto px-4 py-10 relative z-10">
     <div class="header flex items-center justify-center gap-3 mb-8">
@@ -40,10 +82,6 @@
         <div class="form-group">
           <label for="fullName">Nombre y apellidos</label>
           <input type="text" id="fullName" name="fullName" placeholder="Nombre y apellidos">
-        </div>
-        <div class="form-group">
-          <label for="birthPlace">Lugar de nacimiento</label>
-          <input type="text" id="birthPlace" name="birthPlace" placeholder="Lugar de nacimiento">
         </div>
         <div class="form-group">
           <label for="birthdate">Fecha de nacimiento</label>
@@ -98,11 +136,7 @@
           <span>Generar Informe</span>
         </button>
       </div>
-
-      <div id="photoPreviewContainer" style="text-align: center; margin-bottom: 1rem;">
-        <img id="photoPreview" src="#" alt="Vista previa de la foto" style="max-width: 100%; max-height: 300px; display: none; border-radius: 0.5rem; margin: 0 auto; border: 1px solid var(--color-border);">
-      </div>
-      </form>
+    </form>
 
     <div class="notes-section mt-8">
       <div class="notes-header flex justify-between items-center mb-4">
