@@ -12,6 +12,14 @@ import {
     serverTimestamp,
     getDocs
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+// Import Firebase Storage for photo uploads
+import { 
+    getStorage, 
+    ref, 
+    uploadString, 
+    getDownloadURL 
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+
 
 // Your web app's Firebase configuration (same as the main app)
 const firebaseConfig = {
@@ -24,16 +32,18 @@ const firebaseConfig = {
     measurementId: "G-W45Z1BH3T4"
 };
 
-// Initialize Firebase
+// Initialize Firebase Services
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app); // Initialize Storage
 
 // DOM Elements
 const noteForm = document.getElementById('noteForm');
 const notesContainer = document.getElementById('notesContainer');
 const generateReportButton = document.getElementById('generateReportButton');
 const takePhotoButton = document.getElementById('takePhotoButton');
+const saveNoteButton = document.getElementById('saveNoteButton');
 const factsTextarea = document.getElementById('facts');
 const photoPreview = document.getElementById('photoPreview');
 const authStateDiv = document.getElementById('auth-state');
@@ -55,30 +65,19 @@ let unsubscribeFromNotes = null; // To store the unsubscribe function for onSnap
 // --- Authentication Handling ---
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // User is signed in
         currentUserId = user.uid;
         console.log("Usuario autenticado:", currentUserId);
-        
-        // Update UI
         authStateDiv.classList.add('hidden');
         appContentDiv.classList.remove('hidden');
         userInfoDiv.textContent = `Conectado como: ${user.email}`;
-
-        // Start listening for notes for this user
         listenForNotes();
-        
     } else {
-        // User is signed out
         currentUserId = null;
         console.log("Usuario no autenticado.");
-        
-        // Update UI
         appContentDiv.classList.add('hidden');
         authStateDiv.classList.remove('hidden');
         authStateDiv.innerHTML = `<p>Debes iniciar sesión para usar el bloc de notas seguro. <a href="../../index.html">Volver a la página principal para iniciar sesión.</a></p>`;
         userInfoDiv.textContent = 'No conectado';
-
-        // If there was a listener, unsubscribe
         if (unsubscribeFromNotes) {
             unsubscribeFromNotes();
         }
@@ -86,19 +85,34 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
+// --- Photo Upload Function ---
+async function uploadPhoto(base64String) {
+    if (!currentUserId) throw new Error("User not authenticated for photo upload.");
+    
+    // Create a unique file name for the photo
+    const photoId = `note_photo_${Date.now()}`;
+    const storageRef = ref(storage, `users/${currentUserId}/notes_photos/${photoId}.png`);
+
+    console.log("Uploading photo to Firebase Storage...");
+    // Upload the base64 string
+    const snapshot = await uploadString(storageRef, base64String, 'data_url');
+    console.log("Photo uploaded successfully.");
+
+    // Get the public URL of the uploaded photo
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    console.log("Got download URL:", downloadURL);
+    
+    return downloadURL;
+}
+
 // --- Firestore Functions ---
 
 function listenForNotes() {
     if (!currentUserId) return;
-
-    if (unsubscribeFromNotes) {
-        unsubscribeFromNotes();
-    }
+    if (unsubscribeFromNotes) unsubscribeFromNotes();
     
     const notesCollection = collection(db, "users", currentUserId, "notes");
-    // Remove orderBy from the query to prevent indexing errors
     const q = query(notesCollection);
-
     notesContainer.innerHTML = "<p>Cargando notas desde la nube...</p>";
 
     unsubscribeFromNotes = onSnapshot(q, (querySnapshot) => {
@@ -106,14 +120,7 @@ function listenForNotes() {
         querySnapshot.forEach((doc) => {
             notes.push({ id: doc.id, ...doc.data() });
         });
-
-        // Sort the notes on the client-side (in the browser)
-        notes.sort((a, b) => {
-            const dateA = a.createdAt ? a.createdAt.toDate() : 0;
-            const dateB = b.createdAt ? b.createdAt.toDate() : 0;
-            return dateB - dateA; // Sorts from newest to oldest
-        });
-        
+        notes.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
         displayNotes(notes);
     }, (error) => {
         console.error("Error al obtener las notas: ", error);
@@ -124,16 +131,12 @@ function listenForNotes() {
 async function saveNoteToFirestore(noteData) {
     if (!currentUserId) {
         alert("Debes estar conectado para guardar una nota.");
-        return;
+        return false;
     }
-
     try {
         const notesCollection = collection(db, "users", currentUserId, "notes");
-        const docRef = await addDoc(notesCollection, {
-            ...noteData,
-            createdAt: serverTimestamp() // Add a server-side timestamp
-        });
-        console.log("Nota guardada en Firestore con ID: ", docRef.id);
+        await addDoc(notesCollection, { ...noteData, createdAt: serverTimestamp() });
+        console.log("Note metadata saved to Firestore.");
         return true;
     } catch (error) {
         console.error("Error al guardar la nota en Firestore: ", error);
@@ -144,11 +147,9 @@ async function saveNoteToFirestore(noteData) {
 
 async function deleteNoteFromFirestore(noteId) {
     if (!currentUserId || !noteId) return;
-
     if (confirm("¿Estás seguro de eliminar esta nota? Esta acción no se puede deshacer.")) {
         try {
-            const noteDocRef = doc(db, "users", currentUserId, "notes", noteId);
-            await deleteDoc(noteDocRef);
+            await deleteDoc(doc(db, "users", currentUserId, "notes", noteId));
             console.log("Nota eliminada de Firestore.");
         } catch (error) {
             console.error("Error al eliminar la nota: ", error);
@@ -157,58 +158,66 @@ async function deleteNoteFromFirestore(noteId) {
     }
 }
 
-
 // --- Main Application Logic ---
 
 noteForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
-    // Create note data object
-    const noteData = {
-        interventionLocation: document.getElementById('interventionLocation').value,
-        documentNumber: document.getElementById('documentNumber').value,
-        fullName: document.getElementById('fullName').value,
-        birthPlace: document.getElementById('birthPlace').value,
-        birthdate: document.getElementById('birthdate').value,
-        parentsName: document.getElementById('parentsName').value,
-        address: document.getElementById('address').value,
-        phone: document.getElementById('phone').value,
-        facts: factsTextarea.value,
-        photoUrl: capturedPhotoDataUrl || '', // Store the base64 URL directly
-    };
+    saveNoteButton.disabled = true;
+    saveNoteButton.innerHTML = `<span><i class="fas fa-spinner fa-spin"></i> Guardando...</span>`;
 
-    // Save to Firestore
-    const success = await saveNoteToFirestore(noteData);
-
-    // Reset form only on successful save
-    if (success) {
-        noteForm.reset();
-        factsTextarea.value = '';
-        capturedPhotoDataUrl = null;
-        if (photoPreview) {
-            photoPreview.src = '#';
-            photoPreview.style.display = 'none';
+    let photoDownloadURL = '';
+    try {
+        if (capturedPhotoDataUrl) {
+            photoDownloadURL = await uploadPhoto(capturedPhotoDataUrl);
         }
-        alert("Nota guardada en la nube exitosamente.");
+
+        const noteData = {
+            interventionLocation: document.getElementById('interventionLocation').value,
+            documentNumber: document.getElementById('documentNumber').value,
+            fullName: document.getElementById('fullName').value,
+            birthPlace: document.getElementById('birthPlace').value,
+            birthdate: document.getElementById('birthdate').value,
+            parentsName: document.getElementById('parentsName').value,
+            address: document.getElementById('address').value,
+            phone: document.getElementById('phone').value,
+            facts: factsTextarea.value,
+            photoUrl: photoDownloadURL,
+        };
+
+        const success = await saveNoteToFirestore(noteData);
+
+        if (success) {
+            noteForm.reset();
+            factsTextarea.value = '';
+            capturedPhotoDataUrl = null;
+            if (photoPreview) {
+                photoPreview.src = '#';
+                photoPreview.style.display = 'none';
+            }
+            alert("Nota guardada en la nube exitosamente.");
+        }
+    } catch (uploadError) {
+        console.error("Error during note save process (photo upload):", uploadError);
+        alert("Hubo un error al subir la foto. La nota no fue guardada. Inténtalo de nuevo.");
+    } finally {
+        saveNoteButton.disabled = false;
+        saveNoteButton.innerHTML = `
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+            <span>Guardar Nota</span>`;
     }
 });
-
 
 function displayNotes(notes) {
     if (!notes || notes.length === 0) {
         notesContainer.innerHTML = "<p>No hay notas guardadas en la nube.</p>";
         return;
     }
-    
     notesContainer.innerHTML = notes.map(note => {
-        // Handle both server timestamp and old string timestamp for compatibility
-        let displayTimestamp = 'N/A';
-        if (note.createdAt && note.createdAt.toDate) {
-            displayTimestamp = note.createdAt.toDate().toLocaleString('es-ES');
-        } else if (note.timestamp) {
-            displayTimestamp = note.timestamp;
-        }
-
+        let displayTimestamp = note.createdAt?.toDate() ? note.createdAt.toDate().toLocaleString('es-ES') : 'N/A';
         return `
         <div class="note">
             <p><strong>Fecha y Hora:</strong> ${displayTimestamp}</p>
@@ -228,72 +237,32 @@ function displayNotes(notes) {
                 <button class="btn btn-copy" onclick='window.copyNoteText(${JSON.stringify(note)})'>Copiar Texto</button>
                 ${note.photoUrl ? `<button class="btn btn-download" onclick="window.downloadNotePhoto('${note.photoUrl}')">Descargar Foto</button>` : ''}
             </div>
-        </div>`
+        </div>`;
     }).join('');
 }
 
-// Make functions globally accessible on the window object
 window.deleteNote = deleteNoteFromFirestore;
 
 window.shareNote = async function(noteData) {
-    let displayTimestamp = 'N/A';
-    if (noteData.createdAt && noteData.createdAt.toDate) {
-        displayTimestamp = noteData.createdAt.toDate().toLocaleString('es-ES');
-    }
-    let shareText = `Nota Policial:
-Fecha: ${displayTimestamp}
-Lugar de Intervención: ${noteData.interventionLocation || 'N/A'}
-Documento: ${noteData.documentNumber || 'N/A'}
-Nombre: ${noteData.fullName || 'N/A'}
-Lugar de Nacimiento: ${noteData.birthPlace || 'N/A'} 
-Fecha de Nacimiento: ${noteData.birthdate || 'N/A'}
-Padres: ${noteData.parentsName || 'N/A'}
-Dirección: ${noteData.address || 'N/A'}
-Teléfono: ${noteData.phone || 'N/A'}
-Hechos: ${noteData.facts || 'N/A'}`;
-
+    let displayTimestamp = noteData.createdAt && noteData.createdAt.seconds ? new Date(noteData.createdAt.seconds * 1000).toLocaleString('es-ES') : 'N/A';
+    let shareText = `Nota Policial:\nFecha: ${displayTimestamp}\nLugar de Intervención: ${noteData.interventionLocation || 'N/A'}\nDocumento: ${noteData.documentNumber || 'N/A'}\nNombre: ${noteData.fullName || 'N/A'}\nLugar de Nacimiento: ${noteData.birthPlace || 'N/A'}\nFecha de Nacimiento: ${noteData.birthdate || 'N/A'}\nPadres: ${noteData.parentsName || 'N/A'}\nDirección: ${noteData.address || 'N/A'}\nTeléfono: ${noteData.phone || 'N/A'}\nHechos: ${noteData.facts || 'N/A'}`;
     const shareOptions = { title: 'Nota Policial', text: shareText };
-
     if (noteData.photoUrl) {
         try {
             const response = await fetch(noteData.photoUrl);
             const blob = await response.blob();
-            const photoFile = new File([blob], 'foto_nota.png', { type: 'image/png' });
-            shareOptions.files = [photoFile];
-        } catch (error) {
-            console.error('Error al procesar la foto para compartir:', error);
-        }
+            shareOptions.files = [new File([blob], 'foto_nota.png', { type: blob.type })];
+        } catch (error) { console.error('Error al procesar la foto para compartir:', error); }
     }
-
     try {
-        if (navigator.share) {
-            await navigator.share(shareOptions);
-        } else {
-            alert('La función de compartir no es compatible con este navegador.');
-        }
-    } catch (err) {
-        if (err.name !== 'AbortError') {
-            console.error('Error al compartir la nota:', err);
-        }
-    }
+        if (navigator.share) await navigator.share(shareOptions);
+        else alert('La función de compartir no es compatible con este navegador.');
+    } catch (err) { if (err.name !== 'AbortError') console.error('Error al compartir la nota:', err); }
 }
 
 window.copyNoteText = async function(noteData) {
-    let displayTimestamp = 'N/A';
-    if (noteData.createdAt && noteData.createdAt.toDate) {
-        displayTimestamp = noteData.createdAt.toDate().toLocaleString('es-ES');
-    }
-    let noteText = `Nota Policial:
-Fecha: ${displayTimestamp}
-Lugar de Intervención: ${noteData.interventionLocation || 'N/A'}
-Documento: ${noteData.documentNumber || 'N/A'}
-Nombre: ${noteData.fullName || 'N/A'}
-Lugar de Nacimiento: ${noteData.birthPlace || 'N/A'}
-Fecha de Nacimiento: ${noteData.birthdate || 'N/A'}
-Padres: ${noteData.parentsName || 'N/A'}
-Dirección: ${noteData.address || 'N/A'}
-Teléfono: ${noteData.phone || 'N/A'}
-Hechos: ${noteData.facts || 'N/A'}`;
+    let displayTimestamp = noteData.createdAt && noteData.createdAt.seconds ? new Date(noteData.createdAt.seconds * 1000).toLocaleString('es-ES') : 'N/A';
+    let noteText = `Nota Policial:\nFecha: ${displayTimestamp}\nLugar de Intervención: ${noteData.interventionLocation || 'N/A'}\nDocumento: ${noteData.documentNumber || 'N/A'}\nNombre: ${noteData.fullName || 'N/A'}\nLugar de Nacimiento: ${noteData.birthPlace || 'N/A'}\nFecha de Nacimiento: ${noteData.birthdate || 'N/A'}\nPadres: ${noteData.parentsName || 'N/A'}\nDirección: ${noteData.address || 'N/A'}\nTeléfono: ${noteData.phone || 'N/A'}\nHechos: ${noteData.facts || 'N/A'}`;
     try {
         await navigator.clipboard.writeText(noteText);
         alert('Texto de la nota copiado al portapapeles.');
@@ -303,61 +272,29 @@ Hechos: ${noteData.facts || 'N/A'}`;
     }
 }
 
-window.downloadNotePhoto = function(photoUrl) {
-    if (photoUrl) {
-        const a = document.createElement('a');
-        a.href = photoUrl;
-        a.download = 'foto_nota.png';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    } else {
-        alert('Esta nota no tiene foto.');
-    }
+window.downloadNotePhoto = (photoUrl) => {
+    if (!photoUrl) return alert('Esta nota no tiene foto.');
+    const a = document.createElement('a');
+    a.href = photoUrl;
+    a.download = 'foto_nota.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 }
 
-// --- Report Generation & Camera ---
-
 generateReportButton.addEventListener('click', async () => {
-    if (!currentUserId) {
-        alert("Debes estar conectado para generar un informe.");
-        return;
-    }
+    if (!currentUserId) return alert("Debes estar conectado para generar un informe.");
     const notesToReport = [];
-    const notesCollection = collection(db, "users", currentUserId, "notes");
-    const q = query(notesCollection); // Remove orderBy
-
+    const q = query(collection(db, "users", currentUserId, "notes"));
     try {
         const querySnapshot = await getDocs(q);
-        querySnapshot.forEach((doc) => {
-            notesToReport.push({ id: doc.id, ...doc.data() });
-        });
-        
-        // Client-side sort for the report
-        notesToReport.sort((a, b) => {
-            const dateA = a.createdAt ? a.createdAt.toDate() : 0;
-            const dateB = b.createdAt ? b.createdAt.toDate() : 0;
-            return dateB - dateA;
-        });
-        
+        querySnapshot.forEach((doc) => notesToReport.push(doc.data()));
+        notesToReport.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
         let reportText = 'Informe de Intervenciones\n\n';
         notesToReport.forEach((note, index) => {
-            let displayTimestamp = note.createdAt ? note.createdAt.toDate().toLocaleString('es-ES') : 'N/A';
-            reportText += `Intervención ${index + 1}\n`;
-            reportText += '---------------------------------\n';
-            reportText += `Fecha y Hora: ${displayTimestamp}\n`;
-            reportText += `Lugar de Intervención: ${note.interventionLocation || 'N/A'}\n`;
-            reportText += `Documento: ${note.documentNumber || 'N/A'}\n`;
-            reportText += `Nombre: ${note.fullName || 'N/A'}\n`;
-            reportText += `Lugar de Nacimiento: ${note.birthPlace || 'N/A'}\n`;
-            reportText += `Fecha de Nacimiento: ${note.birthdate || 'N/A'}\n`;
-            reportText += `Padres: ${note.parentsName || 'N/A'}\n`;
-            reportText += `Dirección: ${note.address || 'N/A'}\n`;
-            reportText += `Teléfono: ${note.phone || 'N/A'}\n`;
-            reportText += `Hechos: ${note.facts || 'N/A'}\n`;
-            reportText += '---------------------------------\n\n';
+            let displayTimestamp = note.createdAt?.toDate() ? note.createdAt.toDate().toLocaleString('es-ES') : 'N/A';
+            reportText += `Intervención ${index + 1}\n---------------------------------\nFecha y Hora: ${displayTimestamp}\nLugar de Intervención: ${note.interventionLocation || 'N/A'}\nDocumento: ${note.documentNumber || 'N/A'}\nNombre: ${note.fullName || 'N/A'}\nLugar de Nacimiento: ${note.birthPlace || 'N/A'}\nFecha de Nacimiento: ${note.birthdate || 'N/A'}\nPadres: ${note.parentsName || 'N/A'}\nDirección: ${note.address || 'N/A'}\nTeléfono: ${note.phone || 'N/A'}\nHechos: ${note.facts || 'N/A'}\n---------------------------------\n\n`;
         });
-
         const blob = new Blob([reportText], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -371,9 +308,8 @@ generateReportButton.addEventListener('click', async () => {
     }
 });
 
-
 takePhotoButton.addEventListener('click', () => {
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    if (navigator.mediaDevices?.getUserMedia) {
         navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } } })
             .then(stream => {
                 mediaStream = stream;
@@ -385,19 +321,15 @@ takePhotoButton.addEventListener('click', () => {
                 console.error("Error al acceder a la cámara: ", err);
                 alert("No se pudo acceder a la cámara.");
             });
-    } else {
-        alert("Tu navegador no soporta acceso a la cámara.");
-    }
+    } else alert("Tu navegador no soporta acceso a la cámara.");
 });
 
 captureButton.addEventListener('click', () => {
     const canvas = document.createElement('canvas');
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    const context = canvas.getContext('2d');
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.getContext('2d').drawImage(video, 0, 0);
     capturedPhotoDataUrl = canvas.toDataURL('image/png');
-    
     if (photoPreview) {
         photoPreview.src = capturedPhotoDataUrl;
         photoPreview.style.display = 'block';
