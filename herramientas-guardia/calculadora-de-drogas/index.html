@@ -19,6 +19,7 @@
       --background: #0a0a0a;
       --container-bg: #1a1a1a;
       --text-color: #e0e0e0;
+      --accent-color: var(--primary-color); /* Alias para consistencia */
     }
     * {
       box-sizing: border-box;
@@ -28,10 +29,6 @@
       background-color: var(--background);
       margin: 0;
       padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
       color: var(--text-color);
       position: relative;
     }
@@ -43,6 +40,7 @@
       width: 90%;
       max-width: 600px;
       text-align: center;
+      margin: 2rem auto; /* Espacio para el header */
     }
     h1 {
       text-transform: uppercase;
@@ -146,35 +144,48 @@
       }
     }
 
-    /* 🔁 Estilos del botón HOME */
-    .home-button {
-      position: fixed;
-      top: 1rem;
-      left: 1rem;
-      background: #1f2937;
-      color: white;
-      padding: 0.6rem 0.8rem;
-      border-radius: 0.6rem;
-      font-size: 1rem;
+    /* Estilos para el nuevo encabezado */
+    .app-header {
+      padding: 1rem;
+      z-index: 50;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--container-bg);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: sticky;
+      top: 0;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+    }
+    .back-link {
       display: flex;
       align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-      z-index: 999;
-      transition: background 0.3s ease;
+      gap: 0.75rem;
+      color: var(--text-color);
       text-decoration: none;
+      transition: color 0.2s;
     }
-    .home-button:hover {
-      background: #374151;
+    .back-link:hover {
+      color: var(--accent-color);
+    }
+    .back-link i {
+      font-size: 1.25rem;
+    }
+    .back-link h2 {
+      font-size: 1.125rem;
+      font-weight: 600;
     }
   </style>
 </head>
 <body>
 
-  <!-- ✅ Botón HOME -->
-  <a href="../../index.html" class="home-button" title="Volver a la pantalla principal">
-    <i class="fas fa-house"></i>
-  </a>
+  <!-- ENCABEZADO CORREGIDO -->
+  <header class="app-header">
+      <a href="../../index.html" class="back-link">
+           <i class="fas fa-arrow-left"></i>
+          <h2 class="text-lg font-semibold">Volver a GUARD-IA</h2>
+      </a>
+  </header>
 
   <main class="container">
     <!-- Título en mayúsculas y con "DROGAS" en neon -->
