@@ -9,15 +9,17 @@ import {
     onSnapshot,
     deleteDoc,
     doc,
+    getDoc, // Import getDoc to fetch a single document before deleting
     serverTimestamp,
     getDocs
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-// Import Firebase Storage for photo uploads
+// Import Firebase Storage for photo uploads AND deletion
 import { 
     getStorage, 
     ref, 
     uploadString, 
-    getDownloadURL 
+    getDownloadURL,
+    deleteObject // Import deleteObject for deleting photos
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
 
@@ -88,33 +90,24 @@ onAuthStateChanged(auth, (user) => {
 // --- Photo Upload Function ---
 async function uploadPhoto(base64String) {
     if (!currentUserId) throw new Error("User not authenticated for photo upload.");
-    
-    // Create a unique file name for the photo
     const photoId = `note_photo_${Date.now()}`;
     const storageRef = ref(storage, `users/${currentUserId}/notes_photos/${photoId}.png`);
-
-    console.log("Uploading photo to Firebase Storage...");
-    // Upload the base64 string
+    console.log("Subiendo foto a Firebase Storage...");
     const snapshot = await uploadString(storageRef, base64String, 'data_url');
-    console.log("Photo uploaded successfully.");
-
-    // Get the public URL of the uploaded photo
+    console.log("Foto subida exitosamente.");
     const downloadURL = await getDownloadURL(snapshot.ref);
-    console.log("Got download URL:", downloadURL);
-    
+    console.log("URL de descarga obtenida:", downloadURL);
     return downloadURL;
 }
 
-// --- Firestore Functions ---
+// --- Firestore and Storage Functions ---
 
 function listenForNotes() {
     if (!currentUserId) return;
     if (unsubscribeFromNotes) unsubscribeFromNotes();
-    
     const notesCollection = collection(db, "users", currentUserId, "notes");
     const q = query(notesCollection);
     notesContainer.innerHTML = "<p>Cargando notas desde la nube...</p>";
-
     unsubscribeFromNotes = onSnapshot(q, (querySnapshot) => {
         const notes = [];
         querySnapshot.forEach((doc) => {
@@ -136,7 +129,7 @@ async function saveNoteToFirestore(noteData) {
     try {
         const notesCollection = collection(db, "users", currentUserId, "notes");
         await addDoc(notesCollection, { ...noteData, createdAt: serverTimestamp() });
-        console.log("Note metadata saved to Firestore.");
+        console.log("Metadatos de la nota guardados en Firestore.");
         return true;
     } catch (error) {
         console.error("Error al guardar la nota en Firestore: ", error);
@@ -147,19 +140,38 @@ async function saveNoteToFirestore(noteData) {
 
 async function deleteNoteFromFirestore(noteId) {
     if (!currentUserId || !noteId) return;
-    if (confirm("¿Estás seguro de eliminar esta nota? Esta acción no se puede deshacer.")) {
-        try {
-            await deleteDoc(doc(db, "users", currentUserId, "notes", noteId));
-            console.log("Nota eliminada de Firestore.");
-        } catch (error) {
-            console.error("Error al eliminar la nota: ", error);
-            alert("Hubo un error al eliminar la nota.");
+    if (!confirm("¿Estás seguro de eliminar esta nota? Esta acción no se puede deshacer.")) return;
+
+    try {
+        // First, get the note document to find the photo URL
+        const noteDocRef = doc(db, "users", currentUserId, "notes", noteId);
+        const noteDoc = await getDoc(noteDocRef);
+
+        if (noteDoc.exists()) {
+            const noteData = noteDoc.data();
+            // If there's a photo URL, delete the photo from Storage
+            if (noteData.photoUrl) {
+                try {
+                    const photoRef = ref(storage, noteData.photoUrl);
+                    await deleteObject(photoRef);
+                    console.log("Foto eliminada de Firebase Storage.");
+                } catch (storageError) {
+                    console.error("Error al eliminar la foto de Storage. La nota se eliminará de todas formas.", storageError);
+                    // Decide if you want to alert the user about this specific error
+                }
+            }
         }
+        
+        // Finally, delete the note document from Firestore
+        await deleteDoc(noteDocRef);
+        console.log("Nota eliminada de Firestore.");
+    } catch (error) {
+        console.error("Error al eliminar la nota: ", error);
+        alert("Hubo un error al eliminar la nota.");
     }
 }
 
 // --- Main Application Logic ---
-
 noteForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     saveNoteButton.disabled = true;
@@ -170,7 +182,6 @@ noteForm.addEventListener('submit', async (e) => {
         if (capturedPhotoDataUrl) {
             photoDownloadURL = await uploadPhoto(capturedPhotoDataUrl);
         }
-
         const noteData = {
             interventionLocation: document.getElementById('interventionLocation').value,
             documentNumber: document.getElementById('documentNumber').value,
@@ -183,9 +194,7 @@ noteForm.addEventListener('submit', async (e) => {
             facts: factsTextarea.value,
             photoUrl: photoDownloadURL,
         };
-
         const success = await saveNoteToFirestore(noteData);
-
         if (success) {
             noteForm.reset();
             factsTextarea.value = '';
@@ -197,17 +206,11 @@ noteForm.addEventListener('submit', async (e) => {
             alert("Nota guardada en la nube exitosamente.");
         }
     } catch (uploadError) {
-        console.error("Error during note save process (photo upload):", uploadError);
+        console.error("Error durante el proceso de guardado (subida de foto):", uploadError);
         alert("Hubo un error al subir la foto. La nota no fue guardada. Inténtalo de nuevo.");
     } finally {
         saveNoteButton.disabled = false;
-        saveNoteButton.innerHTML = `
-            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
-                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                <polyline points="7 3 7 8 15 8"></polyline>
-            </svg>
-            <span>Guardar Nota</span>`;
+        saveNoteButton.innerHTML = `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg><span>Guardar Nota</span>`;
     }
 });
 
@@ -230,7 +233,7 @@ function displayNotes(notes) {
             <p><strong>Dirección:</strong> ${note.address || 'N/A'}</p>
             <p><strong>Teléfono:</strong> ${note.phone || 'N/A'}</p>
             <p><strong>Hechos:</strong> ${note.facts || 'N/A'}</p>
-            ${note.photoUrl ? `<img src="${note.photoUrl}" alt="Foto del documento" class="note-photo">` : ''}
+            ${note.photoUrl ? `<img src="${note.photoUrl}" alt="Foto del documento" class="note-photo" loading="lazy">` : ''}
             <div class="note-actions">
                 <button class="btn btn-delete" onclick="window.deleteNote('${note.id}')">Eliminar</button>
                 <button class="btn btn-share" onclick='window.shareNote(${JSON.stringify(note)})'>Compartir</button>
