@@ -12,12 +12,25 @@
 
    <style>
      :root {
-       --bg-color: #0a0a0a; --card-color: #1a1a1a; --text-color: #e0e0e0; --text-medium-color: #a0a0a0;
-       --accent-color: #39FF14; --border-color: rgba(255, 255, 255, 0.2);
-       --input-bg: #2a2a2a; --input-border: rgba(255, 255, 255, 0.1); --info-fixed-text: #0a0a0a;
+       --bg-color: #0a0a0a; 
+       --card-color: #1a1a1a; 
+       --card-hover-bg: #222222;
+       --text-color: #e0e0e0; 
+       --text-medium-color: #a0a0a0;
+       --accent-color: #39FF14; 
+       --border-color: rgba(255, 255, 255, 0.1);
+       --input-bg: #2a2a2a; 
+       --input-border: rgba(255, 255, 255, 0.1); 
+       --info-fixed-text: #0a0a0a;
        --modal-bg-color: rgba(30, 30, 30, 0.98);
      }
-     body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; }
+     body { 
+        background-color: var(--bg-color); 
+        color: var(--text-color); 
+        font-family: 'Inter', sans-serif;
+        background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 0);
+        background-size: 25px 25px;
+     }
      .hidden { display: none; }
      .auth-container { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 1rem; }
      .auth-box { background-color: var(--card-color); border: 1px solid var(--border-color); border-radius: 0.75rem; padding: 2rem; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
@@ -31,13 +44,24 @@
      .loader-container { display: flex; justify-content: center; align-items: center; height: 100vh; }
      .loader { border: 4px solid var(--border-color); border-top: 4px solid var(--accent-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-     a.bg-card-bg:hover { transform: translateY(-0.25rem); }
-     .bg-card-bg { background-color: var(--card-color); border-color: var(--border-color); }
-     .info-button-integrated { background: none; border: none; padding: 0.5rem; cursor: pointer; color: var(--text-medium-color); transition: color 0.2s ease, transform 0.2s ease; font-size: 0.8rem; }
-     .info-button-integrated:hover { color: var(--text-color); transform: scale(1.1); }
-     .modal-overlay { display: none; position: fixed; inset: 0; background-color: rgba(0,0,0, 0.8); z-index: 100; align-items: center; justify-content: center; }
+     
+     .tool-card {
+        background-color: var(--card-color);
+        border: 1px solid var(--border-color);
+        transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+        position: relative;
+     }
+     .tool-card:hover {
+        transform: translateY(-5px);
+        background-color: var(--card-hover-bg);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 15px rgba(57, 255, 20, 0.1);
+     }
+     .info-button { background: none; border: none; padding: 0.5rem; cursor: pointer; color: var(--text-medium-color); transition: color 0.2s ease, transform 0.2s ease; font-size: 1rem; z-index: 10;}
+     .info-button:hover { transform: scale(1.2); color: var(--accent-color); }
+     
+     .modal-overlay { display: none; position: fixed; inset: 0; background-color: rgba(0,0,0, 0.85); backdrop-filter: blur(5px); z-index: 100; align-items: center; justify-content: center; }
      .modal-overlay.active { display: flex; }
-     .modal { background-color: var(--modal-bg-color); padding: 25px 35px; border-radius: 12px; max-width: 500px; width: 90%; position: relative; }
+     .modal { background-color: var(--modal-bg-color); padding: 25px 35px; border-radius: 12px; max-width: 500px; width: 90%; position: relative; border: 1px solid var(--border-color); }
      .modal-close-button { position: absolute; top: 10px; right: 10px; background: none; border: none; cursor: pointer; }
      .modal-close-button i { color: var(--text-medium-color); transition: color 0.2s ease; font-size: 1.4rem; }
      .modal-close-button:hover i { color: var(--accent-color); }
@@ -71,65 +95,22 @@
         </div>
     </div>
 
-    <div id="main-app-content" class="hidden">
-        <header class="p-4 z-50 flex justify-between items-center bg-[var(--card-color)] border-b border-[var(--border-color)] sticky top-0">
+    <div id="main-app-content" class="hidden flex flex-col min-h-screen">
+        <header class="p-4 z-50 flex justify-between items-center bg-[var(--card-color)] border-b border-[var(--border-color)] sticky top-0 shadow-lg">
             <h2 class="text-lg font-semibold text-[var(--accent-color)]">GUARD-IA</h2>
             <div id="user-info" class="text-right"></div>
         </header>
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-10 relative z-10 flex-grow">
-            <div class="max-w-lg mx-auto space-y-3 sm:space-y-4">
-               <a href="https://chatgpt.com/g/g-6766e58171cc81918eb92f23b79f66ae-guard-ia" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform">
-                 <span class="flex items-center gap-2 sm:gap-3"><i class="fas fa-robot text-lg w-5 sm:text-xl sm:w-6 text-center"></i><span>ChatGPT GUARD-IA</span></span>
-                 <button class="info-button-integrated" data-title="ChatGPT GUARD-IA" data-text="Interactúa con una versión personalizada de ChatGPT diseñada para GUARD-IA." onclick="showModal('ChatGPT GUARD-IA', this.dataset.text); event.stopPropagation(); event.preventDefault();"><i class="fas fa-info-circle text-lg"></i></button>
-               </a>
-               <a href="herramientas-guardia/calculadora-de-drogas/index.html" target="_self" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform">
-                 <span class="flex items-center gap-2 sm:gap-3"><i class="fas fa-calculator text-lg w-5 sm:text-xl sm:w-6 text-center"></i><span>Calculadora de Drogas</span></span>
-                 <button class="info-button-integrated" data-title="Calculadora de Drogas" data-text="Herramienta para cálculos relacionados con drogas. Uso bajo responsabilidad del usuario." onclick="showModal('Calculadora de Drogas', this.dataset.text); event.stopPropagation(); event.preventDefault();"><i class="fas fa-info-circle text-lg"></i></button>
-               </a>
-                <a href="herramientas-guardia/bloc-de-notas/index.html" target="_self" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform">
-                 <span class="flex items-center gap-2 sm:gap-3"><i class="fas fa-sticky-note text-lg w-5 sm:text-xl sm:w-6 text-center"></i><span>Bloc de Notas</span></span>
-                 <button class="info-button-integrated" data-title="Bloc de Notas" data-text="Un bloc de notas digital que guarda tus notas de forma segura en la nube en tu cuenta personal." onclick="showModal('Bloc de Notas', this.dataset.text); event.stopPropagation(); event.preventDefault();"><i class="fas fa-info-circle text-lg"></i></button>
-                </a>
-                <a href="https://saferlayer.com/" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform">
-                 <span class="flex items-center gap-2 sm:gap-3"><i class="fas fa-tint text-lg w-5 sm:text-xl sm:w-6 text-center"></i><span>Marca de agua by Saferlayer</span></span>
-                 <button class="info-button-integrated" data-title="Marca de agua by Saferlayer" data-text="Herramienta externa para agregar marcas de agua a tus archivos." onclick="showModal('Marca de agua by Saferlayer', this.dataset.text); event.stopPropagation(); event.preventDefault();"><i class="fas fa-info-circle text-lg"></i></button>
-                </a>
-                <a href="herramientas-guardia/calendario-del-GUARD-IA/index.html" target="_self" class="w-full bg-card-bg border py-3 px-4 sm:py-4 sm:px-6 rounded-xl text-base sm:text-lg flex items-center justify-between gap-3 transition-transform">
-                 <span class="flex items-center gap-2 sm:gap-3"><i class="fas fa-calendar-alt text-lg w-5 sm:text-xl sm:w-6 text-center"></i> <span>Calendario del GUARD-IA</span></span>
-                 <button class="info-button-integrated" data-title="Calendario del GUARD-IA" data-text="Calendario de turnos que guarda tus datos en la nube de forma segura y privada." onclick="showModal('Calendario del GUARD-IA', this.dataset.text); event.stopPropagation(); event.preventDefault();"><i class="fas fa-info-circle text-lg"></i></button>
-                </a>
+        <main class="flex-grow">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+                <div id="tools-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Las tarjetas de herramientas se generarán aquí con JavaScript -->
+                </div>
             </div>
-        </div>
-        <section class="py-10 relative z-10">
-         <h2 class="text-3xl sm:text-4xl font-bold text-center mb-6 sm:mb-8 drop-shadow-lg">CANALES DE<br>ACCIÓN POLICIAL</h2>
-         <div class="max-w-lg mx-auto px-4 sm:px-0 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-           <a href="https://www.youtube.com/@PoliceActivity" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> PoliceActivity</a>
-           <a href="https://www.youtube.com/@RealWorldPolice" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> Real World Police</a>
-           <a href="https://www.youtube.com/@CodeBlueCam" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> Code Blue Cam</a>
-           <a href="https://www.youtube.com/@AuditTheAudit" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-gavel"></i> Audit the Audit</a>
-           <a href="https://www.youtube.com/@DonutOperator" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-video"></i> Donut Operator</a>
-           <a href="https://www.youtube.com/@FreeFieldTraining" target="_blank" rel="noopener noreferrer" class="w-full bg-card-bg border py-3 px-4 rounded-xl text-center text-base sm:text-lg transition-transform flex items-center justify-center gap-2"><i class="fas fa-chalkboard-teacher"></i> FreeFieldTraining</a>
-         </div>
-        </section>
-        <section class="py-10 relative z-10">
-         <h2 class="text-3xl sm:text-4xl font-bold text-center mb-6 sm:mb-8 drop-shadow-lg"> LECTURAS POLICIALES<br>RECOMENDADAS </h2>
-         <div class="relative max-w-lg mx-auto px-4 sm:px-0">
-           <button class="slider-nav-button absolute top-1/2 left-2 sm:left-0 transform -translate-y-1/2 sm:-translate-x-full p-2 rounded-full text-xl sm:text-2xl z-30" onclick="prevSlide()" aria-label="Anterior Slide">❮</button>
-           <div class="overflow-hidden rounded-lg border border-[var(--border-color)]">
-             <div class="flex transition-transform duration-500 ease-in-out" id="sliderWrapper">
-                 <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg"><img src="https://imgs.search.brave.com/VNMdgeChtgIurBN_p-DnqmSakN2ak7bRrP0Yo1n3ef8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuY2RuMi5idXNj/YWxpYnJlLmNvbS9m/aXQtaW4vNTIweDUy/MC8yZS80YS8yZTRh/YzYyZmIxMTJhOWNh/NDdmMTMwMGY4NzVk/OTUwNC5qcGc" alt="Portada del libro Sobre el Combate" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto"><h3 class="text-lg sm:text-xl font-semibold">Sobre el Combate</h3><p class="text-sm sm:text-base text-medium-text">Dave Grossman</p></div>
-                 <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg"><img src="https://imgs.search.brave.com/8-PdIHSHt2WqbYUGXhLD_4Bpw8RWitCfRvV2KiHgqpo/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuY2RuMy5idXNj/YWxpYnJlLmNvbS9m/aXQtaW4vNTIweDUy/MC9mZC82Yy9mZDZj/Mjc3ZDBmZDMyZmU3/NmJiN2MyZGMwZTc3/YjZhYi5qcGc" alt="Portada del libro Matar" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto"><h3 class="text-lg sm:text-xl font-semibold">Matar</h3><p class="text-sm sm:text-base text-medium-text">Dave Grossman</p></div>
-                 <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg"><img src="https://imgs.search.brave.com/pOsg_as-IHCw3Y7BqzG17ZB9cw9PJCLFMZQ8GrqlEMI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9waWN0/dXJlcy5hYmVib29r/cy5jb20vaXNibi85/Nzg4NDMwOTczNzA1/LWVzLTMwMC5qcGc" alt="Portada del libro En la Línea de Fuego" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto"><h3 class="text-lg sm:text-xl font-semibold">En la Línea de Fuego</h3><p class="text-sm sm:text-base text-medium-text">Ernesto Pérez Vera y Fernando Pérez Pacho</p></div>
-                 <div class="min-w-full p-3 sm:p-4 text-center bg-card-bg"><img src="https://imgs.search.brave.com/SK2GxbZt59aSZEreTfVwkKxKWMVepLCnmRS1vzvnaFA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9waWN0/dXJlcy5hYmVib29r/cy5jb20vaXNibi85/Nzg4NDE1MzczNzU5/LWVzLmpwZw" alt="Portada del libro Tiroteo en Miami" class="w-auto h-48 sm:h-56 md:h-64 object-contain rounded-lg mb-3 sm:mb-4 mx-auto"><h3 class="text-lg sm:text-xl font-semibold">Tiroteo en Miami</h3><p class="text-sm sm:text-base text-medium-text">Edmundo Mireles Jr.</p></div>
-             </div>
-           </div>
-           <button class="slider-nav-button absolute top-1/2 right-2 sm:right-0 transform -translate-y-1/2 sm:translate-x-full p-2 rounded-full text-xl sm:text-2xl z-30" onclick="nextSlide()" aria-label="Siguiente Slide">❯</button>
-         </div>
-         <div id="sliderIndicators" class="flex justify-center space-x-2 mt-4"></div>
-        </section>
-        <footer class="mt-auto py-4 pb-6 sm:py-4 text-center relative z-10 border-t border-[var(--border-color)]">
-            <a href="https://t.me/OnefraGT" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 text-base sm:text-lg">
-                <i class="fab fa-telegram-plane text-xl sm:text-2xl"></i> Contacta con @OnefraGT
+        </main>
+        
+        <footer class="py-6 text-center">
+            <a href="https://t.me/OnefraGT" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 text-[var(--text-medium-color)] hover:text-[var(--accent-color)] transition-colors">
+                <i class="fab fa-telegram-plane text-xl"></i> Contacta con @OnefraGT
             </a>
         </footer>
     </div>
@@ -167,7 +148,97 @@
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
     const authError = document.getElementById('authError');
-    let uiInitialized = false;
+    
+    // --- Lógica de Herramientas ---
+
+    const toolsData = [
+        {
+            id: 'chatgpt',
+            href: 'https://chatgpt.com/g/g-6766e58171cc81918eb92f23b79f66ae-guard-ia',
+            target: '_blank',
+            icon: 'fa-robot',
+            title: 'ChatGPT GUARD-IA',
+            infoTitle: 'ChatGPT GUARD-IA',
+            infoText: 'Interactúa con una versión personalizada de ChatGPT diseñada para GUARD-IA.'
+        },
+        {
+            id: 'email-verifier',
+            // *** CORREGIDO: La ruta ahora apunta al archivo y carpeta correctos. ***
+            href: './herramientas-guardia/verificador-email-IA/index.html',
+            target: '_self',
+            icon: 'fa-shield-alt',
+            title: 'Verificador de Email',
+            infoTitle: 'Verificador de Email con IA',
+            infoText: 'Analiza los encabezados de los correos electrónicos para detectar posibles estafas o phishing usando IA.'
+        },
+        {
+            id: 'calculator',
+            href: './herramientas-guardia/calculadora-de-drogas/index.html',
+            target: '_self',
+            icon: 'fa-calculator',
+            title: 'Calculadora de Drogas',
+            infoTitle: 'Calculadora de Drogas',
+            infoText: 'Herramienta para cálculos relacionados con drogas. Uso bajo responsabilidad del usuario.'
+        },
+        {
+            id: 'notes',
+            href: './herramientas-guardia/bloc-de-notas/index.html',
+            target: '_self',
+            icon: 'fa-sticky-note',
+            title: 'Bloc de Notas',
+            infoTitle: 'Bloc de Notas',
+            infoText: 'Un bloc de notas digital que guarda tus notas de forma segura en la nube en tu cuenta personal.'
+        },
+        {
+            id: 'watermark',
+            href: 'https://saferlayer.com/',
+            target: '_blank',
+            icon: 'fa-tint',
+            title: 'Marca de agua',
+            infoTitle: 'Marca de agua by Saferlayer',
+            infoText: 'Herramienta externa para agregar marcas de agua a tus archivos.'
+        },
+        {
+            id: 'calendar',
+            href: './herramientas-guardia/calendario-del-GUARD-IA/index.html',
+            target: '_self',
+            icon: 'fa-calendar-alt',
+            title: 'Calendario del GUARD-IA',
+            infoTitle: 'Calendario del GUARD-IA',
+            infoText: 'Calendario de turnos que guarda tus datos en la nube de forma segura y privada.'
+        }
+    ];
+
+    function renderTools() {
+        const grid = document.getElementById('tools-grid');
+        grid.innerHTML = toolsData.map(tool => `
+            <a href="${tool.href}" target="${tool.target}" rel="noopener noreferrer" class="tool-card rounded-xl p-6 flex flex-col items-center text-center group" data-tool-id="${tool.id}">
+                <div class="absolute top-2 right-2">
+                    <button class="info-button" data-title="${tool.infoTitle}" data-text="${tool.infoText}">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                </div>
+                <div class="w-16 h-16 mb-4 rounded-full bg-gray-800 flex items-center justify-center text-[var(--accent-color)] transition-transform group-hover:scale-110">
+                    <i class="fas ${tool.icon} text-3xl"></i>
+                </div>
+                <h3 class="font-semibold text-lg text-gray-100">${tool.title}</h3>
+            </a>
+            `).join('');
+
+        attachCardActionListeners();
+    }
+
+    function attachCardActionListeners() {
+        document.querySelectorAll('.info-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                showModal(e.currentTarget.dataset.title, e.currentTarget.dataset.text);
+            });
+        });
+    }
+    
+    // --- Lógica de Autenticación ---
 
     onAuthStateChanged(auth, user => {
         loader.classList.add('hidden');
@@ -180,14 +251,10 @@
                     <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-red-700 transition">Salir</button>
                 </div>`;
             document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
-            if (!uiInitialized) {
-                initializeAppUI();
-                uiInitialized = true;
-            }
+            renderTools(); // Renderiza las herramientas cuando el usuario está logueado
         } else {
             loginScreen.classList.remove('hidden');
             mainAppContent.classList.add('hidden');
-            uiInitialized = false;
         }
     });
 
@@ -201,16 +268,19 @@
         registerForm.classList.remove('hidden'); loginForm.classList.add('hidden');
         authError.textContent = '';
     });
+    
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
         signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value, document.getElementById('loginPassword').value)
             .catch(error => { authError.textContent = getFirebaseAuthErrorMessage(error.code); });
     });
+
     registerForm.addEventListener('submit', (e) => {
         e.preventDefault();
         createUserWithEmailAndPassword(auth, document.getElementById('registerEmail').value, document.getElementById('registerPassword').value)
             .catch(error => { authError.textContent = getFirebaseAuthErrorMessage(error.code); });
     });
+    
     function getFirebaseAuthErrorMessage(errorCode) {
         switch (errorCode) {
             case 'auth/invalid-email': return 'El formato del correo no es válido.';
@@ -235,15 +305,6 @@
         infoModalOverlay.classList.remove('active');
     }
 
-    function initializeAppUI() {
-        const sliderWrapper = document.getElementById('sliderWrapper');
-        if (!sliderWrapper) return;
-        let currentSlide = 0;
-        const totalSlides = sliderWrapper.children.length;
-        window.nextSlide = () => { currentSlide = (currentSlide + 1) % totalSlides; updateSlider(); };
-        window.prevSlide = () => { currentSlide = (currentSlide - 1 + totalSlides) % totalSlides; updateSlider(); };
-        function updateSlider() { sliderWrapper.style.transform = `translateX(-${currentSlide * 100}%)`; }
-    }
 </script>
 
 </body>
