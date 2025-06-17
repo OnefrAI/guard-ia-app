@@ -9,8 +9,8 @@ import {
     onSnapshot,
     deleteDoc,
     doc,
-    orderBy,
-    serverTimestamp
+    serverTimestamp,
+    getDocs
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 // Your web app's Firebase configuration (same as the main app)
@@ -91,13 +91,13 @@ onAuthStateChanged(auth, (user) => {
 function listenForNotes() {
     if (!currentUserId) return;
 
-    // Unsubscribe from any previous listener
     if (unsubscribeFromNotes) {
         unsubscribeFromNotes();
     }
     
     const notesCollection = collection(db, "users", currentUserId, "notes");
-    const q = query(notesCollection, orderBy("createdAt", "desc"));
+    // Remove orderBy from the query to prevent indexing errors
+    const q = query(notesCollection);
 
     notesContainer.innerHTML = "<p>Cargando notas desde la nube...</p>";
 
@@ -106,6 +106,14 @@ function listenForNotes() {
         querySnapshot.forEach((doc) => {
             notes.push({ id: doc.id, ...doc.data() });
         });
+
+        // Sort the notes on the client-side (in the browser)
+        notes.sort((a, b) => {
+            const dateA = a.createdAt ? a.createdAt.toDate() : 0;
+            const dateB = b.createdAt ? b.createdAt.toDate() : 0;
+            return dateB - dateA; // Sorts from newest to oldest
+        });
+        
         displayNotes(notes);
     }, (error) => {
         console.error("Error al obtener las notas: ", error);
@@ -228,8 +236,12 @@ function displayNotes(notes) {
 window.deleteNote = deleteNoteFromFirestore;
 
 window.shareNote = async function(noteData) {
+    let displayTimestamp = 'N/A';
+    if (noteData.createdAt && noteData.createdAt.toDate) {
+        displayTimestamp = noteData.createdAt.toDate().toLocaleString('es-ES');
+    }
     let shareText = `Nota Policial:
-Fecha: ${noteData.createdAt ? noteData.createdAt.toDate().toLocaleString('es-ES') : 'N/A'}
+Fecha: ${displayTimestamp}
 Lugar de Intervención: ${noteData.interventionLocation || 'N/A'}
 Documento: ${noteData.documentNumber || 'N/A'}
 Nombre: ${noteData.fullName || 'N/A'}
@@ -267,8 +279,12 @@ Hechos: ${noteData.facts || 'N/A'}`;
 }
 
 window.copyNoteText = async function(noteData) {
+    let displayTimestamp = 'N/A';
+    if (noteData.createdAt && noteData.createdAt.toDate) {
+        displayTimestamp = noteData.createdAt.toDate().toLocaleString('es-ES');
+    }
     let noteText = `Nota Policial:
-Fecha: ${noteData.createdAt ? noteData.createdAt.toDate().toLocaleString('es-ES') : 'N/A'}
+Fecha: ${displayTimestamp}
 Lugar de Intervención: ${noteData.interventionLocation || 'N/A'}
 Documento: ${noteData.documentNumber || 'N/A'}
 Nombre: ${noteData.fullName || 'N/A'}
@@ -302,14 +318,26 @@ window.downloadNotePhoto = function(photoUrl) {
 
 // --- Report Generation & Camera ---
 
-generateReportButton.addEventListener('click', () => {
+generateReportButton.addEventListener('click', async () => {
+    if (!currentUserId) {
+        alert("Debes estar conectado para generar un informe.");
+        return;
+    }
     const notesToReport = [];
     const notesCollection = collection(db, "users", currentUserId, "notes");
-    const q = query(notesCollection, orderBy("createdAt", "desc"));
-    
-    onSnapshot(q, (querySnapshot) => {
+    const q = query(notesCollection); // Remove orderBy
+
+    try {
+        const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc) => {
             notesToReport.push({ id: doc.id, ...doc.data() });
+        });
+        
+        // Client-side sort for the report
+        notesToReport.sort((a, b) => {
+            const dateA = a.createdAt ? a.createdAt.toDate() : 0;
+            const dateB = b.createdAt ? b.createdAt.toDate() : 0;
+            return dateB - dateA;
         });
         
         let reportText = 'Informe de Intervenciones\n\n';
@@ -333,13 +361,16 @@ generateReportButton.addEventListener('click', () => {
         const blob = new Blob([reportText], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-a.href = url;
+        a.href = url;
         a.download = 'informe_intervenciones.txt';
         a.click();
         URL.revokeObjectURL(url);
-
-    }, { once: true }); // Get data once for the report
+    } catch (error) {
+        console.error("Error al generar el informe: ", error);
+        alert("No se pudo generar el informe.");
+    }
 });
+
 
 takePhotoButton.addEventListener('click', () => {
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
