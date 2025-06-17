@@ -51,8 +51,6 @@ const photoPreview = document.getElementById('photoPreview');
 const authStateDiv = document.getElementById('auth-state');
 const appContentDiv = document.getElementById('app-content');
 const userInfoDiv = document.getElementById('user-info');
-const containerDiv = document.querySelector('.container');
-let logPanel; // Will be created dynamically
 
 // Camera Modal Elements
 const cameraModal = document.getElementById('cameraModal');
@@ -66,52 +64,18 @@ let capturedPhotoDataUrl = null;
 let currentUserId = null;
 let unsubscribeFromNotes = null;
 
-// --- UI Logger ---
-function createLogPanel() {
-    logPanel = document.createElement('div');
-    logPanel.id = 'log-panel';
-    logPanel.style.backgroundColor = '#1a1a1a';
-    logPanel.style.border = '1px solid var(--color-border)';
-    logPanel.style.borderRadius = '0.5rem';
-    logPanel.style.padding = '1rem';
-    logPanel.style.marginTop = '1.5rem';
-    logPanel.style.fontFamily = 'monospace';
-    logPanel.style.fontSize = '0.8rem';
-    logPanel.style.maxHeight = '150px';
-    logPanel.style.overflowY = 'auto';
-    logPanel.style.color = '#a0a0a0';
-    containerDiv.appendChild(logPanel);
-    logMessage('Panel de registro inicializado.');
-}
-
-function logMessage(message, type = 'info') {
-    if (!logPanel) return;
-    const logEntry = document.createElement('p');
-    const timestamp = new Date().toLocaleTimeString();
-    let color = '#a0a0a0'; // info
-    if (type === 'success') color = 'var(--color-primary)';
-    if (type === 'error') color = 'var(--color-danger)';
-    
-    logEntry.style.color = color;
-    logEntry.style.margin = '0 0 5px 0';
-    logEntry.innerHTML = `[${timestamp}] ${message}`;
-    logPanel.appendChild(logEntry);
-    logPanel.scrollTop = logPanel.scrollHeight; // Auto-scroll to bottom
-}
-
-
 // --- Authentication Handling ---
 onAuthStateChanged(auth, (user) => {
     if (user) {
         currentUserId = user.uid;
-        logMessage(`Usuario autenticado: ${user.email}`, 'success');
+        console.log(`Usuario autenticado: ${user.email}`);
         authStateDiv.classList.add('hidden');
         appContentDiv.classList.remove('hidden');
         userInfoDiv.textContent = `Conectado como: ${user.email}`;
         listenForNotes();
     } else {
         currentUserId = null;
-        logMessage('Usuario no autenticado.', 'error');
+        console.error('Usuario no autenticado.');
         appContentDiv.classList.add('hidden');
         authStateDiv.classList.remove('hidden');
         authStateDiv.innerHTML = `<p>Debes iniciar sesión para usar el bloc de notas seguro. <a href="../../index.html">Volver a la página principal para iniciar sesión.</a></p>`;
@@ -128,11 +92,11 @@ async function uploadPhoto(base64String) {
     if (!currentUserId) throw new Error("Usuario no autenticado para subir la foto.");
     const photoId = `note_photo_${Date.now()}`;
     const storageRef = ref(storage, `users/${currentUserId}/notes_photos/${photoId}.png`);
-    logMessage("Subiendo foto a Firebase Storage...");
+    console.log("Subiendo foto a Firebase Storage...");
     const snapshot = await uploadString(storageRef, base64String, 'data_url');
-    logMessage("Foto subida exitosamente.", "success");
+    console.log("Foto subida exitosamente.");
     const downloadURL = await getDownloadURL(snapshot.ref);
-    logMessage("URL de descarga obtenida.", "success");
+    console.log("URL de descarga obtenida.");
     return downloadURL;
 }
 
@@ -143,7 +107,7 @@ function listenForNotes() {
     if (unsubscribeFromNotes) unsubscribeFromNotes();
     const notesCollection = collection(db, "users", currentUserId, "notes");
     const q = query(notesCollection);
-    logMessage("Escuchando cambios en las notas...");
+    console.log("Escuchando cambios en las notas...");
     notesContainer.innerHTML = "<p>Cargando notas desde la nube...</p>";
     unsubscribeFromNotes = onSnapshot(q, (querySnapshot) => {
         const notes = [];
@@ -152,27 +116,26 @@ function listenForNotes() {
         });
         notes.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
         displayNotes(notes);
-        logMessage(`Se han cargado ${notes.length} nota(s) desde la nube.`, 'success');
+        console.log(`Se han cargado ${notes.length} nota(s) desde la nube.`);
     }, (error) => {
-        logMessage(`Error crítico al cargar las notas: ${error.message}`, 'error');
-        console.error("Error al obtener las notas: ", error);
+        console.error(`Error crítico al cargar las notas: ${error.message}`);
         notesContainer.innerHTML = "<p>Error al cargar las notas. Por favor, recarga la página.</p>";
     });
 }
 
 async function saveNoteToFirestore(noteData) {
     if (!currentUserId) throw new Error("Usuario no autenticado para guardar.");
-    logMessage("Guardando datos de la nota en Firestore...");
+    console.log("Guardando datos de la nota en Firestore...");
     const notesCollection = collection(db, "users", currentUserId, "notes");
     await addDoc(notesCollection, { ...noteData, createdAt: serverTimestamp() });
-    logMessage("Datos de la nota guardados exitosamente.", "success");
+    console.log("Datos de la nota guardados exitosamente.");
 }
 
 async function deleteNoteAndPhoto(noteId) {
     if (!currentUserId || !noteId) return;
     if (!confirm("¿Estás seguro de eliminar esta nota? Esta acción no se puede deshacer.")) return;
 
-    logMessage(`Iniciando eliminación de la nota ID: ${noteId}...`);
+    console.log(`Iniciando eliminación de la nota ID: ${noteId}...`);
     try {
         const noteDocRef = doc(db, "users", currentUserId, "notes", noteId);
         const noteDoc = await getDoc(noteDocRef);
@@ -180,28 +143,25 @@ async function deleteNoteAndPhoto(noteId) {
         if (noteDoc.exists()) {
             const noteData = noteDoc.data();
             if (noteData.photoUrl) {
-                logMessage("La nota tiene una foto, intentando eliminarla de Storage...");
+                console.log("La nota tiene una foto, intentando eliminarla de Storage...");
                 const photoRef = ref(storage, noteData.photoUrl);
                 await deleteObject(photoRef);
-                logMessage("Foto eliminada de Firebase Storage.", "success");
+                console.log("Foto eliminada de Firebase Storage.");
             } else {
-                logMessage("La nota no tiene foto asociada.");
+                console.log("La nota no tiene foto asociada.");
             }
         }
         
-        logMessage("Eliminando la nota de Firestore...");
+        console.log("Eliminando la nota de Firestore...");
         await deleteDoc(noteDocRef);
-        logMessage("Nota eliminada exitosamente de Firestore.", "success");
+        console.log("Nota eliminada exitosamente de Firestore.");
     } catch (error) {
-        logMessage(`Error al eliminar la nota: ${error.message}`, 'error');
-        console.error("Error al eliminar la nota: ", error);
+        console.error(`Error al eliminar la nota: ${error.message}`);
         alert("Hubo un error al eliminar la nota.");
     }
 }
 
 // --- Main Application Logic ---
-document.addEventListener('DOMContentLoaded', createLogPanel);
-
 noteForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     saveNoteButton.disabled = true;
@@ -234,9 +194,8 @@ noteForm.addEventListener('submit', async (e) => {
         }
         alert("Nota guardada en la nube exitosamente.");
     } catch (error) {
-        logMessage(`Error en el proceso de guardado: ${error.message}`, 'error');
         console.error("Error durante el proceso de guardado:", error);
-        alert("Hubo un error al guardar la nota. Revisa el panel de registro para más detalles.");
+        alert(`Hubo un error al guardar la nota: ${error.message}`);
     } finally {
         saveNoteButton.disabled = false;
         saveNoteButton.innerHTML = `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg><span>Guardar Nota</span>`;
@@ -316,7 +275,7 @@ window.downloadNotePhoto = (photoUrl) => {
 
 generateReportButton.addEventListener('click', async () => {
     if (!currentUserId) return alert("Debes estar conectado para generar un informe.");
-    logMessage("Generando informe de notas...");
+    console.log("Generando informe de notas...");
     const notesToReport = [];
     const q = query(collection(db, "users", currentUserId, "notes"));
     try {
@@ -335,10 +294,9 @@ generateReportButton.addEventListener('click', async () => {
         a.download = 'informe_intervenciones.txt';
         a.click();
         URL.revokeObjectURL(url);
-        logMessage("Informe generado y descargado.", "success");
+        console.log("Informe generado y descargado.");
     } catch (error) {
-        logMessage(`Error al generar el informe: ${error.message}`, 'error');
-        console.error("Error al generar el informe: ", error);
+        console.error(`Error al generar el informe: ${error.message}`);
         alert("No se pudo generar el informe.");
     }
 });
@@ -353,8 +311,7 @@ takePhotoButton.addEventListener('click', () => {
                 cameraModal.style.display = 'flex';
             })
             .catch(err => {
-                logMessage(`Error al acceder a la cámara: ${err.message}`, 'error');
-                console.error("Error al acceder a la cámara: ", err);
+                console.error(`Error al acceder a la cámara: ${err.message}`);
                 alert("No se pudo acceder a la cámara.");
             });
     } else alert("Tu navegador no soporta acceso a la cámara.");
