@@ -19,9 +19,12 @@
             --border-color: rgba(255, 255, 255, 0.1);
             --input-bg: #2a2a2a; 
             --info-fixed-text: #0a0a0a;
-            --result-bg: #1f2937;
+            --result-bg: transparent; /* Changed for new layout */
             --error-color: #ff4d4d;
-            --warning-color: #facc15; /* Amber 400 */
+            --warning-color: #facc15;
+            --success-color: #22c55e;
+            --danger-color: #ef4444;
+            --suspicious-color: #f59e0b;
         }
         body { 
             background-color: var(--bg-color); 
@@ -52,77 +55,162 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        #result-container h3 {
-            color: var(--accent-color);
-            font-size: 1.25rem;
-            margin-bottom: 0.5rem;
-        }
-        #result-container strong {
-            color: var(--accent-color);
-        }
         
-        /* Modal Styles */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
+        /* New Result Styles */
+        .result-card {
+            background-color: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .verdict-box {
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
             display: flex;
             align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
+            gap: 1rem;
+            color: #fff;
         }
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-        .modal-content {
-            background-color: var(--card-color);
-            padding: 2rem;
-            border-radius: 1rem;
+        .verdict-box.seguro { background-color: var(--success-color); }
+        .verdict-box.sospechoso { background-color: var(--suspicious-color); }
+        .verdict-box.peligroso { background-color: var(--danger-color); }
+        .verdict-box.muy_peligroso { background-color: #b91c1c; }
+        .verdict-icon { font-size: 2rem; }
+        .verdict-text { font-size: 1.25rem; font-weight: 700; text-transform: uppercase; }
+
+        .risk-meter {
+            background-color: var(--input-bg);
+            border-radius: 9999px;
+            overflow: hidden;
+            height: 1.5rem;
             border: 1px solid var(--border-color);
-            width: 90%;
-            max-width: 600px;
-            transform: scale(0.95);
-            transition: transform 0.3s;
         }
-        .modal-overlay.active .modal-content {
-            transform: scale(1);
+        .risk-meter-bar {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.5s ease-in-out;
+            text-align: right;
+            padding-right: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #000;
+            white-space: nowrap;
+        }
+        .analysis-section h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--accent-color);
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .analysis-section p {
+            font-size: 0.95rem;
+            color: var(--text-medium-color);
+            line-height: 1.6;
+        }
+        .analysis-section strong { color: var(--text-color); font-weight: 600; }
+        .recommendation-box {
+             border-left: 4px solid var(--accent-color);
+             background-color: rgba(57, 255, 20, 0.05);
+             padding: 1rem;
+             border-radius: 0.25rem;
+             display: flex;
+             align-items: center;
+             gap: 1rem;
+        }
+        
+        /* Technical Analysis Cards */
+        .tech-check-card {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        .tech-check-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .tech-check-title {
+            font-weight: 700;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .tech-check-title .fa-info-circle {
+            color: var(--text-medium-color);
+            cursor: help;
+        }
+        .tech-check-result {
+            font-weight: 700;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .tech-check-result.pass { color: var(--success-color); }
+        .tech-check-result.fail { color: var(--danger-color); }
+        .tech-check-result.warn { color: var(--suspicious-color); }
+        .tech-check-result.info { color: #3b82f6; }
+
+        .expert-details summary {
+            cursor: pointer;
+            color: var(--text-medium-color);
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            transition: background-color 0.2s;
+        }
+        .expert-details summary:hover {
+            background-color: var(--input-bg);
+        }
+         .expert-details code {
+            display: block;
+            background-color: #000;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            margin-top: 0.5rem;
+            color: var(--text-medium-color);
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-family: monospace;
         }
 
-        /* Tab Styles */
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center;
+            z-index: 1000; backdrop-filter: blur(5px); opacity: 0; visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content {
+            background-color: var(--card-color); padding: 2rem; border-radius: 1rem;
+            border: 1px solid var(--border-color); width: 90%; max-width: 600px;
+            transform: scale(0.95); transition: transform 0.3s;
+        }
+        .modal-overlay.active .modal-content { transform: scale(1); }
         .tab-btn {
-            background: transparent;
-            border: none;
-            padding: 0.75rem 1rem;
-            color: var(--text-medium-color);
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
+            background: transparent; border: none; padding: 0.75rem 1rem;
+            color: var(--text-medium-color); cursor: pointer; border-bottom: 2px solid transparent;
             transition: color 0.3s, border-color 0.3s;
         }
-        .tab-btn.active {
-            color: var(--accent-color);
-            border-bottom-color: var(--accent-color);
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
+        .tab-btn.active { color: var(--accent-color); border-bottom-color: var(--accent-color); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
     <header class="p-4 z-50 flex justify-between items-center bg-[var(--card-color)] border-b border-[var(--border-color)] sticky top-0 shadow-lg">
-        <a href="#" class="flex items-center gap-3 text-white hover:text-[var(--accent-color)] transition-colors">
-             <i class="fas fa-shield-halved text-xl"></i>
-            <h2 class="text-lg font-semibold">GUARD-IA</h2>
+        <a href="../../index.html" class="flex items-center gap-3 text-white hover:text-[var(--accent-color)] transition-colors">
+             <i class="fas fa-arrow-left text-xl"></i>
+            <h2 class="text-lg font-semibold">Volver a GUARD-IA</h2>
         </a>
     </header>
 
@@ -163,9 +251,8 @@
                 </div>
             </div>
 
-            <div id="result-container" class="mt-8 bg-[var(--result-bg)] p-6 rounded-xl border border-[var(--border-color)] hidden">
-                <h3 class="font-bold">Análisis de IA:</h3>
-                <div id="analysis-result" class="prose prose-invert max-w-none text-gray-300 whitespace-pre-wrap"></div>
+            <div id="result-container" class="mt-8 bg-[var(--result-bg)] rounded-xl hidden">
+                <!-- Los resultados se inyectarán aquí -->
             </div>
         </div>
     </main>
@@ -184,20 +271,12 @@
                 <button id="close-modal-btn" class="text-2xl text-[var(--text-medium-color)] hover:text-white">&times;</button>
             </div>
             
-            <!-- Tabs -->
             <div class="border-b border-[var(--border-color)] mb-4">
-                <button class="tab-btn active" data-tab="gmail">
-                    <i class="fab fa-google mr-2"></i>Gmail
-                </button>
-                <button class="tab-btn" data-tab="outlook">
-                    <i class="fas fa-envelope-open-text mr-2"></i>Outlook
-                </button>
-                <button class="tab-btn" data-tab="yahoo">
-                    <i class="fab fa-yahoo mr-2"></i>Yahoo
-                </button>
+                <button class="tab-btn active" data-tab="gmail"> <i class="fab fa-google mr-2"></i>Gmail </button>
+                <button class="tab-btn" data-tab="outlook"> <i class="fas fa-envelope-open-text mr-2"></i>Outlook </button>
+                <button class="tab-btn" data-tab="yahoo"> <i class="fab fa-yahoo mr-2"></i>Yahoo </button>
             </div>
 
-            <!-- Tab Content -->
             <div id="tab-gmail" class="tab-content active text-[var(--text-medium-color)] space-y-3">
                 <p>1. Abre el correo que quieres verificar en la página de Gmail.</p>
                 <p>2. Haz clic en el icono de los **tres puntos verticales** (Más) en la esquina superior derecha del panel del correo.</p>
@@ -225,111 +304,286 @@
         const btnLoader = document.getElementById('btn-loader');
         const emailHeaderInput = document.getElementById('email-header');
         const resultContainer = document.getElementById('result-container');
-        const analysisResult = document.getElementById('analysis-result');
         const errorMessage = document.getElementById('error-message');
         
-        // Modal elements
         const howToBtn = document.getElementById('how-to-btn');
         const closeModalBtn = document.getElementById('close-modal-btn');
         const modal = document.getElementById('how-to-modal');
 
-        // Modal event listeners
         howToBtn.addEventListener('click', () => modal.classList.add('active'));
         closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
         modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.classList.remove('active');
-            }
+            if (e.target === modal) modal.classList.remove('active');
         });
 
-        // Tab functionality
         const tabButtons = document.querySelectorAll('.tab-btn');
         const tabContents = document.querySelectorAll('.tab-content');
-
         tabButtons.forEach(button => {
             button.addEventListener('click', () => {
                 tabButtons.forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
-
                 const tabId = button.dataset.tab;
                 tabContents.forEach(content => {
                     content.classList.remove('active');
-                    if (content.id === `tab-${tabId}`) {
-                        content.classList.add('active');
-                    }
+                    if (content.id === `tab-${tabId}`) content.classList.add('active');
                 });
             });
         });
 
+        function parseAnalysis(text) {
+            const sections = {};
+            const lines = text.split('\n');
+            let currentSection = null;
 
-        // Analysis button click listener
+            const patterns = {
+                veredicto: /^1.\s+\*\*VEREDICTO INICIAL:\*\*\s*(.*)/i,
+                riesgo: /^2.\s+\*\*NIVEL DE RIESGO:\*\*\s*(\d+)/i,
+                resumen: /^3.\s+\*\*RESUMEN EJECUTIVO:\*\*/i,
+                analisis: /^4.\s+\*\*ANÁLISIS TÉCNICO DETALLADO:\*\*/i,
+                recomendacion: /^5.\s+\*\*RECOMENDACIÓN FINAL:\*\*/i
+            };
+
+            for(const line of lines) {
+                if (patterns.veredicto.test(line)) {
+                    sections.veredicto = line.match(patterns.veredicto)[1].trim();
+                    currentSection = null;
+                } else if (patterns.riesgo.test(line)) {
+                    sections.riesgo = parseInt(line.match(patterns.riesgo)[1], 10);
+                    currentSection = null;
+                } else if (patterns.resumen.test(line)) {
+                    currentSection = 'resumen';
+                    sections.resumen = '';
+                } else if (patterns.analisis.test(line)) {
+                    currentSection = 'analisis';
+                    sections.analisis = '';
+                } else if (patterns.recomendacion.test(line)) {
+                    currentSection = 'recomendacion';
+                    sections.recomendacion = '';
+                } else if (currentSection && line.trim() !== '') {
+                    sections[currentSection] += line + '\n';
+                }
+            }
+            return sections;
+        }
+
+        function renderTechnicalAnalysis(text) {
+            if (!text) return '';
+            
+            const definitions = {
+                'SPF': 'Comprueba si el servidor que envía el correo tiene permiso del dominio para hacerlo. Es como revisar el carnet de identidad del cartero.',
+                'DKIM': 'Asegura que el correo no ha sido modificado en el camino. Es como un sello de cera en una carta que garantiza que nadie la ha abierto.',
+                'DMARC': 'Es la política de seguridad que le dice a tu servidor de correo qué hacer si un email falla las comprobaciones SPF o DKIM (rechazarlo o ponerlo en spam).',
+                'Ruta de los Servidores': 'Muestra el camino que ha seguido el correo desde que se envió hasta que llegó a tu buzón. Una ruta extraña o con muchos saltos puede ser sospechosa.',
+                'ARC': 'Ayuda a mantener las comprobaciones de seguridad (SPF, DKIM) válidas incluso si el correo es reenviado por listas de correo u otros servicios.',
+                'Anomalías': 'Busca cualquier cosa rara o fuera de lo común en la estructura técnica del correo que pueda indicar una manipulación.'
+            };
+
+            let html = '';
+            const items = text.split('*').filter(item => item.trim() !== '');
+
+            items.forEach(item => {
+                const lines = item.trim().split('\n').map(l => l.trim()).filter(l => l);
+                if (lines.length === 0) return;
+
+                const titleLine = lines.shift().replace(/\*\*/g, '').replace(':', '').trim();
+                const codeLine = lines.find(l => l.startsWith('`') && l.endsWith('`'));
+                const explanationLines = lines.filter(l => !(l.startsWith('`') && l.endsWith('`')));
+                
+                let status = 'info', statusText = 'Info', statusIcon = 'fa-info-circle', statusColor = 'info';
+
+                if (item.toLowerCase().includes('pasa')) {
+                    status = 'pass'; statusText = 'Pasa'; statusIcon = 'fa-check-circle'; statusColor = 'pass';
+                } else if (item.toLowerCase().includes('falla')) {
+                    status = 'fail'; statusText = 'Falla'; statusIcon = 'fa-times-circle'; statusColor = 'fail';
+                } else if (titleLine.toLowerCase().includes('anomalías') && item.toLowerCase().includes('no se detectan')) {
+                    status = 'pass'; statusText = 'OK'; statusIcon = 'fa-check-circle'; statusColor = 'pass';
+                } else if (titleLine.toLowerCase().includes('anomalías')) {
+                    status = 'warn'; statusText = 'Atención'; statusIcon = 'fa-exclamation-triangle'; statusColor = 'warn';
+                }
+                
+                const termKey = Object.keys(definitions).find(key => titleLine.includes(key));
+                const definition = termKey ? definitions[termKey] : 'No hay una explicación simple disponible.';
+                
+                html += `
+                    <div class="tech-check-card">
+                        <div class="tech-check-header">
+                            <h4 class="tech-check-title">
+                                ${titleLine}
+                                <i class="fas fa-info-circle" title="${definition}"></i>
+                            </h4>
+                            <span class="tech-check-result ${statusColor}">
+                                <i class="fas ${statusIcon}"></i>
+                                ${statusText}
+                            </span>
+                        </div>
+                        <div class="text-gray-400 text-sm">
+                            ${explanationLines.map(line => `<p>${line}</p>`).join('')}
+                        </div>
+                `;
+
+                if (codeLine) {
+                    html += `
+                        <details class="expert-details">
+                            <summary>Mostrar código técnico</summary>
+                            <code>${codeLine.slice(1, -1)}</code>
+                        </details>
+                    `;
+                }
+                html += '</div>';
+            });
+
+            return html;
+        }
+        
+        function renderResults(data, simplifiedAnalysis) {
+            resultContainer.innerHTML = ''; 
+
+            const verdict = data.veredicto?.toLowerCase().replace(/\s+/g, '_') || 'sospechoso';
+            let verdictIcon = 'fa-question-circle';
+            if (verdict === 'seguro') verdictIcon = 'fa-check-circle';
+            if (verdict === 'sospechoso') verdictIcon = 'fa-exclamation-triangle';
+            if (verdict.includes('peligroso')) verdictIcon = 'fa-times-circle';
+
+            resultContainer.innerHTML += `
+                <div class="result-card">
+                    <div class="verdict-box ${verdict}">
+                        <i class="fas ${verdictIcon} verdict-icon"></i>
+                        <span class="verdict-text">${data.veredicto || 'Análisis Inconcluso'}</span>
+                    </div>
+                </div>`;
+
+            const risk = data.riesgo || 50;
+            let riskColor = 'bg-green-500';
+            if (risk > 40) riskColor = 'bg-yellow-500';
+            if (risk > 75) riskColor = 'bg-red-500';
+            resultContainer.innerHTML += `
+                <div class="result-card">
+                     <h3 class="text-lg font-semibold mb-2 text-gray-300">Nivel de Riesgo</h3>
+                     <div class="risk-meter">
+                        <div class="risk-meter-bar ${riskColor}" style="width: ${risk}%;">
+                           <span class="p-2">${risk}%</span>
+                        </div>
+                     </div>
+                </div>`;
+
+            if (data.resumen) {
+                 resultContainer.innerHTML += `
+                    <div class="result-card analysis-section">
+                        <h3>Resumen Ejecutivo</h3>
+                        <p>${data.resumen.trim()}</p>
+                    </div>`;
+            }
+
+            if (simplifiedAnalysis) {
+                 resultContainer.innerHTML += `
+                    <div class="result-card analysis-section">
+                        <h3>Explicación Sencilla del Análisis</h3>
+                        <p class="text-gray-300">${simplifiedAnalysis.trim().replace(/\n/g, '<br>')}</p>
+                        <details class="expert-details">
+                           <summary>Ver análisis técnico original (para expertos)</summary>
+                           <div>${renderTechnicalAnalysis(data.analisis.trim())}</div>
+                        </details>
+                    </div>`;
+            }
+
+            if (data.recomendacion) {
+                 resultContainer.innerHTML += `
+                    <div class="result-card analysis-section">
+                         <h3>Recomendación Final</h3>
+                         <div class="recommendation-box">
+                             <i class="fas ${verdictIcon} text-2xl text-[var(--accent-color)]"></i>
+                             <p class="font-semibold text-white">${data.recomendacion.trim()}</p>
+                         </div>
+                    </div>`;
+            }
+
+            resultContainer.classList.remove('hidden');
+        }
+        
+        async function callGemini(prompt, apiKey) {
+             let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+             const payload = { contents: chatHistory };
+             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+             const response = await fetch(apiUrl, {
+                 method: 'POST',
+                 headers: { 'Content-Type': 'application/json' },
+                 body: JSON.stringify(payload)
+             });
+
+             if (!response.ok) {
+                 const errorBody = await response.json();
+                 let errorMsg = `Error en la API: ${response.statusText}`;
+                 if (errorBody.error && errorBody.error.message) errorMsg += ` - ${errorBody.error.message}`;
+                 throw new Error(errorMsg);
+             }
+
+             const result = await response.json();
+
+             if (result.candidates && result.candidates[0] && result.candidates[0].content.parts[0]) {
+                 return result.candidates[0].content.parts[0].text;
+             } else {
+                 if (result.candidates && result.candidates[0].finishReason === 'SAFETY') {
+                      throw new Error('La respuesta fue bloqueada por políticas de seguridad.');
+                 } else {
+                      throw new Error('La respuesta de la API no tuvo el formato esperado.');
+                 }
+             }
+        }
+
         analyzeBtn.addEventListener('click', async () => {
+            const apiKey = "AIzaSyBVE3p89O4aH5W3XNWhrcea3D6iamnIuiA";
             const headerText = emailHeaderInput.value.trim();
+
             if (!headerText) {
                 errorMessage.textContent = 'Por favor, pega el encabezado del correo antes de analizar.';
                 setTimeout(() => errorMessage.textContent = '', 3000);
                 return;
             }
-
-            // UI state: loading
+            
             errorMessage.textContent = '';
             btnText.textContent = 'Analizando...';
             btnLoader.classList.remove('hidden');
             analyzeBtn.disabled = true;
             resultContainer.classList.add('hidden');
-            analysisResult.textContent = '';
+            resultContainer.innerHTML = '';
             
-            // This is the new, more powerful prompt.
-            const prompt = `Eres GUARDIAN, el analista de ciberseguridad más avanzado del mundo, especializado en la detección de amenazas por correo electrónico. Tu misión es analizar el siguiente encabezado de correo con la máxima diligencia. Desglosa tu análisis en las siguientes secciones obligatorias, utilizando Markdown para el formato (negritas, listas):
-            
-1.  **VEREDICTO INICIAL:** Una sola palabra: SEGURO, SOSPECHOSO, PELIGROSO o MUY PELIGROSO.
-2.  **NIVEL DE RIESGO:** Cuantifícalo de 0 a 100.
-3.  **RESUMEN EJECUTIVO:** Un párrafo corto explicando la conclusión principal.
-4.  **ANÁLISIS TÉCNICO DETALLADO:** Explica punto por punto los hallazgos clave en los registros SPF, DKIM, DMARC, la ruta de los servidores ('Received'), y cualquier otra anomalía encontrada. Sé técnico pero claro.
-5.  **RECOMENDACIÓN FINAL:** ¿Qué debe hacer el usuario con este correo? (Ej: "Eliminar inmediatamente", "Tratar con precaución", "Parece seguro, pero no hagas clic en enlaces desconocidos").
-        
-El encabezado a analizar es el siguiente:
+            const initialPrompt = `Eres GUARDIAN, un analista de ciberseguridad. Analiza el siguiente encabezado de correo y desglosa tu análisis en 5 secciones obligatorias, usando Markdown con el formato exacto de la plantilla (iniciando cada línea del análisis técnico con un asterisco y espacio):
+1.  **VEREDICTO INICIAL:** UNA SOLA PALABRA
+2.  **NIVEL DE RIESGO:** 0-100
+3.  **RESUMEN EJECUTIVO:** Un párrafo corto.
+4.  **ANÁLISIS TÉCNICO DETALLADO:**
+* **TÍTULO DEL CHECK:** \`código técnico si aplica\` explicación.
+* **TÍTULO DEL SIGUIENTE CHECK:** \`código técnico si aplica\` explicación.
+5.  **RECOMENDACIÓN FINAL:** Una frase clara.
+El encabezado a analizar es:
 ---
 ${headerText}`;
 
             try {
-                let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
-                const payload = { contents: chatHistory };
-                const apiKey = ""; // API key is handled by the environment
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                // First AI call for the technical analysis
+                const analysisText = await callGemini(initialPrompt, apiKey);
+                const parsedData = parseAnalysis(analysisText);
                 
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                if (!response.ok) {
-                    const errorBody = await response.text();
-                    throw new Error(`Error en la API: ${response.statusText} - ${errorBody}`);
+                let simplifiedAnalysis = "No se pudo generar una explicación simplificada.";
+                if (parsedData.analisis) {
+                    // Second AI call to simplify the technical part
+                     const simplificationPrompt = `Actúa como un experto en ciberseguridad que le explica a un amigo sin conocimientos técnicos qué significa el siguiente análisis. Usa analogías del mundo real (ej. "el SPF es como el DNI del cartero"). Sé extremadamente simple y directo. No uses jerga. El análisis es: ${parsedData.analisis}`;
+                     try {
+                        simplifiedAnalysis = await callGemini(simplificationPrompt, apiKey);
+                     } catch (e) {
+                        console.error("Error en la segunda llamada a la API para simplificar:", e);
+                        // No es un error fatal, podemos continuar sin la explicación simple.
+                     }
                 }
 
-                const result = await response.json();
-                
-                if (result.candidates && result.candidates[0] && result.candidates[0].content.parts[0]) {
-                    const analysisText = result.candidates[0].content.parts[0].text;
-                    analysisResult.innerText = analysisText; // Use innerText to correctly render newlines from the model's response
-                    resultContainer.classList.remove('hidden');
-                } else {
-                    // Check for blocked content due to safety settings
-                    if (result.candidates && result.candidates[0].finishReason === 'SAFETY') {
-                         throw new Error('El análisis fue bloqueado por políticas de seguridad. El contenido podría ser inapropiado.');
-                    } else {
-                         throw new Error('La respuesta de la API no tuvo el formato esperado. Detalles: ' + JSON.stringify(result, null, 2));
-                    }
-                }
+                renderResults(parsedData, simplifiedAnalysis);
 
             } catch (error) {
                 console.error("Error al analizar:", error);
-                analysisResult.textContent = `Hubo un error al procesar el análisis. Por favor, inténtalo de nuevo más tarde.\n\nError: ${error.message}`;
+                resultContainer.innerHTML = `<div class="result-card text-red-400"><p>Hubo un error al procesar el análisis.</p><p class="text-sm mt-2">Mensaje: ${error.message}</p></div>`;
                 resultContainer.classList.remove('hidden');
             } finally {
-                // UI state: reset
                 btnText.textContent = 'Analizar Encabezado';
                 btnLoader.classList.add('hidden');
                 analyzeBtn.disabled = false;
