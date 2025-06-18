@@ -476,7 +476,7 @@
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { 
         getFirestore, collection, query, where, getDocs, onSnapshot, 
-        doc, setDoc, getDoc, deleteDoc, addDoc, writeBatch, deleteField
+        doc, setDoc, getDoc, deleteDoc, addDoc, writeBatch, deleteField, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     
     // --- Firebase Configuration ---
@@ -555,8 +555,8 @@
     const waitForAuthInit = () => {
         return new Promise((resolve) => {
             const unsubscribe = onAuthStateChanged(auth, (user) => {
-                resolve(user);
                 unsubscribe();
+                resolve(user);
             });
         });
     };
@@ -671,7 +671,7 @@
         
         try {
             const calendarsRef = collection(db, 'users', currentUserId, 'calendars');
-            const newCalendarRef = await addDoc(calendarsRef, { name: name, createdAt: new Date() });
+            const newCalendarRef = await addDoc(calendarsRef, { name: name, createdAt: serverTimestamp() });
             console.log('Calendario añadido con ID:', newCalendarRef.id);
             newCalendarNameInput.value = '';
             selectCalendar(newCalendarRef.id);
@@ -912,7 +912,10 @@
     }
 
     function selectShift(shiftKey, clickedButton) {
-        cancelPatternSelection(true);
+        if (isSelectingPattern) {
+            cancelPatternSelection(true);
+        }
+
         if (selectedShiftType === shiftKey) {
              selectedShiftType = null; 
              if(clickedButton) clickedButton.classList.remove('active');
@@ -1019,6 +1022,11 @@
                 cancelPatternSelection(true);
                 return;
             }
+            
+            // Manually deselect shifts instead of calling selectShift()
+            selectedShiftType = null;
+            shiftSelectorContainer.querySelectorAll('.shift-button.active').forEach(b => b.classList.remove('active'));
+
              isSelectingPattern = true;
              patternStartDate = null; patternEndDate = null; selectedPatternSequence = [];
              patternControlsContainer.classList.add('pattern-selecting-active');
@@ -1027,7 +1035,7 @@
              startPatternSelectionBtn.classList.add('selecting');
              calendarGrid.classList.add('selecting-pattern');
              patternApplyArea.classList.add('hidden');
-             selectShift(null, null);
+             patternSelectionArea.classList.remove('hidden');
         });
         
         cancelPatternSelectionBtn.addEventListener('click', () => cancelPatternSelection(true));
