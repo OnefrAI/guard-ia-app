@@ -1,22 +1,22 @@
 :root {
   --color-bg: #0a0a0a;
   --color-bg-secondary: #1a1a1a;
-  --color-primary: #39FF14;
-  --color-secondary: #2aff00;
-  --color-danger: #ef4444;
-  --color-success: #10b981;
-  --color-text: #e0e0e0;
-  --color-border: rgba(255, 255, 255, 0.1);
-  --neon-green: #39FF14;
+  --color-primary: #39FF14; /* Verde neón principal */
+  --color-secondary: #2aff00; /* Verde neón secundario (más brillante) */
+  --color-danger: #ef4444; /* Rojo */
+  --color-success: #10b981; /* Verde éxito */
+  --color-text: #e0e0e0; /* Texto claro */
+  --color-border: rgba(255, 255, 255, 0.1); /* Borde suave */
+  --neon-green: #39FF14; /* Alias del color primario */
 
-  /* Nuevos colores para botones de nota */
-  --color-btn-delete: #ef4444; /* Rojo */
+  /* Colores para botones de acción de nota */
+  --color-btn-delete: #ef4444;
   --color-btn-delete-hover: #dc2626;
-  --color-btn-share: #3b82f6; /* Azul (como el anterior photo-btn) */
+  --color-btn-share: #3b82f6; /* Azul */
   --color-btn-share-hover: #2563eb;
-  --color-btn-copy: #10b981; /* Verde éxito (como el anterior save-btn) */
+  --color-btn-copy: #10b981; /* Verde éxito */
   --color-btn-copy-hover: #059669;
-  --color-btn-download: #facc15; /* Amarillo (como el anterior report-btn) */
+  --color-btn-download: #facc15; /* Amarillo */
   --color-btn-download-hover: #fbbf24;
 }
 
@@ -33,9 +33,7 @@ body {
   min-height: 100vh;
   padding: 1rem;
   line-height: 1.5;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: block; /* Modificado de flex para no centrar verticalmente todo el body */
 }
 
 .container {
@@ -48,6 +46,8 @@ body {
   padding: 2rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
               0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  position: relative; /* Para el z-index */
+  z-index: 10; /* Asegura que el contenido esté por encima del fondo */
 }
 
 .header {
@@ -198,6 +198,7 @@ textarea {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
+  flex-wrap: wrap; /* Permite envolver en pantallas pequeñas */
 }
 
 .notes-header h2 {
@@ -212,7 +213,7 @@ textarea {
 }
 
 .note {
-  background: #fef08a;
+  background: #fef08a; /* Fondo claro para las notas */
   border-radius: 0.75rem;
   padding: 1rem;
   border: 1px solid var(--color-border);
@@ -330,7 +331,7 @@ textarea {
      }
 }
 
-
+/* Modal de cámara */
 .modal {
   display: none;
   position: fixed;
@@ -383,7 +384,8 @@ textarea {
 }
 
 
-/* Botón HOME fijo */
+/* Botón HOME fijo - NO USADO EN ESTA VERSIÓN CON ENCABEZADO FIJO */
+/*
 .home-button {
   position: fixed;
   top: 1rem;
@@ -404,3 +406,215 @@ textarea {
 .home-button:hover {
   background: #374151;
 }
+*/
+
+/* ESTILOS AÑADIDOS PARA BARRA DE BÚSQUEDA */
+.search-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-grow: 1; /* Permitir que ocupe espacio flexible */
+    margin-left: 1rem; /* Espacio a la izquierda del título */
+    background-color: rgba(30, 41, 59, 0.5); /* Color de input */
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+}
+.search-bar-container input {
+    flex-grow: 1;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font-size: 1rem;
+    color: var(--color-text);
+}
+.search-bar-container input::placeholder {
+    color: var(--color-text); /* Color del placeholder */
+    opacity: 0.7;
+}
+.search-bar-container input:focus {
+    outline: none;
+    box-shadow: none;
+}
+.search-bar-container .fa-search {
+    color: var(--color-primary);
+}
+
+/* ESTILOS PARA EL EDITOR QUILL.JS */
+.ql-toolbar.ql-snow, .ql-container.ql-snow {
+    border: 1px solid var(--color-border) !important;
+    background: rgba(30, 41, 59, 0.5) !important;
+    color: var(--color-text) !important;
+    border-radius: 0.5rem;
+    font-family: inherit;
+}
+.ql-toolbar.ql-snow {
+    border-bottom: none !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+.ql-container.ql-snow {
+    border-top: none !important;
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+    min-height: 150px; /* Altura mínima del editor */
+}
+.ql-editor {
+    color: var(--color-text);
+    min-height: 150px; /* Asegura que el editor tenga un área visible */
+}
+.ql-editor.ql-blank::before {
+    color: var(--color-text) !important; /* Color del placeholder de Quill */
+    opacity: 0.7;
+    font-style: normal !important;
+}
+/* Estilo para el contenido de Quill en las notas mostradas (solo lectura) */
+.ql-editor-readonly {
+    color: #000; /* Texto oscuro para contraste en la nota de fondo amarillo */
+    font-size: 1rem;
+    line-height: 1.5;
+    word-wrap: break-word; /* Asegura que el texto largo se rompa */
+    overflow: hidden; /* Evita desbordamiento si hay HTML complejo */
+}
+
+/* ESTILOS PARA LAS ETIQUETAS */
+.note-tags {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.note-tag {
+    background-color: var(--color-primary);
+    color: black; /* Texto oscuro para contraste */
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px; /* Forma de píldora */
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ESTILOS PARA BOTONES DE EXPORTACIÓN ADICIONALES (PDF/CSV) */
+.export-buttons {
+    display: flex;
+    justify-content: flex-end; /* Alinear a la derecha */
+    gap: 1rem;
+    margin-top: 1rem; /* Espacio sobre los botones de nota */
+    margin-bottom: 1rem; /* Espacio debajo de los botones de exportación */
+    flex-wrap: wrap; /* Permitir que los botones salten de línea en móviles */
+}
+.export-buttons .btn {
+    background-color: #60a5fa; /* Un azul claro */
+    color: black;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.export-buttons .btn:hover {
+    background-color: #3b82f6; /* Azul más oscuro al hover */
+}
+
+/* Media query para móviles en la barra de búsqueda y encabezado de notas */
+@media (max-width: 480px) {
+    .notes-header {
+        flex-direction: column; /* Apila el título y la barra de búsqueda */
+        align-items: flex-start; /* Alinea los elementos a la izquierda */
+        gap: 0.75rem; /* Espacio entre ellos */
+    }
+    .notes-header h2 {
+        margin-bottom: 0; /* Elimina margen inferior del título */
+    }
+    .search-bar-container {
+        width: 100%; /* Ocupa todo el ancho */
+        margin-left: 0; /* Elimina margen izquierdo */
+    }
+    .export-buttons {
+        justify-content: center; /* Centra los botones de exportación */
+    }
+    .export-buttons .btn {
+        width: 100%; /* Ocupa todo el ancho */
+        max-width: 200px; /* Limita el ancho máximo */
+    }
+}
+
+
+/* ESTILOS PARA MODALES PERSONALIZADOS (copiados de JS) */
+.custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000; /* Mayor que otros z-index */
+    animation: fadeIn 0.3s ease-out;
+}
+.custom-modal-content {
+    background-color: var(--color-bg-secondary);
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    color: var(--color-text);
+    animation: slideIn 0.3s ease-out;
+}
+.custom-modal-content h3 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: var(--neon-green);
+}
+.custom-modal-content p {
+    font-size: 1rem;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+.custom-modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+.custom-modal-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s ease;
+}
+.custom-modal-btn.confirm {
+    background-color: var(--color-btn-delete); /* Rojo para confirmar eliminar */
+    color: white;
+}
+.custom-modal-btn.confirm:hover {
+    background-color: var(--color-btn-delete-hover);
+}
+.custom-modal-btn.cancel {
+    background-color: var(--color-secondary); /* Verde secundario para cancelar */
+    color: black;
+}
+.custom-modal-btn.cancel:hover {
+    background-color: #20b000;
+}
+.custom-modal-btn.alert {
+    background-color: var(--color-primary); /* Verde primario para alertas */
+    color: black;
+}
+.custom-modal-btn.alert:hover {
+    background-color: var(--primary-hover);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes slideIn {
+    from { transform: translateY(-30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
