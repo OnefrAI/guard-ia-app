@@ -45,15 +45,14 @@ const notesContainer = document.getElementById('notesContainer');
 const generateReportButton = document.getElementById('generateReportButton');
 const takePhotoButton = document.getElementById('takePhotoButton');
 const saveNoteButton = document.getElementById('saveNoteButton');
-// const factsTextarea = document.getElementById('facts'); // REMOVIDO: reemplazado por Quill
 const photoPreview = document.getElementById('photoPreview');
 const authStateDiv = document.getElementById('auth-state');
 const appContentDiv = document.getElementById('app-content');
 const userInfoDiv = document.getElementById('user-info');
-const noteSearchInput = document.getElementById('noteSearchInput');
-const tagsInput = document.getElementById('tagsInput'); // NUEVA REFERENCIA
-const exportPdfBtn = document.getElementById('exportPdfBtn'); // NUEVA REFERENCIA
-const exportCsvBtn = document.getElementById('exportCsvBtn'); // NUEVA REFERENCIA
+// const noteSearchInput = document.getElementById('noteSearchInput'); // REMOVIDO: ya no hay barra de búsqueda
+const predefinedTagCheckboxes = document.querySelectorAll('input[name="tag"]'); // NUEVA REFERENCIA
+const exportPdfBtn = document.getElementById('exportPdfBtn');
+const exportCsvBtn = document.getElementById('exportCsvBtn');
 
 // Camera Modal Elements
 const cameraModal = document.getElementById('cameraModal');
@@ -62,27 +61,21 @@ const captureButton = document.getElementById('captureButton');
 const cancelCaptureButton = document.getElementById('cancelCaptureButton');
 
 // Quill Editor initialization
-// Configuración de la barra de herramientas de Quill
 const toolbarOptions = [
     ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
     ['blockquote', 'code-block'],
-
-    [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+    [{ 'header': 1 }, { 'header': 2 }],
     [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-    [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
-    [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
-    [{ 'direction': 'rtl' }],                         // text direction
-
-    [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+    [{ 'script': 'sub'}, { 'script': 'super' }],
+    [{ 'indent': '-1'}, { 'indent': '+1' }],
+    [{ 'direction': 'rtl' }],
+    [{ 'size': ['small', false, 'large', 'huge'] }],
     [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-
-    [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+    [{ 'color': [] }, { 'background': [] }],
     [{ 'font': [] }],
     [{ 'align': [] }],
-
     ['link', 'image'],
-
-    ['clean']                                         // remove formatting button
+    ['clean']
 ];
 
 const quill = new Quill('#editor-container', {
@@ -144,8 +137,6 @@ function listenForNotes() {
     if (!currentUserId) return;
     if (unsubscribeFromNotes) unsubscribeFromNotes(); // Asegurarse de que solo haya un listener activo
     const notesCollection = collection(db, "users", currentUserId, "notes");
-    // No usamos orderBy aquí para evitar problemas de índice con Firestore.
-    // Ordenaremos los datos en memoria.
     const q = query(notesCollection); 
     console.log("Escuchando cambios en las notas...");
     notesContainer.innerHTML = "<p>Cargando notas desde la nube...</p>"; // Mensaje de carga inicial
@@ -157,8 +148,8 @@ function listenForNotes() {
         // Ordenar todas las notas por fecha de creación (más reciente primero)
         allNotes.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
         
-        // Aplicar el filtro de búsqueda actual al cargar/actualizar las notas
-        applyNotesFilter();
+        // Ahora se muestran todas las notas directamente, ya no hay filtro de búsqueda
+        displayNotes(allNotes); 
         console.log(`Se han cargado ${allNotes.length} nota(s) desde la nube.`);
     }, (error) => {
         console.error(`Error crítico al cargar las notas: ${error.message}`);
@@ -166,35 +157,7 @@ function listenForNotes() {
     });
 }
 
-// NUEVA FUNCIÓN: Aplicar el filtro de búsqueda y renderizar las notas
-function applyNotesFilter() {
-    const searchTerm = noteSearchInput.value.toLowerCase().trim();
-    let filteredNotes = [];
-
-    if (searchTerm === '') {
-        filteredNotes = allNotes; // Si no hay término de búsqueda, muestra todas las notas
-    } else {
-        filteredNotes = allNotes.filter(note => {
-            // Unir todos los campos de texto relevantes de la nota en una sola cadena para la búsqueda
-            // Incluir las etiquetas en la búsqueda
-            const noteContent = `
-                ${note.interventionLocation || ''} 
-                ${note.documentNumber || ''} 
-                ${note.fullName || ''} 
-                ${note.birthPlace || ''} 
-                ${note.birthdate || ''} 
-                ${note.parentsName || ''} 
-                ${note.address || ''} 
-                ${note.phone || ''} 
-                ${note.factsText || ''} <!-- Contenido de texto plano de Quill -->
-                ${(note.tags || []).join(' ')} <!-- Unir etiquetas para búsqueda -->
-            `.toLowerCase(); // Convertir a minúsculas para búsqueda sin distinción entre mayúsculas y minúsculas
-
-            return noteContent.includes(searchTerm);
-        });
-    }
-    displayNotes(filteredNotes); // Mostrar las notas filtradas
-}
+// La función applyNotesFilter ha sido eliminada ya que la barra de búsqueda no está.
 
 async function saveNoteToFirestore(noteData) {
     if (!currentUserId) throw new Error("Usuario no autenticado para guardar.");
@@ -206,11 +169,10 @@ async function saveNoteToFirestore(noteData) {
 
 async function deleteNoteAndPhoto(noteId) {
     if (!currentUserId || !noteId) return;
-    // Usar un modal personalizado en lugar de `confirm()`
     const confirmationModal = createConfirmationModal("¿Estás seguro de eliminar esta nota? Esta acción no se puede deshacer.");
-    const confirmed = await confirmationModal.present(); // Espera la respuesta del modal
+    const confirmed = await confirmationModal.present();
 
-    if (!confirmed) return; // Si el usuario cancela, no hacer nada
+    if (!confirmed) return;
 
     console.log(`Iniciando eliminación de la nota ID: ${noteId}...`);
     try {
@@ -232,10 +194,8 @@ async function deleteNoteAndPhoto(noteId) {
         console.log("Eliminando la nota de Firestore...");
         await deleteDoc(noteDocRef);
         console.log("Nota eliminada exitosamente de Firestore.");
-        // onSnapshot se encargará de actualizar la UI automáticamente
     } catch (error) {
         console.error(`Error al eliminar la nota: ${error.message}`);
-        // Usar un modal personalizado en lugar de `alert()`
         createAlertDialog("Hubo un error al eliminar la nota.", `Mensaje: ${error.message}`).present();
     }
 }
@@ -257,8 +217,10 @@ noteForm.addEventListener('submit', async (e) => {
         // Obtener el contenido de texto plano de Quill para búsqueda y exportación de texto
         const factsText = quill.getText(); 
 
-        // Parsear las etiquetas del input
-        const tags = tagsInput.value.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
+        // Obtener las etiquetas seleccionadas de los checkboxes
+        const selectedTags = Array.from(predefinedTagCheckboxes)
+                                .filter(checkbox => checkbox.checked)
+                                .map(checkbox => checkbox.value);
 
         const noteData = {
             interventionLocation: document.getElementById('interventionLocation').value,
@@ -271,23 +233,22 @@ noteForm.addEventListener('submit', async (e) => {
             phone: document.getElementById('phone').value,
             factsHtml: factsHtml,   // Guardar HTML
             factsText: factsText,   // Guardar texto plano para búsqueda
-            tags: tags,             // Guardar etiquetas
+            tags: selectedTags,     // Guardar etiquetas seleccionadas
             photoUrl: photoDownloadURL,
         };
         await saveNoteToFirestore(noteData);
         noteForm.reset(); // Limpiar el formulario
         quill.setText(''); // Limpiar el editor Quill
-        tagsInput.value = ''; // Limpiar el input de etiquetas
+        // Desmarcar todas las etiquetas predefinidas
+        predefinedTagCheckboxes.forEach(checkbox => checkbox.checked = false); 
         capturedPhotoDataUrl = null; // Limpiar la foto capturada
         if (photoPreview) {
             photoPreview.src = '#';
             photoPreview.style.display = 'none'; // Ocultar la previsualización de la foto
         }
-        // Usar un modal personalizado en lugar de `alert()`
         createAlertDialog("Nota guardada en la nube exitosamente.").present();
     } catch (error) {
         console.error("Error durante el proceso de guardado:", error);
-        // Usar un modal personalizado en lugar de `alert()`
         createAlertDialog(`Hubo un error al guardar la nota.`, `Mensaje: ${error.message}`).present();
     } finally {
         saveNoteButton.disabled = false;
@@ -295,9 +256,9 @@ noteForm.addEventListener('submit', async (e) => {
     }
 });
 
-function displayNotes(notesToShow) { // Ahora acepta un argumento para las notas a mostrar
+function displayNotes(notesToShow) { 
     if (!notesToShow || notesToShow.length === 0) {
-        notesContainer.innerHTML = "<p>No hay notas que coincidan con la búsqueda.</p>";
+        notesContainer.innerHTML = "<p>No hay notas guardadas en la nube.</p>"; // Actualizado el mensaje
         return;
     }
     notesContainer.innerHTML = notesToShow.map(note => {
@@ -329,23 +290,17 @@ function displayNotes(notesToShow) { // Ahora acepta un argumento para las notas
         </div>`;
     }).join('');
 
-    // Para que el contenido HTML de Quill se renderice correctamente,
-    // necesitamos limpiar cualquier script o elemento peligroso si la nota se edita.
-    // Para simplificar, aquí se asume que el HTML ya es seguro.
-    // Si permites editar notas existentes, necesitarías un editor Quill para ello.
     notesContainer.querySelectorAll('.ql-editor-readonly').forEach(el => {
-        el.innerHTML = el.innerHTML; // Esto "sanitiza" el HTML para ser mostrado
+        el.innerHTML = el.innerHTML;
     });
 }
 
-// Event Listener para la barra de búsqueda
-noteSearchInput.addEventListener('input', applyNotesFilter); // Llama a la función de filtro cada vez que se escribe
+// Ya no se necesita event listener para noteSearchInput ya que se eliminó.
 
 window.deleteNote = deleteNoteAndPhoto;
 
 window.shareNote = async function(noteData) {
     const displayTimestamp = noteData.createdAt?.seconds ? new Date(noteData.createdAt.seconds * 1000).toLocaleString('es-ES') : 'N/A';
-    // Usar factsText para compartir como texto plano
     let shareText = `Nota Policial:\nFecha: ${displayTimestamp}\nLugar de Intervención: ${noteData.interventionLocation || 'N/A'}\nDocumento: ${noteData.documentNumber || 'N/A'}\nNombre: ${noteData.fullName || 'N/A'}\nLugar de Nacimiento: ${noteData.birthPlace || 'N/A'}\nFecha de Nacimiento: ${noteData.birthdate || 'N/A'}\nPadres: ${noteData.parentsName || 'N/A'}\nDirección: ${noteData.address || 'N/A'}\nTeléfono: ${noteData.phone || 'N/A'}\nHechos: ${noteData.factsText || 'N/A'}\nEtiquetas: ${(noteData.tags || []).join(', ')}`;
     const shareOptions = { title: 'Nota Policial', text: shareText };
     if (noteData.photoUrl) {
@@ -357,25 +312,24 @@ window.shareNote = async function(noteData) {
     }
     try {
         if (navigator.share) await navigator.share(shareOptions);
-        else createAlertDialog('La función de compartir no es compatible con este navegador.').present(); // Usar modal
+        else createAlertDialog('La función de compartir no es compatible con este navegador.').present();
     } catch (err) { if (err.name !== 'AbortError') console.error('Error al compartir la nota:', err); }
 }
 
 window.copyNoteText = async function(noteData) {
     const displayTimestamp = noteData.createdAt?.seconds ? new Date(noteData.createdAt.seconds * 1000).toLocaleString('es-ES') : 'N/A';
-    // Usar factsText para copiar como texto plano
     let noteText = `Nota Policial:\nFecha: ${displayTimestamp}\nLugar de Intervención: ${noteData.interventionLocation || 'N/A'}\nDocumento: ${noteData.documentNumber || 'N/A'}\nNombre: ${noteData.fullName || 'N/A'}\nLugar de Nacimiento: ${noteData.birthPlace || 'N/A'}\nFecha de Nacimiento: ${noteData.birthdate || 'N/A'}\nPadres: ${noteData.parentsName || 'N/A'}\nDirección: ${noteData.address || 'N/A'}\nTeléfono: ${noteData.phone || 'N/A'}\nHechos: ${noteData.factsText || 'N/A'}\nEtiquetas: ${(noteData.tags || []).join(', ')}`;
     try {
         await navigator.clipboard.writeText(noteText);
-        createAlertDialog('Texto de la nota copiado al portapapeles.').present(); // Usar modal
+        createAlertDialog('Texto de la nota copiado al portapapeles.').present();
     } catch (err) {
         console.error('Error al copiar el texto:', err);
-        createAlertDialog('No se pudo copiar el texto.').present(); // Usar modal
+        createAlertDialog('No se pudo copiar el texto.').present();
     }
 }
 
 window.downloadNotePhoto = (photoUrl) => {
-    if (!photoUrl) return createAlertDialog('Esta nota no tiene foto.').present(); // Usar modal
+    if (!photoUrl) return createAlertDialog('Esta nota no tiene foto.').present();
     const a = document.createElement('a');
     a.href = photoUrl;
     a.download = 'foto_nota.png';
@@ -386,12 +340,10 @@ window.downloadNotePhoto = (photoUrl) => {
 
 // Función para generar un informe de texto (ya existente)
 generateReportButton.addEventListener('click', async () => {
-    if (!currentUserId) return createAlertDialog("Debes estar conectado para generar un informe.").present(); // Usar modal
+    if (!currentUserId) return createAlertDialog("Debes estar conectado para generar un informe.").present();
     console.log("Generando informe de notas...");
-    // Usamos allNotes para el informe, no las notas filtradas
-    const notesToReport = [...allNotes]; // Crear una copia para asegurar que no se modifique el original
+    const notesToReport = [...allNotes];
     
-    // allNotes ya están ordenadas por createdAt
     let reportText = 'Informe de Intervenciones\n\n';
     notesToReport.forEach((note, index) => {
         const displayTimestamp = note.createdAt?.toDate() ? note.createdAt.toDate().toLocaleString('es-ES') : 'N/A';
@@ -407,12 +359,12 @@ generateReportButton.addEventListener('click', async () => {
     console.log("Informe generado y descargado.");
 });
 
-// NUEVA FUNCIONALIDAD: Exportar a PDF
+// FUNCIONALIDAD: Exportar a PDF
 exportPdfBtn.addEventListener('click', async () => {
     if (!currentUserId) return createAlertDialog("Debes estar conectado para exportar a PDF.").present();
     if (allNotes.length === 0) return createAlertDialog("No hay notas para exportar a PDF.").present();
 
-    createAlertDialog("Generando PDF... por favor espera.").present(); // Mensaje de aviso
+    createAlertDialog("Generando PDF... por favor espera.").present();
 
     const doc = new window.jspdf.jsPDF(); // Crear una nueva instancia de jsPDF
     let yPos = 10;
@@ -522,7 +474,7 @@ exportPdfBtn.addEventListener('click', async () => {
 });
 
 
-// NUEVA FUNCIONALIDAD: Exportar a CSV
+// FUNCIONALIDAD: Exportar a CSV
 exportCsvBtn.addEventListener('click', async () => {
     if (!currentUserId) return createAlertDialog("Debes estar conectado para exportar a CSV.").present();
     if (allNotes.length === 0) return createAlertDialog("No hay notas para exportar a CSV.").present();
@@ -589,9 +541,9 @@ takePhotoButton.addEventListener('click', () => {
             })
             .catch(err => {
                 console.error(`Error al acceder a la cámara: ${err.message}`);
-                createAlertDialog("No se pudo acceder a la cámara.").present(); // Usar modal
+                createAlertDialog("No se pudo acceder a la cámara.").present();
             });
-    } else createAlertDialog("Tu navegador no soporta acceso a la cámara.").present(); // Usar modal
+    } else createAlertDialog("Tu navegador no soporta acceso a la cámara.").present();
 });
 
 captureButton.addEventListener('click', () => {
@@ -621,95 +573,7 @@ function closeCameraModal() {
 
 // --- FUNCIONES DE MODAL PERSONALIZADAS (REEMPLAZO DE ALERT/CONFIRM) ---
 // Estas funciones crean y muestran un modal de alerta o confirmación simple.
-// Se recomienda mover los estilos asociados a styles.css para un CSS limpio.
-
-// Estilos básicos para los modales (puedes mover esto a styles.css)
-const modalStyles = `
-    .custom-modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.7);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 2000; /* Mayor que otros z-index */
-        animation: fadeIn 0.3s ease-out;
-    }
-    .custom-modal-content {
-        background-color: var(--color-bg-secondary);
-        padding: 25px;
-        border-radius: 10px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        max-width: 400px;
-        width: 90%;
-        text-align: center;
-        color: var(--color-text);
-        animation: slideIn 0.3s ease-out;
-    }
-    .custom-modal-content h3 {
-        font-size: 1.5rem;
-        margin-bottom: 15px;
-        color: var(--neon-green);
-    }
-    .custom-modal-content p {
-        font-size: 1rem;
-        margin-bottom: 20px;
-        line-height: 1.5;
-    }
-    .custom-modal-buttons {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-    }
-    .custom-modal-btn {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background-color 0.2s ease;
-    }
-    .custom-modal-btn.confirm {
-        background-color: var(--color-btn-delete); /* Rojo para confirmar eliminar */
-        color: white;
-    }
-    .custom-modal-btn.confirm:hover {
-        background-color: var(--color-btn-delete-hover);
-    }
-    .custom-modal-btn.cancel {
-        background-color: var(--color-secondary); /* Verde secundario para cancelar */
-        color: black;
-    }
-    .custom-modal-btn.cancel:hover {
-        background-color: #20b000;
-    }
-    .custom-modal-btn.alert {
-        background-color: var(--color-primary); /* Verde primario para alertas */
-        color: black;
-    }
-    .custom-modal-btn.alert:hover {
-        background-color: var(--primary-hover);
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-    @keyframes slideIn {
-        from { transform: translateY(-30px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-    }
-`;
-
-// Inyectar estilos del modal al cargar la página
-const styleSheet = document.createElement("style");
-styleSheet.type = "text/css";
-styleSheet.innerText = modalStyles;
-document.head.appendChild(styleSheet);
-
+// Se asume que los estilos ya han sido inyectados o están en styles.css.
 
 function createAlertDialog(message, details = '') {
     const overlay = document.createElement('div');
