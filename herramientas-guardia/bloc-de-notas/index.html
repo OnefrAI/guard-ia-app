@@ -66,39 +66,6 @@
     .hidden {
         display: none;
     }
-    /* ESTILOS PARA BARRA DE BÚSQUEDA */
-    .search-bar-container {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        flex-grow: 1; /* Permitir que ocupe espacio flexible */
-        margin-left: 1rem; /* Espacio a la izquierda del título */
-        background-color: rgba(30, 41, 59, 0.5); /* Color de input */
-        border: 1px solid var(--color-border);
-        border-radius: 0.5rem;
-        padding: 0.5rem 1rem;
-    }
-    .search-bar-container input {
-        flex-grow: 1;
-        background: transparent;
-        border: none;
-        padding: 0;
-        margin: 0;
-        font-size: 1rem;
-        color: var(--color-text);
-    }
-    .search-bar-container input::placeholder {
-        color: var(--text-medium-color);
-        opacity: 0.7;
-    }
-    .search-bar-container input:focus {
-        outline: none;
-        box-shadow: none;
-    }
-    .search-bar-container .fa-search {
-        color: var(--color-primary);
-    }
-
     /* ESTILOS PARA EL EDITOR QUILL.JS */
     .ql-toolbar.ql-snow, .ql-container.ql-snow {
         border: 1px solid var(--color-border) !important;
@@ -172,10 +139,6 @@
         .notes-header h2 {
             margin-bottom: 0; /* Elimina margen inferior del título */
         }
-        .search-bar-container {
-            width: 100%; /* Ocupa todo el ancho */
-            margin-left: 0; /* Elimina margen izquierdo */
-        }
         .export-buttons {
             justify-content: center; /* Centra los botones de exportación */
         }
@@ -183,6 +146,93 @@
             width: 100%; /* Ocupa todo el ancho */
             max-width: 200px; /* Limita el ancho máximo */
         }
+    }
+
+    /* ESTILOS NUEVOS PARA CAMPOS COLAPSABLES */
+    .collapsible-section {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--color-border);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .collapsible-section summary {
+        color: var(--color-primary);
+        font-weight: 600;
+        cursor: pointer;
+        padding: 0.5rem 0;
+        list-style: none; /* Elimina el marcador por defecto */
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .collapsible-section summary::-webkit-details-marker {
+        display: none; /* Elimina el marcador en Webkit */
+    }
+    .collapsible-section summary::before {
+        content: '\25B6'; /* Triángulo derecho */
+        font-size: 0.8rem;
+        transition: transform 0.2s;
+        margin-right: 0.5rem;
+    }
+    .collapsible-section[open] summary::before {
+        content: '\25BC'; /* Triángulo hacia abajo */
+        transform: rotate(90deg); /* Rotación para simular el desplegado */
+    }
+    .collapsible-content {
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.05); /* Separador suave */
+        margin-top: 0.5rem;
+    }
+    /* Estilos para los checkbox de etiquetas predefinidas */
+    .predefined-tags-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 0.5rem;
+    }
+    .predefined-tags-group label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        color: var(--color-text);
+        font-size: 0.9rem;
+        font-weight: normal; /* Sobrescribe el font-weight de label general */
+        padding: 0.4rem 0.8rem;
+        border: 1px solid var(--color-border);
+        border-radius: 0.5rem;
+        transition: background-color 0.2s, border-color 0.2s;
+        background-color: rgba(30, 41, 59, 0.5); /* Fondo de input */
+    }
+    .predefined-tags-group label:hover {
+        background-color: rgba(45, 56, 70, 0.7);
+        border-color: var(--color-primary);
+    }
+    .predefined-tags-group input[type="checkbox"] {
+        /* Estilos básicos para el checkbox, puedes personalizarlos más */
+        appearance: none;
+        -webkit-appearance: none;
+        width: 1rem;
+        height: 1rem;
+        border: 1px solid var(--color-primary);
+        border-radius: 0.25rem;
+        background-color: transparent;
+        position: relative;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .predefined-tags-group input[type="checkbox"]:checked {
+        background-color: var(--color-primary);
+        border-color: var(--color-primary);
+    }
+    .predefined-tags-group input[type="checkbox"]:checked::after {
+        content: '\2713'; /* Símbolo de check */
+        color: black; /* Color del check */
+        font-size: 0.7rem;
+        line-height: 1;
     }
   </style>
 </head>
@@ -214,48 +264,74 @@
 
     <div id="app-content" class="hidden">
         <form id="noteForm" class="space-y-6">
-            <div class="form-group primary">
-                <label for="interventionLocation">Lugar de intervención</label>
-                <input type="text" id="interventionLocation" name="interventionLocation" placeholder="Ingrese la ubicación...">
-            </div>
+            <!-- SECCIÓN COLAPSABLE PARA DATOS PERSONALES/DE INTERVENCIÓN -->
+            <details class="collapsible-section" open>
+                <summary>
+                    <i class="fas fa-id-card"></i> Datos de Intervención y Persona
+                </summary>
+                <div class="collapsible-content">
+                    <div class="form-group">
+                        <label for="interventionLocation">Lugar de intervención</label>
+                        <input type="text" id="interventionLocation" name="interventionLocation" placeholder="Ingrese la ubicación...">
+                    </div>
 
-            <div class="form-grid grid gap-4">
-                <div class="form-group">
-                <label for="documentNumber">Número de Documento</label>
-                <input type="text" id="documentNumber" name="documentNumber" placeholder="Número de Documento">
-                </div>
-                <div class="form-group">
-                <label for="fullName">Nombre y apellidos</label>
-                <input type="text" id="fullName" name="fullName" placeholder="Nombre y apellidos">
-                </div>
-                 <div class="form-group">
-                    <label for="birthPlace">Lugar de nacimiento</label>
-                    <input type="text" id="birthPlace" name="birthPlace" placeholder="Lugar de nacimiento">
-                </div>
-                <div class="form-group">
-                <label for="birthdate">Fecha de nacimiento</label>
-                <input type="text" id="birthdate" name="birthdate" placeholder="DD-MM-AAAA">
-                </div>
-                <div class="form-group">
-                <label for="phone">Teléfono</label>
-                <input type="tel" id="phone" name="phone" placeholder="Teléfono">
-                </div>
-            </div>
+                    <div class="form-grid grid gap-4">
+                        <div class="form-group">
+                        <label for="documentNumber">Número de Documento</label>
+                        <input type="text" id="documentNumber" name="documentNumber" placeholder="Número de Documento">
+                        </div>
+                        <div class="form-group">
+                        <label for="fullName">Nombre y apellidos</label>
+                        <input type="text" id="fullName" name="fullName" placeholder="Nombre y apellidos">
+                        </div>
+                        <div class="form-group">
+                            <label for="birthPlace">Lugar de nacimiento</label>
+                            <input type="text" id="birthPlace" name="birthPlace" placeholder="Lugar de nacimiento">
+                        </div>
+                        <div class="form-group">
+                        <label for="birthdate">Fecha de nacimiento</label>
+                        <input type="text" id="birthdate" name="birthdate" placeholder="DD-MM-AAAA">
+                        </div>
+                        <div class="form-group">
+                        <label for="phone">Teléfono</label>
+                        <input type="tel" id="phone" name="phone" placeholder="Teléfono">
+                        </div>
+                    </div>
 
-            <div class="form-group">
-                <label for="parentsName">Nombre del padre y la madre</label>
-                <input type="text" id="parentsName" name="parentsName" placeholder="Nombre del padre y la madre">
-            </div>
+                    <div class="form-group">
+                        <label for="parentsName">Nombre del padre y la madre</label>
+                        <input type="text" id="parentsName" name="parentsName" placeholder="Nombre del padre y la madre">
+                    </div>
 
-            <div class="form-group">
-                <label for="address">Dirección del domicilio</label>
-                <input type="text" id="address" name="address" placeholder="Dirección del domicilio">
-            </div>
+                    <div class="form-group">
+                        <label for="address">Dirección del domicilio</label>
+                        <input type="text" id="address" name="address" placeholder="Dirección del domicilio">
+                    </div>
+                </div>
+            </details>
+            <!-- FIN SECCIÓN COLAPSABLE -->
             
-            <!-- CAMPO PARA ETIQUETAS -->
+            <!-- CAMPO PARA ETIQUETAS PREDEFINIDAS -->
             <div class="form-group">
-                <label for="tagsInput">Etiquetas (separadas por comas)</label>
-                <input type="text" id="tagsInput" name="tagsInput" placeholder="Ej: Urgente, Patrulla, Detenido">
+                <label>Etiquetas</label>
+                <div class="predefined-tags-group">
+                    <label>
+                        <input type="checkbox" name="tag" value="Servicio de Sala">
+                        <span>Servicio de Sala</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" name="tag" value="A requerimiento">
+                        <span>A requerimiento</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" name="tag" value="Por superioridad">
+                        <span>Por superioridad</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" name="tag" value="Otros">
+                        <span>Otros</span>
+                    </label>
+                </div>
             </div>
 
             <!-- CONTENEDOR DEL EDITOR DE TEXTO ENRIQUECIDO (Quill.js) -->
@@ -299,11 +375,7 @@
         <div class="notes-section mt-8">
             <div class="notes-header flex justify-between items-center mb-4">
                 <h2 class="text-xl font-semibold">Notas Guardadas en la Nube</h2>
-                <!-- BARRA DE BÚSQUEDA -->
-                <div class="search-bar-container">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="noteSearchInput" placeholder="Buscar notas...">
-                </div>
+                <!-- LA BARRA DE BÚSQUEDA HA SIDO ELIMINADA DE AQUÍ -->
             </div>
 
             <!-- BOTONES DE EXPORTACIÓN ADICIONALES -->
