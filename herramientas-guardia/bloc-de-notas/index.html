@@ -102,14 +102,18 @@
         gap: 0.5rem;
     }
     .note-tag {
-        background-color: var(--color-primary);
-        color: black; /* Texto oscuro para contraste */
+        /* Colores de las etiquetas se definen por clases específicas ahora */
         padding: 0.25rem 0.75rem;
         border-radius: 9999px; /* Píldora */
         font-size: 0.75rem;
         font-weight: 600;
         white-space: nowrap;
     }
+    .note-tag.tag-sala { background-color: #39FF14; color: black; } /* Verde Neón */
+    .note-tag.tag-requerimiento { background-color: #3b82f6; color: white; } /* Azul */
+    .note-tag.tag-superioridad { background-color: #f59e0b; color: black; } /* Naranja */
+    .note-tag.tag-otros { background-color: #e0e0e0; color: black; } /* Blanco/Gris claro */
+
 
     /* Estilos para botones de exportación (distintos a los principales) */
     .export-buttons {
@@ -148,92 +152,89 @@
         }
     }
 
-    /* ESTILOS NUEVOS PARA CAMPOS COLAPSABLES */
-    .collapsible-section {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid var(--color-border);
-        border-radius: 0.75rem;
-        padding: 1rem;
-        margin-bottom: 1.5rem;
+    /* ESTILOS PARA CAMPO DESPLEGABLE DE ETIQUETAS */
+    .dropdown-container {
+        position: relative;
+        width: 100%;
+        margin-bottom: 1.5rem; /* Espacio después del grupo de etiquetas */
     }
-    .collapsible-section summary {
-        color: var(--color-primary);
-        font-weight: 600;
-        cursor: pointer;
-        padding: 0.5rem 0;
-        list-style: none; /* Elimina el marcador por defecto */
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    .collapsible-section summary::-webkit-details-marker {
-        display: none; /* Elimina el marcador en Webkit */
-    }
-    .collapsible-section summary::before {
-        content: '\25B6'; /* Triángulo derecho */
-        font-size: 0.8rem;
-        transition: transform 0.2s;
-        margin-right: 0.5rem;
-    }
-    .collapsible-section[open] summary::before {
-        content: '\25BC'; /* Triángulo hacia abajo */
-        transform: rotate(90deg); /* Rotación para simular el desplegado */
-    }
-    .collapsible-content {
-        padding-top: 1rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.05); /* Separador suave */
-        margin-top: 0.5rem;
-    }
-    /* Estilos para los checkbox de etiquetas predefinidas */
-    .predefined-tags-group {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        margin-top: 0.5rem;
-    }
-    .predefined-tags-group label {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        cursor: pointer;
-        color: var(--color-text);
-        font-size: 0.9rem;
-        font-weight: normal; /* Sobrescribe el font-weight de label general */
-        padding: 0.4rem 0.8rem;
+    .dropdown-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: rgba(30, 41, 59, 0.5);
         border: 1px solid var(--color-border);
         border-radius: 0.5rem;
-        transition: background-color 0.2s, border-color 0.2s;
-        background-color: rgba(30, 41, 59, 0.5); /* Fondo de input */
-    }
-    .predefined-tags-group label:hover {
-        background-color: rgba(45, 56, 70, 0.7);
-        border-color: var(--color-primary);
-    }
-    .predefined-tags-group input[type="checkbox"] {
-        /* Estilos básicos para el checkbox, puedes personalizarlos más */
-        appearance: none;
-        -webkit-appearance: none;
-        width: 1rem;
-        height: 1rem;
-        border: 1px solid var(--color-primary);
-        border-radius: 0.25rem;
-        background-color: transparent;
-        position: relative;
+        color: var(--color-text);
+        font-size: 1rem;
         cursor: pointer;
         display: flex;
+        justify-content: space-between;
         align-items: center;
-        justify-content: center;
     }
-    .predefined-tags-group input[type="checkbox"]:checked {
-        background-color: var(--color-primary);
+    .dropdown-input:focus {
+        outline: none;
         border-color: var(--color-primary);
+        box-shadow: 0 0 0 2px rgba(57, 255, 20, 0.2);
     }
-    .predefined-tags-group input[type="checkbox"]:checked::after {
-        content: '\2713'; /* Símbolo de check */
-        color: black; /* Color del check */
-        font-size: 0.7rem;
-        line-height: 1;
+    .dropdown-options {
+        position: absolute;
+        top: 100%; /* Justo debajo del input */
+        left: 0;
+        width: 100%;
+        background-color: var(--color-bg-secondary);
+        border: 1px solid var(--color-border);
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        z-index: 20; /* Asegura que esté por encima de otros elementos */
+        display: none; /* Oculto por defecto */
+        padding: 0.5rem;
     }
+    .dropdown-options.active {
+        display: block;
+    }
+    .dropdown-option {
+        padding: 0.75rem 1rem;
+        color: var(--color-text);
+        cursor: pointer;
+        transition: background-color 0.2s;
+        border-radius: 0.3rem;
+    }
+    .dropdown-option:hover {
+        background-color: rgba(255,255,255,0.1);
+    }
+    .selected-tags-display {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        padding-left: 0.5rem; /* Para que no se pegue al borde del input */
+    }
+    .selected-tag-item {
+        background-color: var(--color-primary); /* Color por defecto */
+        color: black;
+        padding: 0.2rem 0.6rem;
+        border-radius: 9999px;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        cursor: pointer;
+    }
+    .selected-tag-item .remove-tag-icon {
+        font-size: 0.6rem;
+        color: rgba(0,0,0,0.6);
+        transition: color 0.2s;
+    }
+    .selected-tag-item:hover .remove-tag-icon {
+        color: red;
+    }
+
+    /* Colores para los tags seleccionados */
+    .selected-tag-item.tag-servicio-de-sala { background-color: #39FF14; color: black; }
+    .selected-tag-item.tag-a-requerimiento { background-color: #3b82f6; color: white; }
+    .selected-tag-item.tag-por-superioridad { background-color: #f59e0b; color: black; }
+    .selected-tag-item.tag-otros { background-color: #e0e0e0; color: black; }
+
   </style>
 </head>
 <body class="text-light-text font-sans">
@@ -248,7 +249,7 @@
   </header>
 
   <div class="container mx-auto px-4 py-10 relative z-10">
-    <div class="header flex items-center justify-center gap-3 mb-8">
+    <div class="header flex items-center justify-content-center gap-3 mb-8">
       <svg class="icon-pin" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
         <circle cx="12" cy="10" r="3"></circle>
@@ -264,73 +265,62 @@
 
     <div id="app-content" class="hidden">
         <form id="noteForm" class="space-y-6">
-            <!-- SECCIÓN COLAPSABLE PARA DATOS PERSONALES/DE INTERVENCIÓN -->
-            <details class="collapsible-section" open>
-                <summary>
-                    <i class="fas fa-id-card"></i> Datos de Intervención y Persona
-                </summary>
-                <div class="collapsible-content">
-                    <div class="form-group">
-                        <label for="interventionLocation">Lugar de intervención</label>
-                        <input type="text" id="interventionLocation" name="interventionLocation" placeholder="Ingrese la ubicación...">
-                    </div>
+            <!-- SECCIÓN PARA DATOS DE INTERVENCIÓN Y PERSONA (YA NO COLAPSABLE) -->
+            <div class="form-group primary">
+                <label for="interventionLocation">Lugar de intervención</label>
+                <input type="text" id="interventionLocation" name="interventionLocation" placeholder="Ingrese la ubicación...">
+            </div>
 
-                    <div class="form-grid grid gap-4">
-                        <div class="form-group">
-                        <label for="documentNumber">Número de Documento</label>
-                        <input type="text" id="documentNumber" name="documentNumber" placeholder="Número de Documento">
-                        </div>
-                        <div class="form-group">
-                        <label for="fullName">Nombre y apellidos</label>
-                        <input type="text" id="fullName" name="fullName" placeholder="Nombre y apellidos">
-                        </div>
-                        <div class="form-group">
-                            <label for="birthPlace">Lugar de nacimiento</label>
-                            <input type="text" id="birthPlace" name="birthPlace" placeholder="Lugar de nacimiento">
-                        </div>
-                        <div class="form-group">
-                        <label for="birthdate">Fecha de nacimiento</label>
-                        <input type="text" id="birthdate" name="birthdate" placeholder="DD-MM-AAAA">
-                        </div>
-                        <div class="form-group">
-                        <label for="phone">Teléfono</label>
-                        <input type="tel" id="phone" name="phone" placeholder="Teléfono">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="parentsName">Nombre del padre y la madre</label>
-                        <input type="text" id="parentsName" name="parentsName" placeholder="Nombre del padre y la madre">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="address">Dirección del domicilio</label>
-                        <input type="text" id="address" name="address" placeholder="Dirección del domicilio">
-                    </div>
+            <div class="form-grid grid gap-4">
+                <div class="form-group">
+                <label for="documentNumber">Número de Documento</label>
+                <input type="text" id="documentNumber" name="documentNumber" placeholder="Número de Documento">
                 </div>
-            </details>
-            <!-- FIN SECCIÓN COLAPSABLE -->
+                <div class="form-group">
+                <label for="fullName">Nombre y apellidos</label>
+                <input type="text" id="fullName" name="fullName" placeholder="Nombre y apellidos">
+                </div>
+                <div class="form-group">
+                    <label for="birthPlace">Lugar de nacimiento</label>
+                    <input type="text" id="birthPlace" name="birthPlace" placeholder="Lugar de nacimiento">
+                </div>
+                <div class="form-group">
+                <label for="birthdate">Fecha de nacimiento</label>
+                <input type="text" id="birthdate" name="birthdate" placeholder="DD-MM-AAAA">
+                </div>
+                <div class="form-group">
+                <label for="phone">Teléfono</label>
+                <input type="tel" id="phone" name="phone" placeholder="Teléfono">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="parentsName">Nombre del padre y la madre</label>
+                <input type="text" id="parentsName" name="parentsName" placeholder="Nombre del padre y la madre">
+            </div>
+
+            <div class="form-group">
+                <label for="address">Dirección del domicilio</label>
+                <input type="text" id="address" name="address" placeholder="Dirección del domicilio">
+            </div>
             
-            <!-- CAMPO PARA ETIQUETAS PREDEFINIDAS -->
+            <!-- CAMPO DESPLEGABLE PARA ETIQUETAS -->
             <div class="form-group">
                 <label>Etiquetas</label>
-                <div class="predefined-tags-group">
-                    <label>
-                        <input type="checkbox" name="tag" value="Servicio de Sala">
-                        <span>Servicio de Sala</span>
-                    </label>
-                    <label>
-                        <input type="checkbox" name="tag" value="A requerimiento">
-                        <span>A requerimiento</span>
-                    </label>
-                    <label>
-                        <input type="checkbox" name="tag" value="Por superioridad">
-                        <span>Por superioridad</span>
-                    </label>
-                    <label>
-                        <input type="checkbox" name="tag" value="Otros">
-                        <span>Otros</span>
-                    </label>
+                <div class="dropdown-container">
+                    <div class="dropdown-input" id="tagsDropdownInput">
+                        <span>Seleccionar etiquetas...</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="dropdown-options" id="tagsDropdownOptions">
+                        <div class="dropdown-option" data-value="Servicio de Sala">Servicio de Sala</div>
+                        <div class="dropdown-option" data-value="A requerimiento">A requerimiento</div>
+                        <div class="dropdown-option" data-value="Por superioridad">Por superioridad</div>
+                        <div class="dropdown-option" data-value="Otros">Otros</div>
+                    </div>
+                </div>
+                <div class="selected-tags-display" id="selectedTagsDisplay">
+                    <!-- Las etiquetas seleccionadas se añadirán aquí dinámicamente -->
                 </div>
             </div>
 
@@ -375,7 +365,6 @@
         <div class="notes-section mt-8">
             <div class="notes-header flex justify-between items-center mb-4">
                 <h2 class="text-xl font-semibold">Notas Guardadas en la Nube</h2>
-                <!-- LA BARRA DE BÚSQUEDA HA SIDO ELIMINADA DE AQUÍ -->
             </div>
 
             <!-- BOTONES DE EXPORTACIÓN ADICIONALES -->
