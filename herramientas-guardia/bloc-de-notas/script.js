@@ -22,7 +22,6 @@ import {
     deleteObject 
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
-
 // Your web app's Firebase configuration (same as the main app)
 const firebaseConfig = {
     apiKey: "AIzaSyAf3I3_aW__lBtTVlEJ9xesIWkEJ6lMJp8",
@@ -46,11 +45,15 @@ const notesContainer = document.getElementById('notesContainer');
 const generateReportButton = document.getElementById('generateReportButton');
 const takePhotoButton = document.getElementById('takePhotoButton');
 const saveNoteButton = document.getElementById('saveNoteButton');
-const factsTextarea = document.getElementById('facts');
+// const factsTextarea = document.getElementById('facts'); // REMOVIDO: reemplazado por Quill
 const photoPreview = document.getElementById('photoPreview');
 const authStateDiv = document.getElementById('auth-state');
 const appContentDiv = document.getElementById('app-content');
 const userInfoDiv = document.getElementById('user-info');
+const noteSearchInput = document.getElementById('noteSearchInput');
+const tagsInput = document.getElementById('tagsInput'); // NUEVA REFERENCIA
+const exportPdfBtn = document.getElementById('exportPdfBtn'); // NUEVA REFERENCIA
+const exportCsvBtn = document.getElementById('exportCsvBtn'); // NUEVA REFERENCIA
 
 // Camera Modal Elements
 const cameraModal = document.getElementById('cameraModal');
@@ -58,11 +61,45 @@ const video = document.getElementById('video');
 const captureButton = document.getElementById('captureButton');
 const cancelCaptureButton = document.getElementById('cancelCaptureButton');
 
+// Quill Editor initialization
+// Configuración de la barra de herramientas de Quill
+const toolbarOptions = [
+    ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+    ['blockquote', 'code-block'],
+
+    [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+    [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+    [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+    [{ 'direction': 'rtl' }],                         // text direction
+
+    [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+
+    [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+    [{ 'font': [] }],
+    [{ 'align': [] }],
+
+    ['link', 'image'],
+
+    ['clean']                                         // remove formatting button
+];
+
+const quill = new Quill('#editor-container', {
+    modules: {
+        toolbar: toolbarOptions
+    },
+    theme: 'snow',
+    placeholder: 'Escribe aquí los hechos y detalles de la intervención...',
+});
+
+
 // Global state
 let mediaStream = null;
 let capturedPhotoDataUrl = null;
 let currentUserId = null;
 let unsubscribeFromNotes = null;
+let allNotes = []; // Variable global para almacenar todas las notas
 
 // --- Authentication Handling ---
 onAuthStateChanged(auth, (user) => {
@@ -72,7 +109,7 @@ onAuthStateChanged(auth, (user) => {
         authStateDiv.classList.add('hidden');
         appContentDiv.classList.remove('hidden');
         userInfoDiv.textContent = `Conectado como: ${user.email}`;
-        listenForNotes();
+        listenForNotes(); // Empieza a escuchar las notas una vez autenticado
     } else {
         currentUserId = null;
         console.error('Usuario no autenticado.');
@@ -81,9 +118,10 @@ onAuthStateChanged(auth, (user) => {
         authStateDiv.innerHTML = `<p>Debes iniciar sesión para usar el bloc de notas seguro. <a href="../../index.html">Volver a la página principal para iniciar sesión.</a></p>`;
         userInfoDiv.textContent = 'No conectado';
         if (unsubscribeFromNotes) {
-            unsubscribeFromNotes();
+            unsubscribeFromNotes(); // Deja de escuchar si el usuario se desautentica
         }
         notesContainer.innerHTML = "<p>Inicia sesión para ver tus notas guardadas en la nube.</p>";
+        allNotes = []; // Limpiar notas si no hay usuario
     }
 });
 
@@ -104,23 +142,58 @@ async function uploadPhoto(base64String) {
 
 function listenForNotes() {
     if (!currentUserId) return;
-    if (unsubscribeFromNotes) unsubscribeFromNotes();
+    if (unsubscribeFromNotes) unsubscribeFromNotes(); // Asegurarse de que solo haya un listener activo
     const notesCollection = collection(db, "users", currentUserId, "notes");
-    const q = query(notesCollection);
+    // No usamos orderBy aquí para evitar problemas de índice con Firestore.
+    // Ordenaremos los datos en memoria.
+    const q = query(notesCollection); 
     console.log("Escuchando cambios en las notas...");
-    notesContainer.innerHTML = "<p>Cargando notas desde la nube...</p>";
+    notesContainer.innerHTML = "<p>Cargando notas desde la nube...</p>"; // Mensaje de carga inicial
     unsubscribeFromNotes = onSnapshot(q, (querySnapshot) => {
-        const notes = [];
+        allNotes = []; // Limpiar el array de todas las notas
         querySnapshot.forEach((doc) => {
-            notes.push({ id: doc.id, ...doc.data() });
+            allNotes.push({ id: doc.id, ...doc.data() });
         });
-        notes.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
-        displayNotes(notes);
-        console.log(`Se han cargado ${notes.length} nota(s) desde la nube.`);
+        // Ordenar todas las notas por fecha de creación (más reciente primero)
+        allNotes.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
+        
+        // Aplicar el filtro de búsqueda actual al cargar/actualizar las notas
+        applyNotesFilter();
+        console.log(`Se han cargado ${allNotes.length} nota(s) desde la nube.`);
     }, (error) => {
         console.error(`Error crítico al cargar las notas: ${error.message}`);
         notesContainer.innerHTML = "<p>Error al cargar las notas. Por favor, recarga la página.</p>";
     });
+}
+
+// NUEVA FUNCIÓN: Aplicar el filtro de búsqueda y renderizar las notas
+function applyNotesFilter() {
+    const searchTerm = noteSearchInput.value.toLowerCase().trim();
+    let filteredNotes = [];
+
+    if (searchTerm === '') {
+        filteredNotes = allNotes; // Si no hay término de búsqueda, muestra todas las notas
+    } else {
+        filteredNotes = allNotes.filter(note => {
+            // Unir todos los campos de texto relevantes de la nota en una sola cadena para la búsqueda
+            // Incluir las etiquetas en la búsqueda
+            const noteContent = `
+                ${note.interventionLocation || ''} 
+                ${note.documentNumber || ''} 
+                ${note.fullName || ''} 
+                ${note.birthPlace || ''} 
+                ${note.birthdate || ''} 
+                ${note.parentsName || ''} 
+                ${note.address || ''} 
+                ${note.phone || ''} 
+                ${note.factsText || ''} <!-- Contenido de texto plano de Quill -->
+                ${(note.tags || []).join(' ')} <!-- Unir etiquetas para búsqueda -->
+            `.toLowerCase(); // Convertir a minúsculas para búsqueda sin distinción entre mayúsculas y minúsculas
+
+            return noteContent.includes(searchTerm);
+        });
+    }
+    displayNotes(filteredNotes); // Mostrar las notas filtradas
 }
 
 async function saveNoteToFirestore(noteData) {
@@ -133,7 +206,11 @@ async function saveNoteToFirestore(noteData) {
 
 async function deleteNoteAndPhoto(noteId) {
     if (!currentUserId || !noteId) return;
-    if (!confirm("¿Estás seguro de eliminar esta nota? Esta acción no se puede deshacer.")) return;
+    // Usar un modal personalizado en lugar de `confirm()`
+    const confirmationModal = createConfirmationModal("¿Estás seguro de eliminar esta nota? Esta acción no se puede deshacer.");
+    const confirmed = await confirmationModal.present(); // Espera la respuesta del modal
+
+    if (!confirmed) return; // Si el usuario cancela, no hacer nada
 
     console.log(`Iniciando eliminación de la nota ID: ${noteId}...`);
     try {
@@ -155,9 +232,11 @@ async function deleteNoteAndPhoto(noteId) {
         console.log("Eliminando la nota de Firestore...");
         await deleteDoc(noteDocRef);
         console.log("Nota eliminada exitosamente de Firestore.");
+        // onSnapshot se encargará de actualizar la UI automáticamente
     } catch (error) {
         console.error(`Error al eliminar la nota: ${error.message}`);
-        alert("Hubo un error al eliminar la nota.");
+        // Usar un modal personalizado en lugar de `alert()`
+        createAlertDialog("Hubo un error al eliminar la nota.", `Mensaje: ${error.message}`).present();
     }
 }
 
@@ -172,6 +251,15 @@ noteForm.addEventListener('submit', async (e) => {
         if (capturedPhotoDataUrl) {
             photoDownloadURL = await uploadPhoto(capturedPhotoDataUrl);
         }
+
+        // Obtener el contenido HTML de Quill
+        const factsHtml = quill.root.innerHTML;
+        // Obtener el contenido de texto plano de Quill para búsqueda y exportación de texto
+        const factsText = quill.getText(); 
+
+        // Parsear las etiquetas del input
+        const tags = tagsInput.value.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
+
         const noteData = {
             interventionLocation: document.getElementById('interventionLocation').value,
             documentNumber: document.getElementById('documentNumber').value,
@@ -181,34 +269,43 @@ noteForm.addEventListener('submit', async (e) => {
             parentsName: document.getElementById('parentsName').value,
             address: document.getElementById('address').value,
             phone: document.getElementById('phone').value,
-            facts: factsTextarea.value,
+            factsHtml: factsHtml,   // Guardar HTML
+            factsText: factsText,   // Guardar texto plano para búsqueda
+            tags: tags,             // Guardar etiquetas
             photoUrl: photoDownloadURL,
         };
         await saveNoteToFirestore(noteData);
-        noteForm.reset();
-        factsTextarea.value = '';
-        capturedPhotoDataUrl = null;
+        noteForm.reset(); // Limpiar el formulario
+        quill.setText(''); // Limpiar el editor Quill
+        tagsInput.value = ''; // Limpiar el input de etiquetas
+        capturedPhotoDataUrl = null; // Limpiar la foto capturada
         if (photoPreview) {
             photoPreview.src = '#';
-            photoPreview.style.display = 'none';
+            photoPreview.style.display = 'none'; // Ocultar la previsualización de la foto
         }
-        alert("Nota guardada en la nube exitosamente.");
+        // Usar un modal personalizado en lugar de `alert()`
+        createAlertDialog("Nota guardada en la nube exitosamente.").present();
     } catch (error) {
         console.error("Error durante el proceso de guardado:", error);
-        alert(`Hubo un error al guardar la nota: ${error.message}`);
+        // Usar un modal personalizado en lugar de `alert()`
+        createAlertDialog(`Hubo un error al guardar la nota.`, `Mensaje: ${error.message}`).present();
     } finally {
         saveNoteButton.disabled = false;
         saveNoteButton.innerHTML = `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg><span>Guardar Nota</span>`;
     }
 });
 
-function displayNotes(notes) {
-    if (!notes || notes.length === 0) {
-        notesContainer.innerHTML = "<p>No hay notas guardadas en la nube.</p>";
+function displayNotes(notesToShow) { // Ahora acepta un argumento para las notas a mostrar
+    if (!notesToShow || notesToShow.length === 0) {
+        notesContainer.innerHTML = "<p>No hay notas que coincidan con la búsqueda.</p>";
         return;
     }
-    notesContainer.innerHTML = notes.map(note => {
+    notesContainer.innerHTML = notesToShow.map(note => {
         const displayTimestamp = note.createdAt?.toDate() ? note.createdAt.toDate().toLocaleString('es-ES') : 'N/A';
+        const tagsHtml = (note.tags && note.tags.length > 0) 
+            ? `<div class="note-tags">${note.tags.map(tag => `<span class="note-tag">${tag}</span>`).join('')}</div>`
+            : '';
+
         return `
         <div class="note">
             <p><strong>Fecha y Hora:</strong> ${displayTimestamp}</p>
@@ -220,7 +317,8 @@ function displayNotes(notes) {
             <p><strong>Padres:</strong> ${note.parentsName || 'N/A'}</p>
             <p><strong>Dirección:</strong> ${note.address || 'N/A'}</p>
             <p><strong>Teléfono:</strong> ${note.phone || 'N/A'}</p>
-            <p><strong>Hechos:</strong> ${note.facts || 'N/A'}</p>
+            <p><strong>Hechos:</strong> <div class="ql-editor-readonly">${note.factsHtml || 'N/A'}</div></p>
+            ${tagsHtml}
             ${note.photoUrl ? `<img src="${note.photoUrl}" alt="Foto del documento" class="note-photo" loading="lazy">` : ''}
             <div class="note-actions">
                 <button class="btn btn-delete" onclick="window.deleteNote('${note.id}')">Eliminar</button>
@@ -230,13 +328,25 @@ function displayNotes(notes) {
             </div>
         </div>`;
     }).join('');
+
+    // Para que el contenido HTML de Quill se renderice correctamente,
+    // necesitamos limpiar cualquier script o elemento peligroso si la nota se edita.
+    // Para simplificar, aquí se asume que el HTML ya es seguro.
+    // Si permites editar notas existentes, necesitarías un editor Quill para ello.
+    notesContainer.querySelectorAll('.ql-editor-readonly').forEach(el => {
+        el.innerHTML = el.innerHTML; // Esto "sanitiza" el HTML para ser mostrado
+    });
 }
+
+// Event Listener para la barra de búsqueda
+noteSearchInput.addEventListener('input', applyNotesFilter); // Llama a la función de filtro cada vez que se escribe
 
 window.deleteNote = deleteNoteAndPhoto;
 
 window.shareNote = async function(noteData) {
     const displayTimestamp = noteData.createdAt?.seconds ? new Date(noteData.createdAt.seconds * 1000).toLocaleString('es-ES') : 'N/A';
-    let shareText = `Nota Policial:\nFecha: ${displayTimestamp}\nLugar de Intervención: ${noteData.interventionLocation || 'N/A'}\nDocumento: ${noteData.documentNumber || 'N/A'}\nNombre: ${noteData.fullName || 'N/A'}\nLugar de Nacimiento: ${noteData.birthPlace || 'N/A'}\nFecha de Nacimiento: ${noteData.birthdate || 'N/A'}\nPadres: ${noteData.parentsName || 'N/A'}\nDirección: ${noteData.address || 'N/A'}\nTeléfono: ${noteData.phone || 'N/A'}\nHechos: ${noteData.facts || 'N/A'}`;
+    // Usar factsText para compartir como texto plano
+    let shareText = `Nota Policial:\nFecha: ${displayTimestamp}\nLugar de Intervención: ${noteData.interventionLocation || 'N/A'}\nDocumento: ${noteData.documentNumber || 'N/A'}\nNombre: ${noteData.fullName || 'N/A'}\nLugar de Nacimiento: ${noteData.birthPlace || 'N/A'}\nFecha de Nacimiento: ${noteData.birthdate || 'N/A'}\nPadres: ${noteData.parentsName || 'N/A'}\nDirección: ${noteData.address || 'N/A'}\nTeléfono: ${noteData.phone || 'N/A'}\nHechos: ${noteData.factsText || 'N/A'}\nEtiquetas: ${(noteData.tags || []).join(', ')}`;
     const shareOptions = { title: 'Nota Policial', text: shareText };
     if (noteData.photoUrl) {
         try {
@@ -247,24 +357,25 @@ window.shareNote = async function(noteData) {
     }
     try {
         if (navigator.share) await navigator.share(shareOptions);
-        else alert('La función de compartir no es compatible con este navegador.');
+        else createAlertDialog('La función de compartir no es compatible con este navegador.').present(); // Usar modal
     } catch (err) { if (err.name !== 'AbortError') console.error('Error al compartir la nota:', err); }
 }
 
 window.copyNoteText = async function(noteData) {
     const displayTimestamp = noteData.createdAt?.seconds ? new Date(noteData.createdAt.seconds * 1000).toLocaleString('es-ES') : 'N/A';
-    let noteText = `Nota Policial:\nFecha: ${displayTimestamp}\nLugar de Intervención: ${noteData.interventionLocation || 'N/A'}\nDocumento: ${noteData.documentNumber || 'N/A'}\nNombre: ${noteData.fullName || 'N/A'}\nLugar de Nacimiento: ${noteData.birthPlace || 'N/A'}\nFecha de Nacimiento: ${noteData.birthdate || 'N/A'}\nPadres: ${noteData.parentsName || 'N/A'}\nDirección: ${noteData.address || 'N/A'}\nTeléfono: ${noteData.phone || 'N/A'}\nHechos: ${noteData.facts || 'N/A'}`;
+    // Usar factsText para copiar como texto plano
+    let noteText = `Nota Policial:\nFecha: ${displayTimestamp}\nLugar de Intervención: ${noteData.interventionLocation || 'N/A'}\nDocumento: ${noteData.documentNumber || 'N/A'}\nNombre: ${noteData.fullName || 'N/A'}\nLugar de Nacimiento: ${noteData.birthPlace || 'N/A'}\nFecha de Nacimiento: ${noteData.birthdate || 'N/A'}\nPadres: ${noteData.parentsName || 'N/A'}\nDirección: ${noteData.address || 'N/A'}\nTeléfono: ${noteData.phone || 'N/A'}\nHechos: ${noteData.factsText || 'N/A'}\nEtiquetas: ${(noteData.tags || []).join(', ')}`;
     try {
         await navigator.clipboard.writeText(noteText);
-        alert('Texto de la nota copiado al portapapeles.');
+        createAlertDialog('Texto de la nota copiado al portapapeles.').present(); // Usar modal
     } catch (err) {
         console.error('Error al copiar el texto:', err);
-        alert('No se pudo copiar el texto.');
+        createAlertDialog('No se pudo copiar el texto.').present(); // Usar modal
     }
 }
 
 window.downloadNotePhoto = (photoUrl) => {
-    if (!photoUrl) return alert('Esta nota no tiene foto.');
+    if (!photoUrl) return createAlertDialog('Esta nota no tiene foto.').present(); // Usar modal
     const a = document.createElement('a');
     a.href = photoUrl;
     a.download = 'foto_nota.png';
@@ -273,33 +384,199 @@ window.downloadNotePhoto = (photoUrl) => {
     document.body.removeChild(a);
 }
 
+// Función para generar un informe de texto (ya existente)
 generateReportButton.addEventListener('click', async () => {
-    if (!currentUserId) return alert("Debes estar conectado para generar un informe.");
+    if (!currentUserId) return createAlertDialog("Debes estar conectado para generar un informe.").present(); // Usar modal
     console.log("Generando informe de notas...");
-    const notesToReport = [];
-    const q = query(collection(db, "users", currentUserId, "notes"));
-    try {
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach((doc) => notesToReport.push(doc.data()));
-        notesToReport.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
-        let reportText = 'Informe de Intervenciones\n\n';
-        notesToReport.forEach((note, index) => {
-            const displayTimestamp = note.createdAt?.toDate() ? note.createdAt.toDate().toLocaleString('es-ES') : 'N/A';
-            reportText += `Intervención ${index + 1}\n---------------------------------\nFecha y Hora: ${displayTimestamp}\nLugar de Intervención: ${note.interventionLocation || 'N/A'}\nDocumento: ${note.documentNumber || 'N/A'}\nNombre: ${note.fullName || 'N/A'}\nLugar de Nacimiento: ${note.birthPlace || 'N/A'}\nFecha de Nacimiento: ${note.birthdate || 'N/A'}\nPadres: ${note.parentsName || 'N/A'}\nDirección: ${note.address || 'N/A'}\nTeléfono: ${note.phone || 'N/A'}\nHechos: ${note.facts || 'N/A'}\n---------------------------------\n\n`;
-        });
-        const blob = new Blob([reportText], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'informe_intervenciones.txt';
-        a.click();
-        URL.revokeObjectURL(url);
-        console.log("Informe generado y descargado.");
-    } catch (error) {
-        console.error(`Error al generar el informe: ${error.message}`);
-        alert("No se pudo generar el informe.");
-    }
+    // Usamos allNotes para el informe, no las notas filtradas
+    const notesToReport = [...allNotes]; // Crear una copia para asegurar que no se modifique el original
+    
+    // allNotes ya están ordenadas por createdAt
+    let reportText = 'Informe de Intervenciones\n\n';
+    notesToReport.forEach((note, index) => {
+        const displayTimestamp = note.createdAt?.toDate() ? note.createdAt.toDate().toLocaleString('es-ES') : 'N/A';
+        reportText += `Intervención ${index + 1}\n---------------------------------\nFecha y Hora: ${displayTimestamp}\nLugar de Intervención: ${note.interventionLocation || 'N/A'}\nDocumento: ${note.documentNumber || 'N/A'}\nNombre: ${note.fullName || 'N/A'}\nLugar de Nacimiento: ${note.birthPlace || 'N/A'}\nFecha de Nacimiento: ${note.birthdate || 'N/A'}\nPadres: ${note.parentsName || 'N/A'}\nDirección: ${note.address || 'N/A'}\nTeléfono: ${note.phone || 'N/A'}\nHechos: ${note.factsText || 'N/A'}\nEtiquetas: ${(note.tags || []).join(', ')}\n---------------------------------\n\n`;
+    });
+    const blob = new Blob([reportText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'informe_intervenciones.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+    console.log("Informe generado y descargado.");
 });
+
+// NUEVA FUNCIONALIDAD: Exportar a PDF
+exportPdfBtn.addEventListener('click', async () => {
+    if (!currentUserId) return createAlertDialog("Debes estar conectado para exportar a PDF.").present();
+    if (allNotes.length === 0) return createAlertDialog("No hay notas para exportar a PDF.").present();
+
+    createAlertDialog("Generando PDF... por favor espera.").present(); // Mensaje de aviso
+
+    const doc = new window.jspdf.jsPDF(); // Crear una nueva instancia de jsPDF
+    let yPos = 10;
+    const margin = 10;
+    const pageHeight = doc.internal.pageSize.height;
+    const pageWidth = doc.internal.pageSize.width;
+
+    // Título del documento PDF
+    doc.setFontSize(22);
+    doc.text("Informe de Notas GUARD-IA", pageWidth / 2, yPos, { align: 'center' });
+    yPos += 15;
+
+    // Iterar sobre cada nota
+    for (const note of allNotes) {
+        if (yPos + 50 > pageHeight) { // Estimación de espacio necesario para una nueva nota
+            doc.addPage();
+            yPos = margin; // Resetear posición Y para la nueva página
+        }
+
+        doc.setFontSize(14);
+        doc.setTextColor(57, 255, 20); // Color primario de tu app (verde neón)
+        doc.text(`Nota: ${note.id}`, margin, yPos);
+        yPos += 8;
+        doc.setTextColor(0, 0, 0); // Color negro para el texto normal
+        doc.setFontSize(10);
+
+        const fields = [
+            { label: "Fecha y Hora", value: note.createdAt?.toDate() ? note.createdAt.toDate().toLocaleString('es-ES') : 'N/A' },
+            { label: "Lugar de Intervención", value: note.interventionLocation || 'N/A' },
+            { label: "Documento", value: note.documentNumber || 'N/A' },
+            { label: "Nombre", value: note.fullName || 'N/A' },
+            { label: "Lugar de nacimiento", value: note.birthPlace || 'N/A' },
+            { label: "Fecha de nacimiento", value: note.birthdate || 'N/A' },
+            { label: "Padres", value: note.parentsName || 'N/A' },
+            { label: "Dirección", value: note.address || 'N/A' },
+            { label: "Teléfono", value: note.phone || 'N/A' },
+            { label: "Etiquetas", value: (note.tags || []).join(', ') || 'N/A' }
+        ];
+
+        fields.forEach(field => {
+            doc.text(`${field.label}: ${field.value}`, margin, yPos);
+            yPos += 6;
+        });
+        
+        // Convertir el contenido HTML de Quill a una imagen o texto
+        doc.text("Hechos:", margin, yPos);
+        yPos += 6;
+
+        // Crear un elemento temporal para renderizar el HTML del hecho y luego usar html2canvas
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = note.factsHtml || 'N/A';
+        tempDiv.style.width = `${pageWidth - 2 * margin}px`; // Ajustar al ancho de la página
+        tempDiv.style.fontSize = '10px'; // Asegurar el tamaño de fuente
+        tempDiv.style.color = 'black'; // Asegurar color de texto
+        tempDiv.style.fontFamily = 'sans-serif'; // Asegurar fuente
+        document.body.appendChild(tempDiv); // Añadirlo temporalmente al DOM
+
+        try {
+            const canvas = await html2canvas(tempDiv, { scale: 2, logging: false }); // Aumentar escala para mejor calidad
+            const imgData = canvas.toDataURL('image/png');
+            const imgWidth = pageWidth - 2 * margin; // Ancho de la imagen en el PDF
+            const imgHeight = canvas.height * imgWidth / canvas.width;
+
+            if (yPos + imgHeight > pageHeight) { // Si la imagen no cabe, añadir nueva página
+                doc.addPage();
+                yPos = margin;
+            }
+            doc.addImage(imgData, 'PNG', margin, yPos, imgWidth, imgHeight);
+            yPos += imgHeight + 5; // Espacio después de la imagen
+        } catch (error) {
+            console.error("Error al renderizar hechos HTML para PDF:", error);
+            doc.text("Error al cargar el contenido de 'Hechos'.", margin, yPos);
+            yPos += 10;
+        } finally {
+            document.body.removeChild(tempDiv); // Eliminar el div temporal
+        }
+        
+        // Si hay foto, añadirla al PDF
+        if (note.photoUrl) {
+            if (yPos + 50 > pageHeight) { // Espacio para la foto
+                doc.addPage();
+                yPos = margin;
+            }
+            try {
+                const img = new Image();
+                img.src = note.photoUrl;
+                await new Promise(resolve => img.onload = resolve);
+                const imgWidth = 80; // Ancho fijo para la foto en el PDF
+                const imgHeight = (img.height * imgWidth) / img.width;
+                if (yPos + imgHeight > pageHeight) { // Si la imagen no cabe, añadir nueva página
+                    doc.addPage();
+                    yPos = margin;
+                }
+                doc.addImage(img, 'PNG', margin, yPos, imgWidth, imgHeight);
+                yPos += imgHeight + 5;
+            } catch (error) {
+                console.error("Error al cargar la foto para PDF:", error);
+                doc.text("Error al cargar la foto.", margin, yPos);
+                yPos += 10;
+            }
+        }
+        yPos += 10; // Espacio entre notas
+    }
+
+    doc.save('informe_notas_GUARDIA.pdf');
+    createAlertDialog("PDF generado exitosamente.").present();
+});
+
+
+// NUEVA FUNCIONALIDAD: Exportar a CSV
+exportCsvBtn.addEventListener('click', async () => {
+    if (!currentUserId) return createAlertDialog("Debes estar conectado para exportar a CSV.").present();
+    if (allNotes.length === 0) return createAlertDialog("No hay notas para exportar a CSV.").present();
+
+    let csvContent = "";
+    const headers = [
+        "ID", "Fecha y Hora", "Lugar de Intervención", "Número de Documento", 
+        "Nombre Completo", "Lugar de Nacimiento", "Fecha de Nacimiento", "Teléfono",
+        "Nombre del Padre/Madre", "Dirección", "Hechos (Texto Plano)", "Etiquetas", "URL de Foto"
+    ];
+    csvContent += headers.join(",") + "\n"; // Añadir encabezados
+
+    allNotes.forEach(note => {
+        // Asegurarse de que cada campo se formatea correctamente para CSV
+        const escapeCsv = (text) => {
+            if (text === null || text === undefined) return '';
+            text = String(text);
+            if (text.includes(',') || text.includes('"') || text.includes('\n') || text.includes('\r')) {
+                return `"${text.replace(/"/g, '""')}"`; // Escapar comillas dobles y encerrar en comillas
+            }
+            return text;
+        };
+
+        const displayTimestamp = note.createdAt?.toDate() ? note.createdAt.toDate().toLocaleString('es-ES') : 'N/A';
+        const row = [
+            escapeCsv(note.id),
+            escapeCsv(displayTimestamp),
+            escapeCsv(note.interventionLocation),
+            escapeCsv(note.documentNumber),
+            escapeCsv(note.fullName),
+            escapeCsv(note.birthPlace),
+            escapeCsv(note.birthdate),
+            escapeCsv(note.phone),
+            escapeCsv(note.parentsName),
+            escapeCsv(note.address),
+            escapeCsv(note.factsText), // Texto plano de los hechos
+            escapeCsv((note.tags || []).join('; ')), // Etiquetas separadas por punto y coma en CSV
+            escapeCsv(note.photoUrl)
+        ];
+        csvContent += row.join(",") + "\n";
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "notas_GUARDIA.csv");
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    createAlertDialog("CSV generado y descargado exitosamente.").present();
+});
+
 
 takePhotoButton.addEventListener('click', () => {
     if (navigator.mediaDevices?.getUserMedia) {
@@ -312,9 +589,9 @@ takePhotoButton.addEventListener('click', () => {
             })
             .catch(err => {
                 console.error(`Error al acceder a la cámara: ${err.message}`);
-                alert("No se pudo acceder a la cámara.");
+                createAlertDialog("No se pudo acceder a la cámara.").present(); // Usar modal
             });
-    } else alert("Tu navegador no soporta acceso a la cámara.");
+    } else createAlertDialog("Tu navegador no soporta acceso a la cámara.").present(); // Usar modal
 });
 
 captureButton.addEventListener('click', () => {
@@ -339,4 +616,155 @@ function closeCameraModal() {
     }
     video.srcObject = null;
     cameraModal.style.display = 'none';
+}
+
+
+// --- FUNCIONES DE MODAL PERSONALIZADAS (REEMPLAZO DE ALERT/CONFIRM) ---
+// Estas funciones crean y muestran un modal de alerta o confirmación simple.
+// Se recomienda mover los estilos asociados a styles.css para un CSS limpio.
+
+// Estilos básicos para los modales (puedes mover esto a styles.css)
+const modalStyles = `
+    .custom-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000; /* Mayor que otros z-index */
+        animation: fadeIn 0.3s ease-out;
+    }
+    .custom-modal-content {
+        background-color: var(--color-bg-secondary);
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+        color: var(--color-text);
+        animation: slideIn 0.3s ease-out;
+    }
+    .custom-modal-content h3 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        color: var(--neon-green);
+    }
+    .custom-modal-content p {
+        font-size: 1rem;
+        margin-bottom: 20px;
+        line-height: 1.5;
+    }
+    .custom-modal-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+    .custom-modal-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.2s ease;
+    }
+    .custom-modal-btn.confirm {
+        background-color: var(--color-btn-delete); /* Rojo para confirmar eliminar */
+        color: white;
+    }
+    .custom-modal-btn.confirm:hover {
+        background-color: var(--color-btn-delete-hover);
+    }
+    .custom-modal-btn.cancel {
+        background-color: var(--color-secondary); /* Verde secundario para cancelar */
+        color: black;
+    }
+    .custom-modal-btn.cancel:hover {
+        background-color: #20b000;
+    }
+    .custom-modal-btn.alert {
+        background-color: var(--color-primary); /* Verde primario para alertas */
+        color: black;
+    }
+    .custom-modal-btn.alert:hover {
+        background-color: var(--primary-hover);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes slideIn {
+        from { transform: translateY(-30px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+`;
+
+// Inyectar estilos del modal al cargar la página
+const styleSheet = document.createElement("style");
+styleSheet.type = "text/css";
+styleSheet.innerText = modalStyles;
+document.head.appendChild(styleSheet);
+
+
+function createAlertDialog(message, details = '') {
+    const overlay = document.createElement('div');
+    overlay.className = 'custom-modal-overlay';
+    overlay.innerHTML = `
+        <div class="custom-modal-content">
+            <h3>Aviso</h3>
+            <p>${message}</p>
+            ${details ? `<p style="font-size:0.85rem; color: var(--text-medium-color); margin-top: -10px;">${details}</p>` : ''}
+            <div class="custom-modal-buttons">
+                <button class="custom-modal-btn alert">Aceptar</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    return {
+        present: () => {
+            return new Promise(resolve => {
+                overlay.querySelector('.custom-modal-btn.alert').onclick = () => {
+                    document.body.removeChild(overlay);
+                    resolve(true);
+                };
+            });
+        }
+    };
+}
+
+function createConfirmationModal(message) {
+    const overlay = document.createElement('div');
+    overlay.className = 'custom-modal-overlay';
+    overlay.innerHTML = `
+        <div class="custom-modal-content">
+            <h3>Confirmación</h3>
+            <p>${message}</p>
+            <div class="custom-modal-buttons">
+                <button class="custom-modal-btn confirm">Confirmar</button>
+                <button class="custom-modal-btn cancel">Cancelar</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    return {
+        present: () => {
+            return new Promise(resolve => {
+                overlay.querySelector('.custom-modal-btn.confirm').onclick = () => {
+                    document.body.removeChild(overlay);
+                    resolve(true);
+                };
+                overlay.querySelector('.custom-modal-btn.cancel').onclick = () => {
+                    document.body.removeChild(overlay);
+                    resolve(false);
+                };
+            });
+        }
+    };
 }
