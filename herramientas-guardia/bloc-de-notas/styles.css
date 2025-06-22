@@ -384,63 +384,6 @@ textarea {
 }
 
 
-/* Botón HOME fijo - NO USADO EN ESTA VERSIÓN CON ENCABEZADO FIJO */
-/*
-.home-button {
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
-  z-index: 100;
-  background: #1f2937;
-  color: white;
-  padding: 0.6rem 0.8rem;
-  border-radius: 0.6rem;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  transition: background 0.3s ease;
-}
-
-.home-button:hover {
-  background: #374151;
-}
-*/
-
-/* ESTILOS AÑADIDOS PARA BARRA DE BÚSQUEDA */
-.search-bar-container {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-grow: 1; /* Permitir que ocupe espacio flexible */
-    margin-left: 1rem; /* Espacio a la izquierda del título */
-    background-color: rgba(30, 41, 59, 0.5); /* Color de input */
-    border: 1px solid var(--color-border);
-    border-radius: 0.5rem;
-    padding: 0.5rem 1rem;
-}
-.search-bar-container input {
-    flex-grow: 1;
-    background: transparent;
-    border: none;
-    padding: 0;
-    margin: 0;
-    font-size: 1rem;
-    color: var(--color-text);
-}
-.search-bar-container input::placeholder {
-    color: var(--color-text); /* Color del placeholder */
-    opacity: 0.7;
-}
-.search-bar-container input:focus {
-    outline: none;
-    box-shadow: none;
-}
-.search-bar-container .fa-search {
-    color: var(--color-primary);
-}
-
 /* ESTILOS PARA EL EDITOR QUILL.JS */
 .ql-toolbar.ql-snow, .ql-container.ql-snow {
     border: 1px solid var(--color-border) !important;
@@ -524,10 +467,6 @@ textarea {
     }
     .notes-header h2 {
         margin-bottom: 0; /* Elimina margen inferior del título */
-    }
-    .search-bar-container {
-        width: 100%; /* Ocupa todo el ancho */
-        margin-left: 0; /* Elimina margen izquierdo */
     }
     .export-buttons {
         justify-content: center; /* Centra los botones de exportación */
@@ -616,5 +555,92 @@ textarea {
 @keyframes slideIn {
     from { transform: translateY(-30px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
+}
+
+/* ESTILOS NUEVOS PARA CAMPOS COLAPSABLES */
+.collapsible-section {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+.collapsible-section summary {
+    color: var(--color-primary);
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.5rem 0;
+    list-style: none; /* Elimina el marcador por defecto */
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.collapsible-section summary::-webkit-details-marker {
+    display: none; /* Elimina el marcador en Webkit */
+}
+.collapsible-section summary::before {
+    content: '\25B6'; /* Triángulo derecho */
+    font-size: 0.8rem;
+    transition: transform 0.2s;
+    margin-right: 0.5rem;
+}
+.collapsible-section[open] summary::before {
+    content: '\25BC'; /* Triángulo hacia abajo */
+    transform: rotate(90deg); /* Rotación para simular el desplegado */
+}
+.collapsible-content {
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05); /* Separador suave */
+    margin-top: 0.5rem;
+}
+/* Estilos para los checkbox de etiquetas predefinidas */
+.predefined-tags-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+.predefined-tags-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    color: var(--color-text);
+    font-size: 0.9rem;
+    font-weight: normal; /* Sobrescribe el font-weight de label general */
+    padding: 0.4rem 0.8rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    transition: background-color 0.2s, border-color 0.2s;
+    background-color: rgba(30, 41, 59, 0.5); /* Fondo de input */
+}
+.predefined-tags-group label:hover {
+    background-color: rgba(45, 56, 70, 0.7);
+    border-color: var(--color-primary);
+}
+.predefined-tags-group input[type="checkbox"] {
+    /* Estilos básicos para el checkbox, puedes personalizarlos más */
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1rem;
+    height: 1rem;
+    border: 1px solid var(--color-primary);
+    border-radius: 0.25rem;
+    background-color: transparent;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.predefined-tags-group input[type="checkbox"]:checked {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+.predefined-tags-group input[type="checkbox"]:checked::after {
+    content: '\2713'; /* Símbolo de check */
+    color: black; /* Color del check */
+    font-size: 0.7rem;
+    line-height: 1;
 }
 
