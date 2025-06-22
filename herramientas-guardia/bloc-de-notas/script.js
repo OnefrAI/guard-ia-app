@@ -49,10 +49,13 @@ const photoPreview = document.getElementById('photoPreview');
 const authStateDiv = document.getElementById('auth-state');
 const appContentDiv = document.getElementById('app-content');
 const userInfoDiv = document.getElementById('user-info');
-// const noteSearchInput = document.getElementById('noteSearchInput'); // REMOVIDO: ya no hay barra de búsqueda
-const predefinedTagCheckboxes = document.querySelectorAll('input[name="tag"]'); // NUEVA REFERENCIA
 const exportPdfBtn = document.getElementById('exportPdfBtn');
 const exportCsvBtn = document.getElementById('exportCsvBtn');
+
+// NUEVAS REFERENCIAS PARA EL DESPLEGABLE DE ETIQUETAS
+const tagsDropdownInput = document.getElementById('tagsDropdownInput');
+const tagsDropdownOptions = document.getElementById('tagsDropdownOptions');
+const selectedTagsDisplay = document.getElementById('selectedTagsDisplay');
 
 // Camera Modal Elements
 const cameraModal = document.getElementById('cameraModal');
@@ -86,6 +89,14 @@ const quill = new Quill('#editor-container', {
     placeholder: 'Escribe aquí los hechos y detalles de la intervención...',
 });
 
+// MAPA DE ETIQUETAS Y CLASES DE COLOR
+const tagColorMap = {
+    "Servicio de Sala": "tag-servicio-de-sala",
+    "A requerimiento": "tag-a-requerimiento",
+    "Por superioridad": "tag-por-superioridad",
+    "Otros": "tag-otros"
+};
+let selectedTags = []; // Array para almacenar las etiquetas seleccionadas
 
 // Global state
 let mediaStream = null;
@@ -148,7 +159,6 @@ function listenForNotes() {
         // Ordenar todas las notas por fecha de creación (más reciente primero)
         allNotes.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
         
-        // Ahora se muestran todas las notas directamente, ya no hay filtro de búsqueda
         displayNotes(allNotes); 
         console.log(`Se han cargado ${allNotes.length} nota(s) desde la nube.`);
     }, (error) => {
@@ -156,8 +166,6 @@ function listenForNotes() {
         notesContainer.innerHTML = "<p>Error al cargar las notas. Por favor, recarga la página.</p>";
     });
 }
-
-// La función applyNotesFilter ha sido eliminada ya que la barra de búsqueda no está.
 
 async function saveNoteToFirestore(noteData) {
     if (!currentUserId) throw new Error("Usuario no autenticado para guardar.");
@@ -200,6 +208,49 @@ async function deleteNoteAndPhoto(noteId) {
     }
 }
 
+// --- Lógica del desplegable de Etiquetas ---
+tagsDropdownInput.addEventListener('click', (e) => {
+    e.stopPropagation(); // Evita que el clic se propague al document y cierre inmediatamente
+    tagsDropdownOptions.classList.toggle('active');
+});
+
+tagsDropdownOptions.addEventListener('click', (e) => {
+    if (e.target.classList.contains('dropdown-option')) {
+        const tagValue = e.target.dataset.value;
+        if (!selectedTags.includes(tagValue)) {
+            selectedTags.push(tagValue);
+            renderSelectedTags();
+        }
+    }
+});
+
+// Cerrar el dropdown si se hace clic fuera
+document.addEventListener('click', (e) => {
+    if (!tagsDropdownInput.contains(e.target) && !tagsDropdownOptions.contains(e.target)) {
+        tagsDropdownOptions.classList.remove('active');
+    }
+});
+
+function renderSelectedTags() {
+    selectedTagsDisplay.innerHTML = '';
+    selectedTags.forEach(tag => {
+        const tagItem = document.createElement('span');
+        const tagClass = tagColorMap[tag] || ''; // Obtener clase de color
+        tagItem.className = `selected-tag-item ${tagClass}`;
+        tagItem.innerHTML = `${tag} <i class="fas fa-times-circle remove-tag-icon" data-tag="${tag}"></i>`;
+        tagItem.querySelector('.remove-tag-icon').addEventListener('click', (e) => {
+            e.stopPropagation(); // Evita que se cierre el dropdown
+            removeTag(e.target.dataset.tag);
+        });
+        selectedTagsDisplay.appendChild(tagItem);
+    });
+}
+
+function removeTag(tagToRemove) {
+    selectedTags = selectedTags.filter(tag => tag !== tagToRemove);
+    renderSelectedTags();
+}
+
 // --- Main Application Logic ---
 noteForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -212,15 +263,8 @@ noteForm.addEventListener('submit', async (e) => {
             photoDownloadURL = await uploadPhoto(capturedPhotoDataUrl);
         }
 
-        // Obtener el contenido HTML de Quill
         const factsHtml = quill.root.innerHTML;
-        // Obtener el contenido de texto plano de Quill para búsqueda y exportación de texto
         const factsText = quill.getText(); 
-
-        // Obtener las etiquetas seleccionadas de los checkboxes
-        const selectedTags = Array.from(predefinedTagCheckboxes)
-                                .filter(checkbox => checkbox.checked)
-                                .map(checkbox => checkbox.value);
 
         const noteData = {
             interventionLocation: document.getElementById('interventionLocation').value,
@@ -231,20 +275,20 @@ noteForm.addEventListener('submit', async (e) => {
             parentsName: document.getElementById('parentsName').value,
             address: document.getElementById('address').value,
             phone: document.getElementById('phone').value,
-            factsHtml: factsHtml,   // Guardar HTML
-            factsText: factsText,   // Guardar texto plano para búsqueda
-            tags: selectedTags,     // Guardar etiquetas seleccionadas
+            factsHtml: factsHtml,
+            factsText: factsText,
+            tags: selectedTags, // Usar las etiquetas del array
             photoUrl: photoDownloadURL,
         };
         await saveNoteToFirestore(noteData);
         noteForm.reset(); // Limpiar el formulario
         quill.setText(''); // Limpiar el editor Quill
-        // Desmarcar todas las etiquetas predefinidas
-        predefinedTagCheckboxes.forEach(checkbox => checkbox.checked = false); 
-        capturedPhotoDataUrl = null; // Limpiar la foto capturada
+        selectedTags = []; // Resetear etiquetas seleccionadas
+        renderSelectedTags(); // Actualizar la visualización de etiquetas
+        capturedPhotoDataUrl = null;
         if (photoPreview) {
             photoPreview.src = '#';
-            photoPreview.style.display = 'none'; // Ocultar la previsualización de la foto
+            photoPreview.style.display = 'none';
         }
         createAlertDialog("Nota guardada en la nube exitosamente.").present();
     } catch (error) {
@@ -258,13 +302,16 @@ noteForm.addEventListener('submit', async (e) => {
 
 function displayNotes(notesToShow) { 
     if (!notesToShow || notesToShow.length === 0) {
-        notesContainer.innerHTML = "<p>No hay notas guardadas en la nube.</p>"; // Actualizado el mensaje
+        notesContainer.innerHTML = "<p>No hay notas guardadas en la nube.</p>";
         return;
     }
     notesContainer.innerHTML = notesToShow.map(note => {
         const displayTimestamp = note.createdAt?.toDate() ? note.createdAt.toDate().toLocaleString('es-ES') : 'N/A';
         const tagsHtml = (note.tags && note.tags.length > 0) 
-            ? `<div class="note-tags">${note.tags.map(tag => `<span class="note-tag">${tag}</span>`).join('')}</div>`
+            ? `<div class="note-tags">${note.tags.map(tag => {
+                const tagClass = tagColorMap[tag] || ''; // Obtener clase de color para el tag
+                return `<span class="note-tag ${tagClass}">${tag}</span>`;
+            }).join('')}</div>`
             : '';
 
         return `
@@ -294,8 +341,6 @@ function displayNotes(notesToShow) {
         el.innerHTML = el.innerHTML;
     });
 }
-
-// Ya no se necesita event listener para noteSearchInput ya que se eliminó.
 
 window.deleteNote = deleteNoteAndPhoto;
 
@@ -338,7 +383,6 @@ window.downloadNotePhoto = (photoUrl) => {
     document.body.removeChild(a);
 }
 
-// Función para generar un informe de texto (ya existente)
 generateReportButton.addEventListener('click', async () => {
     if (!currentUserId) return createAlertDialog("Debes estar conectado para generar un informe.").present();
     console.log("Generando informe de notas...");
@@ -359,36 +403,33 @@ generateReportButton.addEventListener('click', async () => {
     console.log("Informe generado y descargado.");
 });
 
-// FUNCIONALIDAD: Exportar a PDF
 exportPdfBtn.addEventListener('click', async () => {
     if (!currentUserId) return createAlertDialog("Debes estar conectado para exportar a PDF.").present();
     if (allNotes.length === 0) return createAlertDialog("No hay notas para exportar a PDF.").present();
 
     createAlertDialog("Generando PDF... por favor espera.").present();
 
-    const doc = new window.jspdf.jsPDF(); // Crear una nueva instancia de jsPDF
+    const doc = new window.jspdf.jsPDF();
     let yPos = 10;
     const margin = 10;
     const pageHeight = doc.internal.pageSize.height;
     const pageWidth = doc.internal.pageSize.width;
 
-    // Título del documento PDF
     doc.setFontSize(22);
     doc.text("Informe de Notas GUARD-IA", pageWidth / 2, yPos, { align: 'center' });
     yPos += 15;
 
-    // Iterar sobre cada nota
     for (const note of allNotes) {
-        if (yPos + 50 > pageHeight) { // Estimación de espacio necesario para una nueva nota
+        if (yPos + 50 > pageHeight) {
             doc.addPage();
-            yPos = margin; // Resetear posición Y para la nueva página
+            yPos = margin;
         }
 
         doc.setFontSize(14);
-        doc.setTextColor(57, 255, 20); // Color primario de tu app (verde neón)
+        doc.setTextColor(57, 255, 20);
         doc.text(`Nota: ${note.id}`, margin, yPos);
         yPos += 8;
-        doc.setTextColor(0, 0, 0); // Color negro para el texto normal
+        doc.setTextColor(0, 0, 0);
         doc.setFontSize(10);
 
         const fields = [
@@ -409,42 +450,39 @@ exportPdfBtn.addEventListener('click', async () => {
             yPos += 6;
         });
         
-        // Convertir el contenido HTML de Quill a una imagen o texto
         doc.text("Hechos:", margin, yPos);
         yPos += 6;
 
-        // Crear un elemento temporal para renderizar el HTML del hecho y luego usar html2canvas
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = note.factsHtml || 'N/A';
-        tempDiv.style.width = `${pageWidth - 2 * margin}px`; // Ajustar al ancho de la página
-        tempDiv.style.fontSize = '10px'; // Asegurar el tamaño de fuente
-        tempDiv.style.color = 'black'; // Asegurar color de texto
-        tempDiv.style.fontFamily = 'sans-serif'; // Asegurar fuente
-        document.body.appendChild(tempDiv); // Añadirlo temporalmente al DOM
+        tempDiv.style.width = `${pageWidth - 2 * margin}px`;
+        tempDiv.style.fontSize = '10px';
+        tempDiv.style.color = 'black';
+        tempDiv.style.fontFamily = 'sans-serif';
+        document.body.appendChild(tempDiv);
 
         try {
-            const canvas = await html2canvas(tempDiv, { scale: 2, logging: false }); // Aumentar escala para mejor calidad
+            const canvas = await html2canvas(tempDiv, { scale: 2, logging: false });
             const imgData = canvas.toDataURL('image/png');
-            const imgWidth = pageWidth - 2 * margin; // Ancho de la imagen en el PDF
+            const imgWidth = pageWidth - 2 * margin;
             const imgHeight = canvas.height * imgWidth / canvas.width;
 
-            if (yPos + imgHeight > pageHeight) { // Si la imagen no cabe, añadir nueva página
+            if (yPos + imgHeight > pageHeight) {
                 doc.addPage();
                 yPos = margin;
             }
             doc.addImage(imgData, 'PNG', margin, yPos, imgWidth, imgHeight);
-            yPos += imgHeight + 5; // Espacio después de la imagen
+            yPos += imgHeight + 5;
         } catch (error) {
             console.error("Error al renderizar hechos HTML para PDF:", error);
             doc.text("Error al cargar el contenido de 'Hechos'.", margin, yPos);
             yPos += 10;
         } finally {
-            document.body.removeChild(tempDiv); // Eliminar el div temporal
+            document.body.removeChild(tempDiv);
         }
         
-        // Si hay foto, añadirla al PDF
         if (note.photoUrl) {
-            if (yPos + 50 > pageHeight) { // Espacio para la foto
+            if (yPos + 50 > pageHeight) {
                 doc.addPage();
                 yPos = margin;
             }
@@ -452,9 +490,9 @@ exportPdfBtn.addEventListener('click', async () => {
                 const img = new Image();
                 img.src = note.photoUrl;
                 await new Promise(resolve => img.onload = resolve);
-                const imgWidth = 80; // Ancho fijo para la foto en el PDF
+                const imgWidth = 80;
                 const imgHeight = (img.height * imgWidth) / img.width;
-                if (yPos + imgHeight > pageHeight) { // Si la imagen no cabe, añadir nueva página
+                if (yPos + imgHeight > pageHeight) {
                     doc.addPage();
                     yPos = margin;
                 }
@@ -466,7 +504,7 @@ exportPdfBtn.addEventListener('click', async () => {
                 yPos += 10;
             }
         }
-        yPos += 10; // Espacio entre notas
+        yPos += 10;
     }
 
     doc.save('informe_notas_GUARDIA.pdf');
@@ -474,7 +512,6 @@ exportPdfBtn.addEventListener('click', async () => {
 });
 
 
-// FUNCIONALIDAD: Exportar a CSV
 exportCsvBtn.addEventListener('click', async () => {
     if (!currentUserId) return createAlertDialog("Debes estar conectado para exportar a CSV.").present();
     if (allNotes.length === 0) return createAlertDialog("No hay notas para exportar a CSV.").present();
@@ -485,15 +522,14 @@ exportCsvBtn.addEventListener('click', async () => {
         "Nombre Completo", "Lugar de Nacimiento", "Fecha de Nacimiento", "Teléfono",
         "Nombre del Padre/Madre", "Dirección", "Hechos (Texto Plano)", "Etiquetas", "URL de Foto"
     ];
-    csvContent += headers.join(",") + "\n"; // Añadir encabezados
+    csvContent += headers.join(",") + "\n";
 
     allNotes.forEach(note => {
-        // Asegurarse de que cada campo se formatea correctamente para CSV
         const escapeCsv = (text) => {
             if (text === null || text === undefined) return '';
             text = String(text);
             if (text.includes(',') || text.includes('"') || text.includes('\n') || text.includes('\r')) {
-                return `"${text.replace(/"/g, '""')}"`; // Escapar comillas dobles y encerrar en comillas
+                return `"${text.replace(/"/g, '""')}"`;
             }
             return text;
         };
@@ -510,8 +546,8 @@ exportCsvBtn.addEventListener('click', async () => {
             escapeCsv(note.phone),
             escapeCsv(note.parentsName),
             escapeCsv(note.address),
-            escapeCsv(note.factsText), // Texto plano de los hechos
-            escapeCsv((note.tags || []).join('; ')), // Etiquetas separadas por punto y coma en CSV
+            escapeCsv(note.factsText),
+            escapeCsv((note.tags || []).join('; ')),
             escapeCsv(note.photoUrl)
         ];
         csvContent += row.join(",") + "\n";
@@ -572,9 +608,6 @@ function closeCameraModal() {
 
 
 // --- FUNCIONES DE MODAL PERSONALIZADAS (REEMPLAZO DE ALERT/CONFIRM) ---
-// Estas funciones crean y muestran un modal de alerta o confirmación simple.
-// Se asume que los estilos ya han sido inyectados o están en styles.css.
-
 function createAlertDialog(message, details = '') {
     const overlay = document.createElement('div');
     overlay.className = 'custom-modal-overlay';
