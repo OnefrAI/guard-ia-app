@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
+        /* Variables de color de la aplicación */
         :root {
             --bg-color: #0a0a0a; 
             --card-color: #1a1a1a; 
@@ -19,13 +20,14 @@
             --border-color: rgba(255, 255, 255, 0.1);
             --input-bg: #2a2a2a; 
             --info-fixed-text: #0a0a0a;
-            --result-bg: transparent; /* Changed for new layout */
+            --result-bg: transparent; 
             --error-color: #ff4d4d;
             --warning-color: #facc15;
             --success-color: #22c55e;
             --danger-color: #ef4444;
             --suspicious-color: #f59e0b;
         }
+        /* Estilos base del cuerpo */
         body { 
             background-color: var(--bg-color); 
             color: var(--text-color); 
@@ -33,6 +35,7 @@
             background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 0);
             background-size: 25px 25px;
         }
+        /* Estilos generales para botones */
         .btn {
             background-color: var(--accent-color);
             color: var(--info-fixed-text);
@@ -46,6 +49,7 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
+        /* Estilo para el loader de carga */
         .loader {
             border: 4px solid var(--border-color);
             border-top: 4px solid var(--accent-color);
@@ -54,9 +58,10 @@
             height: 24px;
             animation: spin 1s linear infinite;
         }
+        /* Animación de giro para el loader */
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* New Result Styles */
+        /* Estilos para las tarjetas de resultado */
         .result-card {
             background-color: var(--card-color);
             border: 1px solid var(--border-color);
@@ -64,6 +69,7 @@
             padding: 1.5rem;
             margin-bottom: 1.5rem;
         }
+        /* Estilos para el cuadro de veredicto */
         .verdict-box {
             padding: 1rem 1.5rem;
             border-radius: 0.5rem;
@@ -72,6 +78,7 @@
             gap: 1rem;
             color: #fff;
         }
+        /* Colores específicos para los veredictos */
         .verdict-box.seguro { background-color: var(--success-color); }
         .verdict-box.sospechoso { background-color: var(--suspicious-color); }
         .verdict-box.peligroso { background-color: var(--danger-color); }
@@ -79,6 +86,7 @@
         .verdict-icon { font-size: 2rem; }
         .verdict-text { font-size: 1.25rem; font-weight: 700; text-transform: uppercase; }
 
+        /* Estilos para la barra de riesgo */
         .risk-meter {
             background-color: var(--input-bg);
             border-radius: 9999px;
@@ -97,6 +105,7 @@
             color: #000;
             white-space: nowrap;
         }
+        /* Estilos de sección de análisis */
         .analysis-section h3 {
             font-size: 1.125rem;
             font-weight: 600;
@@ -121,7 +130,7 @@
              gap: 1rem;
         }
         
-        /* Technical Analysis Cards */
+        /* Tarjetas de análisis técnico */
         .tech-check-card {
             margin-bottom: 1rem;
             padding: 1rem;
@@ -153,11 +162,13 @@
             align-items: center;
             gap: 0.25rem;
         }
+        /* Colores de resultados técnicos */
         .tech-check-result.pass { color: var(--success-color); }
         .tech-check-result.fail { color: var(--danger-color); }
         .tech-check-result.warn { color: var(--suspicious-color); }
         .tech-check-result.info { color: #3b82f6; }
 
+        /* Detalles de experto (desplegable) */
         .expert-details summary {
             cursor: pointer;
             color: var(--text-medium-color);
@@ -182,7 +193,7 @@
             font-family: monospace;
         }
 
-        /* Modal Styles */
+        /* Estilos del modal */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center;
@@ -196,6 +207,7 @@
             transform: scale(0.95); transition: transform 0.3s;
         }
         .modal-overlay.active .modal-content { transform: scale(1); }
+        /* Botones de pestaña del modal */
         .tab-btn {
             background: transparent; border: none; padding: 0.75rem 1rem;
             color: var(--text-medium-color); cursor: pointer; border-bottom: 2px solid transparent;
@@ -207,6 +219,7 @@
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
+    <!-- Cabecera de la aplicación -->
     <header class="p-4 z-50 flex justify-between items-center bg-[var(--card-color)] border-b border-[var(--border-color)] sticky top-0 shadow-lg">
         <a href="../../index.html" class="flex items-center gap-3 hover:text-[var(--accent-color)] transition-colors">
              <i class="fas fa-arrow-left text-xl"></i>
@@ -214,32 +227,46 @@
         </a>
     </header>
 
+    <!-- Contenido principal -->
     <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div class="max-w-4xl mx-auto">
             <div class="text-center mb-8">
                 <i class="fas fa-shield-alt text-5xl text-[var(--accent-color)] mb-4"></i>
                 <h1 class="text-3xl sm:text-4xl font-bold">Emails revisados con GUARD-IA</h1>
-                <p class="text-lg text-[var(--text-medium-color)] mt-2">Pega el encabezado completo de un correo para un análisis de seguridad forense.</p>
+                <p class="text-lg text-[var(--text-medium-color)] mt-2">Pega el encabezado completo de un correo o sube un archivo .eml para un análisis de seguridad forense.</p>
             </div>
             
             <div class="bg-[var(--card-color)] p-6 rounded-xl border border-[var(--border-color)]">
+                <!-- Área de texto para pegar el encabezado -->
                 <textarea id="email-header" class="w-full h-48 p-3 bg-[var(--input-bg)] rounded-md border border-[var(--border-color)] focus:ring-2 focus:ring-[var(--accent-color)] focus:outline-none" placeholder="Pega aquí el encabezado del correo electrónico..."></textarea>
                 
+                <!-- Input de archivo EML (oculto) y botón visible para activarlo -->
+                <input type="file" id="eml-file-input" accept=".eml" class="hidden">
+                <div class="flex items-center justify-between mt-2 mb-2">
+                    <span id="eml-file-name" class="text-sm text-[var(--text-medium-color)] italic">Ningún archivo .eml seleccionado.</span>
+                    <button id="upload-eml-btn" class="btn px-4 py-2 rounded-md text-sm">
+                        <i class="fas fa-upload mr-2"></i> Subir archivo EML
+                    </button>
+                </div>
+
+                <!-- Botón de ayuda para obtener el encabezado -->
                 <div class="text-right mt-2">
                     <button id="how-to-btn" class="text-sm text-[var(--text-medium-color)] hover:text-[var(--accent-color)] transition-colors">
                         ¿Cómo obtengo el encabezado?
                     </button>
                 </div>
                 
+                <!-- Mensaje de error/retroalimentación -->
                 <div id="error-message" class="text-center text-sm text-[var(--error-color)] mt-3 h-4"></div>
 
+                <!-- Botón para iniciar el análisis -->
                 <button id="analyze-btn" class="btn w-full mt-1 py-3 rounded-md flex items-center justify-center gap-2">
                     <span id="btn-text">Analizar Encabezado</span>
                     <div id="btn-loader" class="loader hidden"></div>
                 </button>
             </div>
 
-            <!-- Disclaimer Section -->
+            <!-- Sección de aviso importante/descargo de responsabilidad -->
             <div class="mt-8 bg-yellow-900/20 border border-yellow-700/50 text-yellow-200 px-4 py-3 rounded-xl text-sm flex gap-4 items-start">
                 <div class="pt-1">
                     <i class="fas fa-exclamation-triangle text-[var(--warning-color)]"></i>
@@ -251,23 +278,25 @@
                 </div>
             </div>
 
+            <!-- Contenedor donde se mostrarán los resultados del análisis -->
             <div id="result-container" class="mt-8 bg-[var(--result-bg)] rounded-xl hidden">
-                <!-- Los resultados se inyectarán aquí -->
+                <!-- Los resultados se inyectarán aquí dinámicamente -->
             </div>
         </div>
     </main>
     
+    <!-- Pie de página -->
     <footer class="py-6 text-center">
         <a href="https://t.me/OnefraGT" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 text-[var(--text-medium-color)] hover:text-[var(--accent-color)] transition-colors">
             <i class="fab fa-telegram-plane text-xl"></i> Contacta con @OnefraGT
         </a>
     </footer>
 
-    <!-- Modal for "How-to" Instructions -->
+    <!-- Modal para instrucciones sobre cómo obtener el encabezado -->
     <div id="how-to-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-white">Obtener el Encabezado del Correo</h2>
+                <h2 class="text-2xl font-bold text-white">Obtener el Encabezado o Archivo .EML</h2>
                 <button id="close-modal-btn" class="text-2xl text-[var(--text-medium-color)] hover:text-white">&times;</button>
             </div>
             
@@ -277,28 +306,49 @@
                 <button class="tab-btn" data-tab="yahoo"> <i class="fab fa-yahoo mr-2"></i>Yahoo </button>
             </div>
 
+            <!-- Contenido de la pestaña Gmail -->
             <div id="tab-gmail" class="tab-content active text-[var(--text-medium-color)] space-y-3">
+                <h4 class="font-bold text-white mb-2">Para obtener el Encabezado:</h4>
                 <p>1. Abre el correo que quieres verificar en la página de Gmail.</p>
                 <p>2. Haz clic en el icono de los **tres puntos verticales** (Más) en la esquina superior derecha del panel del correo.</p>
                 <p>3. En el menú desplegable, selecciona **"Mostrar original"**.</p>
                 <p>4. Se abrirá una nueva pestaña con el encabezado completo. Copia todo el texto y pégalo en GUARD-IA.</p>
+                <h4 class="font-bold text-white mt-4 mb-2">Para descargar el archivo .EML:</h4>
+                <p>1. Sigue los pasos 1 al 3 de arriba.</p>
+                <p>2. En la nueva pestaña, busca y haz clic en **"Descargar original"** o **"Descargar mensaje"** (normalmente arriba a la derecha).</p>
+                <p>3. El archivo .eml se descargará en tu dispositivo.</p>
             </div>
+
+            <!-- Contenido de la pestaña Outlook -->
             <div id="tab-outlook" class="tab-content text-[var(--text-medium-color)] space-y-3">
+                <h4 class="font-bold text-white mb-2">Para obtener el Encabezado:</h4>
                 <p>1. Abre el correo que quieres verificar en la página de Outlook/Hotmail.</p>
                 <p>2. Haz clic en el icono de los **tres puntos horizontales** (...) en la esquina superior derecha del panel del correo.</p>
                 <p>3. Ve a **Ver > Ver detalles del mensaje**.</p>
                 <p>4. Se abrirá una ventana con el encabezado. Copia todo el texto y pégalo en GUARD-IA.</p>
+                <h4 class="font-bold text-white mt-4 mb-2">Para descargar el archivo .EML:</h4>
+                <p>1. En la aplicación de escritorio de Outlook, arrastra el correo desde la lista de mensajes a tu escritorio.</p>
+                <p>2. En Outlook Web, la opción de descarga directa puede no estar siempre visible. Si "Ver detalles del mensaje" no te da una opción de descarga, copia todo el contenido que se muestra, pégalo en un editor de texto (como Bloc de Notas) y guárdalo con la extensión `.eml` (ej. `mi_correo.eml`).</p>
             </div>
+
+            <!-- Contenido de la pestaña Yahoo -->
             <div id="tab-yahoo" class="tab-content text-[var(--text-medium-color)] space-y-3">
+                <h4 class="font-bold text-white mb-2">Para obtener el Encabezado:</h4>
                 <p>1. Abre el correo que quieres verificar en la página de Yahoo Mail.</p>
                 <p>2. Haz clic en el icono de los **tres puntos horizontales** (Más) sobre el mensaje.</p>
                 <p>3. Selecciona **"Ver mensaje sin formato"** (View raw message).</p>
                 <p>4. Se abrirá una nueva pestaña con el encabezado. Copia todo el texto y pégalo en GUARD-IA.</p>
+                <h4 class="font-bold text-white mt-4 mb-2">Para descargar el archivo .EML:</h4>
+                <p>1. Sigue los pasos 1 al 2 de arriba.</p>
+                <p>2. Busca la opción **"Descargar mensaje"** o **"Descargar el archivo .eml"** (normalmente visible cerca de la parte superior).</p>
+                <p>3. El archivo .eml se descargará en tu dispositivo.</p>
             </div>
         </div>
     </div>
 
+    <!-- Script JavaScript para la funcionalidad -->
     <script>
+        // Referencias a elementos del DOM
         const analyzeBtn = document.getElementById('analyze-btn');
         const btnText = document.getElementById('btn-text');
         const btnLoader = document.getElementById('btn-loader');
@@ -310,12 +360,19 @@
         const closeModalBtn = document.getElementById('close-modal-btn');
         const modal = document.getElementById('how-to-modal');
 
+        // NUEVAS CONSTANTES para la funcionalidad de subir EML
+        const emlFileInput = document.getElementById('eml-file-input');
+        const uploadEmlBtn = document.getElementById('upload-eml-btn');
+        const emlFileNameSpan = document.getElementById('eml-file-name');
+
+        // Manejo de eventos del modal "Cómo obtener el encabezado"
         howToBtn.addEventListener('click', () => modal.classList.add('active'));
         closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
         modal.addEventListener('click', (e) => {
             if (e.target === modal) modal.classList.remove('active');
         });
 
+        // Lógica de pestañas dentro del modal
         const tabButtons = document.querySelectorAll('.tab-btn');
         const tabContents = document.querySelectorAll('.tab-content');
         tabButtons.forEach(button => {
@@ -330,11 +387,67 @@
             });
         });
 
+        // Lógica para subir archivos EML
+        uploadEmlBtn.addEventListener('click', () => {
+            emlFileInput.click(); // Simula un clic en el input de tipo file oculto
+        });
+
+        emlFileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                emlFileNameSpan.textContent = `Archivo seleccionado: ${file.name}`;
+                errorMessage.textContent = ''; // Limpiar errores previos
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const fullEmailContent = e.target.result;
+                    // Intenta extraer el encabezado. Los encabezados terminan con una línea en blanco.
+                    // Se verifica tanto para saltos de línea de Unix (\n\n) como de Windows (\r\n\r\n)
+                    const headerEndIndex = fullEmailContent.indexOf('\n\n'); 
+                    const headerEndIndexWindows = fullEmailContent.indexOf('\r\n\r\n'); 
+
+                    let headerText = '';
+                    // Prioriza el salto de línea de Unix si ambos existen y el de Unix es primero
+                    if (headerEndIndex !== -1 && (headerEndIndex < headerEndIndexWindows || headerEndIndexWindows === -1)) {
+                        headerText = fullEmailContent.substring(0, headerEndIndex);
+                    } else if (headerEndIndexWindows !== -1) {
+                        headerText = fullEmailContent.substring(0, headerEndIndexWindows);
+                    } else {
+                        // Si no se encuentra una línea en blanco, asumimos que todo es el encabezado o que el formato es inusual
+                        headerText = fullEmailContent;
+                    }
+                    
+                    // Rellenar el textarea con el encabezado extraído
+                    emailHeaderInput.value = headerText.trim(); 
+                    if (headerText.trim() === '') {
+                        errorMessage.textContent = 'No se pudo extraer el encabezado del archivo. ¿Es un archivo .eml válido?';
+                    } else {
+                        errorMessage.textContent = 'Encabezado extraído del archivo .eml. ¡Listo para analizar!';
+                        errorMessage.style.color = 'var(--accent-color)'; // Color de éxito temporal
+                        // El mensaje desaparecerá después de 5 segundos
+                        setTimeout(() => {
+                            errorMessage.textContent = '';
+                            errorMessage.style.color = 'var(--error-color)'; // Restaurar color original
+                        }, 5000);
+                    }
+                };
+                reader.onerror = () => {
+                    errorMessage.textContent = 'Error al leer el archivo.';
+                };
+                reader.readAsText(file); // Leer el archivo como texto
+            } else {
+                emlFileNameSpan.textContent = 'Ningún archivo .eml seleccionado.';
+                emailHeaderInput.value = ''; // Limpiar el textarea si no hay archivo seleccionado
+            }
+        });
+
+        // Función para parsear la respuesta del modelo de IA
         function parseAnalysis(text) {
             const sections = {};
             const lines = text.split('\n');
             let currentSection = null;
 
+            // Patrones RegEx para identificar las secciones
             const patterns = {
                 veredicto: /^1.\s+\*\*VEREDICTO INICIAL:\*\*\s*(.*)/i,
                 riesgo: /^2.\s+\*\*NIVEL DE RIESGO:\*\*\s*(\d+)/i,
@@ -344,6 +457,7 @@
             };
 
             for(const line of lines) {
+                // Asignar contenido a la sección correcta
                 if (patterns.veredicto.test(line)) {
                     sections.veredicto = line.match(patterns.veredicto)[1].trim();
                     currentSection = null;
@@ -366,12 +480,14 @@
             return sections;
         }
 
+        // Función para renderizar la sección de análisis técnico
         function renderTechnicalAnalysis(text) {
             if (!text) return '';
             
+            // Definiciones de términos técnicos para tooltips
             const definitions = {
                 'SPF': 'Comprueba si el servidor que envía el correo tiene permiso del dominio para hacerlo. Es como revisar el carnet de identidad del cartero.',
-                'DKIM': 'Asegura que el correo no ha sido modificado en el camino. Es como un sello de cera en una carta que garantiza que nadie la ha abierto.',
+                'DKIM': 'Asegura que el correo no ha sido modificado en el camino. Es como un sello de w=cera en una carta que garantiza que nadie la ha abierto.',
                 'DMARC': 'Es la política de seguridad que le dice a tu servidor de correo qué hacer si un email falla las comprobaciones SPF o DKIM (rechazarlo o ponerlo en spam).',
                 'Ruta de los Servidores': 'Muestra el camino que ha seguido el correo desde que se envió hasta que llegó a tu buzón. Una ruta extraña o con muchos saltos puede ser sospechosa.',
                 'ARC': 'Ayuda a mantener las comprobaciones de seguridad (SPF, DKIM) válidas incluso si el correo es reenviado por listas de correo u otros servicios.',
@@ -379,6 +495,7 @@
             };
 
             let html = '';
+            // Dividir el texto por asteriscos para obtener cada chequeo técnico
             const items = text.split('*').filter(item => item.trim() !== '');
 
             items.forEach(item => {
@@ -386,9 +503,10 @@
                 if (lines.length === 0) return;
 
                 const titleLine = lines.shift().replace(/\*\*/g, '').replace(':', '').trim();
-                const codeLine = lines.find(l => l.startsWith('`') && l.endsWith('`'));
-                const explanationLines = lines.filter(l => !(l.startsWith('`') && l.endsWith('`')));
-                
+                const codeLine = lines.find(l => l.startsWith('`') && l.endsWith('`')); // Buscar línea de código
+                const explanationLines = lines.filter(l => !(l.startsWith('`') && l.endsWith('`'))); // Explicación
+
+                // Determinar el estado del chequeo (Pasa, Falla, Atención, Info)
                 let status = 'info', statusText = 'Info', statusIcon = 'fa-info-circle', statusColor = 'info';
 
                 if (item.toLowerCase().includes('pasa')) {
@@ -401,6 +519,7 @@
                     status = 'warn'; statusText = 'Atención'; statusIcon = 'fa-exclamation-triangle'; statusColor = 'warn';
                 }
                 
+                // Buscar la definición del término técnico
                 const termKey = Object.keys(definitions).find(key => titleLine.includes(key));
                 const definition = termKey ? definitions[termKey] : 'No hay una explicación simple disponible.';
                 
@@ -421,6 +540,7 @@
                         </div>
                 `;
 
+                // Añadir el detalle técnico si existe una línea de código
                 if (codeLine) {
                     html += `
                         <details class="expert-details">
@@ -435,15 +555,18 @@
             return html;
         }
         
+        // Función para renderizar todos los resultados en la interfaz
         function renderResults(data, simplifiedAnalysis) {
-            resultContainer.innerHTML = ''; 
+            resultContainer.innerHTML = ''; // Limpiar resultados anteriores
 
             const verdict = data.veredicto?.toLowerCase().replace(/\s+/g, '_') || 'sospechoso';
             let verdictIcon = 'fa-question-circle';
+            // Asignar icono según el veredicto
             if (verdict === 'seguro') verdictIcon = 'fa-check-circle';
             if (verdict === 'sospechoso') verdictIcon = 'fa-exclamation-triangle';
             if (verdict.includes('peligroso')) verdictIcon = 'fa-times-circle';
 
+            // Renderizar el veredicto inicial
             resultContainer.innerHTML += `
                 <div class="result-card">
                     <div class="verdict-box ${verdict}">
@@ -452,6 +575,7 @@
                     </div>
                 </div>`;
 
+            // Renderizar el nivel de riesgo
             const risk = data.riesgo || 50;
             let riskColor = 'bg-green-500';
             if (risk > 40) riskColor = 'bg-yellow-500';
@@ -466,6 +590,7 @@
                      </div>
                 </div>`;
 
+            // Renderizar el resumen ejecutivo
             if (data.resumen) {
                  resultContainer.innerHTML += `
                     <div class="result-card analysis-section">
@@ -474,6 +599,7 @@
                     </div>`;
             }
 
+            // Renderizar la explicación simplificada y el análisis técnico detallado (oculto)
             if (simplifiedAnalysis) {
                  resultContainer.innerHTML += `
                     <div class="result-card analysis-section">
@@ -486,6 +612,7 @@
                     </div>`;
             }
 
+            // Renderizar la recomendación final
             if (data.recomendacion) {
                  resultContainer.innerHTML += `
                     <div class="result-card analysis-section">
@@ -497,12 +624,15 @@
                     </div>`;
             }
 
-            resultContainer.classList.remove('hidden');
+            resultContainer.classList.remove('hidden'); // Mostrar el contenedor de resultados
         }
         
+        // Función para llamar al modelo de IA (Gemini)
         async function callGemini(prompt, apiKey) {
              let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
              const payload = { contents: chatHistory };
+             // OJO: La API Key de Gemini debe ser manejada de forma segura en un entorno de producción.
+             // Aquí se usa directamente para la demostración en el navegador.
              const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
              const response = await fetch(apiUrl, {
@@ -511,6 +641,7 @@
                  body: JSON.stringify(payload)
              });
 
+             // Manejo de errores de la API
              if (!response.ok) {
                  const errorBody = await response.json();
                  let errorMsg = `Error en la API: ${response.statusText}`;
@@ -520,6 +651,7 @@
 
              const result = await response.json();
 
+             // Verificar si la respuesta contiene el texto esperado
              if (result.candidates && result.candidates[0] && result.candidates[0].content.parts[0]) {
                  return result.candidates[0].content.parts[0].text;
              } else {
@@ -531,23 +663,27 @@
              }
         }
 
+        // Event Listener para el botón "Analizar Encabezado"
         analyzeBtn.addEventListener('click', async () => {
-            const apiKey = "AIzaSyBVE3p89O4aH5W3XNWhrcea3D6iamnIuiA";
+            const apiKey = "AIzaSyBVE3p89O4aH5W3XNWhrcea3D6iamnIuiA"; // La API Key (¡recuerda la nota de seguridad!)
             const headerText = emailHeaderInput.value.trim();
 
+            // Validar que haya contenido para analizar
             if (!headerText) {
-                errorMessage.textContent = 'Por favor, pega el encabezado del correo antes de analizar.';
-                setTimeout(() => errorMessage.textContent = '', 3000);
+                errorMessage.textContent = 'Por favor, pega el encabezado del correo o sube un archivo .eml antes de analizar.';
+                setTimeout(() => errorMessage.textContent = '', 3000); // El mensaje desaparece después de 3 segundos
                 return;
             }
             
+            // Mostrar estado de carga
             errorMessage.textContent = '';
             btnText.textContent = 'Analizando...';
             btnLoader.classList.remove('hidden');
             analyzeBtn.disabled = true;
-            resultContainer.classList.add('hidden');
-            resultContainer.innerHTML = '';
+            resultContainer.classList.add('hidden'); // Ocultar resultados anteriores
+            resultContainer.innerHTML = ''; // Limpiar resultados anteriores
             
+            // Prompt inicial para el análisis técnico
             const initialPrompt = `Eres GUARDIAN, un analista de ciberseguridad. Analiza el siguiente encabezado de correo y desglosa tu análisis en 5 secciones obligatorias, usando Markdown con el formato exacto de la plantilla (iniciando cada línea del análisis técnico con un asterisco y espacio):
 1.  **VEREDICTO INICIAL:** UNA SOLA PALABRA
 2.  **NIVEL DE RIESGO:** 0-100
@@ -561,13 +697,13 @@ El encabezado a analizar es:
 ${headerText}`;
 
             try {
-                // First AI call for the technical analysis
+                // Primera llamada a la IA para el análisis técnico
                 const analysisText = await callGemini(initialPrompt, apiKey);
-                const parsedData = parseAnalysis(analysisText);
+                const parsedData = parseAnalysis(analysisText); // Parsear la respuesta de la IA
                 
                 let simplifiedAnalysis = "No se pudo generar una explicación simplificada.";
                 if (parsedData.analisis) {
-                    // Second AI call to simplify the technical part
+                    // Segunda llamada a la IA para simplificar el análisis técnico (si se generó)
                      const simplificationPrompt = `Actúa como un experto en ciberseguridad que le explica a un amigo sin conocimientos técnicos qué significa el siguiente análisis. Usa analogías del mundo real (ej. "el SPF es como el DNI del cartero"). Sé extremadamente simple y directo. No uses jerga. El análisis es: ${parsedData.analisis}`;
                      try {
                         simplifiedAnalysis = await callGemini(simplificationPrompt, apiKey);
@@ -577,13 +713,15 @@ ${headerText}`;
                      }
                 }
 
-                renderResults(parsedData, simplifiedAnalysis);
+                renderResults(parsedData, simplifiedAnalysis); // Renderizar los resultados en la interfaz
 
             } catch (error) {
+                // Manejo de errores durante el proceso de análisis
                 console.error("Error al analizar:", error);
                 resultContainer.innerHTML = `<div class="result-card text-red-400"><p>Hubo un error al procesar el análisis.</p><p class="text-sm mt-2">Mensaje: ${error.message}</p></div>`;
                 resultContainer.classList.remove('hidden');
             } finally {
+                // Restaurar el estado del botón y ocultar el loader
                 btnText.textContent = 'Analizar Encabezado';
                 btnLoader.classList.add('hidden');
                 analyzeBtn.disabled = false;
@@ -591,4 +729,4 @@ ${headerText}`;
         });
     </script>
 </body>
-</ht
+</html>
