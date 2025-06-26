@@ -109,23 +109,37 @@
         </main>
         
         <footer class="py-6 text-center">
-            <a href="https://t.me/OnefraGT" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 text-[var(--text-medium-color)] hover:text-[var(--accent-color)] transition-colors">
-                <i class="fab fa-telegram-plane text-xl"></i> Contacta con @OnefraGT
-            </a>
-            <!-- LÍNEA DE APOYO ELIMINADA DEL PIE DE PÁGINA -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm">
+                <a href="https://t.me/OnefraGT" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 text-[var(--text-medium-color)] hover:text-[var(--accent-color)] transition-colors">
+                    <i class="fab fa-telegram-plane text-xl"></i> Contacta con @OnefraGT
+                </a>
+                <span class="text-[var(--text-medium-color)] hidden sm:inline">|</span>
+                <a href="#" class="flex items-center justify-center gap-2 text-[var(--text-medium-color)] hover:text-[var(--accent-color)] transition-colors" id="faqLink">
+                    <i class="fas fa-question-circle text-xl"></i> Preguntas Frecuentes (FAQ)
+                </a>
+                <span class="text-[var(--text-medium-color)] hidden sm:inline">|</span>
+                <a href="#" class="flex items-center justify-center gap-2 text-[var(--text-medium-color)] hover:text-[var(--accent-color)] transition-colors" id="suggestLink">
+                    <i class="fas fa-lightbulb text-xl"></i> Sugerir Mejoras
+                </a>
+            </div>
         </footer>
     </div>
+    
+    <!-- Modal de Información/Sugerencias -->
     <div class="modal-overlay" id="infoModalOverlay">
      <div class="modal">
        <button class="modal-close-button" onclick="closeInfoModal()"><i class="fas fa-times"></i></button>
        <h2 id="modalTitle" class="text-2xl font-bold mb-4 text-[var(--accent-color)]"></h2>
-       <p id="modalText" class="text-base"></p>
+       <div id="modalContent">
+           <!-- Contenido dinámico para FAQ o formulario de sugerencias -->
+       </div>
      </div>
     </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"; // Importar Firestore
 
     const firebaseConfig = {
       apiKey: "AIzaSyAf3I3_aW__lBtTVlEJ9xesIWkEJ6lMJp8",
@@ -139,6 +153,7 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app); // Inicializar Firestore
 
     const loader = document.getElementById('loader');
     const loginScreen = document.getElementById('login-screen');
@@ -149,8 +164,11 @@
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
     const authError = document.getElementById('authError');
+    const faqLink = document.getElementById('faqLink'); // Nuevo
+    const suggestLink = document.getElementById('suggestLink'); // Nuevo
+    const modalContentDiv = document.getElementById('modalContent'); // Nuevo
     
-    // --- Lógica de Herramientas ---
+    // --- Lógica de Herramientas (sin cambios en este bloque, pero se incluye para completitud) ---
 
     const toolsData = [
         {
@@ -307,15 +325,102 @@
 
     const infoModalOverlay = document.getElementById('infoModalOverlay');
     const modalTitle = document.getElementById('modalTitle');
-    const modalText = document.getElementById('modalText');
-    window.showModal = function(title, text) {
+    const modalText = document.getElementById('modalText'); // Este ya no se usará directamente para el contenido complejo
+
+    window.showModal = function(title, contentHtml) { // Ahora acepta HTML
         modalTitle.textContent = title;
-        modalText.textContent = text;
+        modalContentDiv.innerHTML = contentHtml; // Asignar el HTML directamente al nuevo div
         infoModalOverlay.classList.add('active');
     }
     window.closeInfoModal = function() {
         infoModalOverlay.classList.remove('active');
+        modalContentDiv.innerHTML = ''; // Limpiar contenido al cerrar
     }
+
+    // --- Funcionalidad para Sugerir Mejoras ---
+    suggestLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (!auth.currentUser) {
+            showModal('Acceso Requerido', 'Debes iniciar sesión para enviar sugerencias. ¡Gracias por tu colaboración!');
+            return;
+        }
+
+        const suggestionFormHtml = `
+            <p class="text-base mb-4">¡Tu opinión es muy importante para mejorar GUARD-IA! Describe tu sugerencia o la mejora que te gustaría ver:</p>
+            <textarea id="suggestionText" class="w-full p-3 rounded mb-4 bg-[var(--input-bg)] border-[var(--input-border)] text-[var(--text-color)] focus:ring-2 focus:ring-[var(--accent-color)] focus:outline-none" rows="5" placeholder="Escribe tu sugerencia aquí..." required></textarea>
+            <button id="submitSuggestionBtn" class="submit-btn w-full py-3 rounded font-semibold flex items-center justify-center gap-2">
+                <span>Enviar Sugerencia</span>
+                <div id="suggestionLoader" class="loader hidden w-5 h-5 border-2"></div>
+            </button>
+            <p id="suggestionMessage" class="text-center mt-3 text-sm h-4"></p>
+        `;
+        showModal('Sugerir Mejoras', suggestionFormHtml);
+
+        document.getElementById('submitSuggestionBtn').addEventListener('click', async () => {
+            const suggestionText = document.getElementById('suggestionText').value.trim();
+            const submitBtn = document.getElementById('submitSuggestionBtn');
+            const loader = document.getElementById('suggestionLoader');
+            const messageDiv = document.getElementById('suggestionMessage');
+
+            if (!suggestionText) {
+                messageDiv.textContent = 'Por favor, escribe tu sugerencia.';
+                messageDiv.style.color = 'red';
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.querySelector('span').textContent = 'Enviando...';
+            loader.classList.remove('hidden');
+            messageDiv.textContent = ''; // Limpiar mensaje anterior
+
+            try {
+                await addDoc(collection(db, 'suggestions'), {
+                    userId: auth.currentUser.uid,
+                    userEmail: auth.currentUser.email,
+                    suggestion: suggestionText,
+                    timestamp: serverTimestamp()
+                });
+                messageDiv.textContent = '¡Sugerencia enviada con éxito! Gracias por tu aporte.';
+                messageDiv.style.color = 'var(--accent-color)';
+                document.getElementById('suggestionText').value = ''; // Limpiar el textarea
+                setTimeout(() => {
+                    closeInfoModal(); // Cerrar modal después de un tiempo
+                }, 2000); 
+
+            } catch (error) {
+                console.error("Error al enviar sugerencia:", error);
+                messageDiv.textContent = 'Error al enviar la sugerencia. Inténtalo de nuevo.';
+                messageDiv.style.color = 'red';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.querySelector('span').textContent = 'Enviar Sugerencia';
+                loader.classList.add('hidden');
+            }
+        });
+    });
+
+    // --- Funcionalidad para Preguntas Frecuentes (FAQ) ---
+    faqLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        const faqContent = `
+            <div class="space-y-4">
+                <p class="text-base">Aquí encontrarás respuestas a las preguntas más comunes sobre GUARD-IA y sus herramientas. ¡Esta sección se actualizará continuamente!</p>
+                <div class="bg-[var(--card-color)] p-4 rounded-md border border-[var(--border-color)]">
+                    <strong class="text-[var(--accent-color)]">¿Necesito conexión a internet para usar GUARD-IA?</strong>
+                    <p class="text-sm text-[var(--text-medium-color)] mt-1">Algunas herramientas como el Bloc de Notas y el Calendario requieren conexión para guardar y sincronizar tus datos en la nube. El Verificador de Email con IA también necesita internet para funcionar. Otras funcionalidades básicas pueden ser accesibles sin conexión si la aplicación ha sido previamente cargada.</p>
+                </div>
+                <div class="bg-[var(--card-color)] p-4 rounded-md border border-[var(--border-color)]">
+                    <strong class="text-[var(--accent-color)]">¿Mis datos están seguros y privados?</strong>
+                    <p class="text-sm text-[var(--text-medium-color)] mt-1">Sí. Tus datos se cifran en tu dispositivo antes de ser enviados a la nube y se asocian a tu cuenta personal de Firebase. Solo tú tienes acceso a ellos. GUARD-IA está diseñado con un enfoque en la privacidad del profesional.</p>
+                </div>
+                <div class="bg-[var(--card-color)] p-4 rounded-md border border-[var(--border-color)]">
+                    <strong class="text-[var(--accent-color)]">¿Cómo puedo obtener el encabezado de un email para el Verificador IA?</strong>
+                    <p class="text-sm text-[var(--text-medium-color)] mt-1">En la página del Verificador de Email, haz clic en el enlace "¿Cómo obtengo el encabezado?". Se abrirá un modal con instrucciones detalladas para los clientes de email más comunes (Gmail, Outlook, Yahoo).</p>
+                </div>
+            </div>
+        `;
+        showModal('Preguntas Frecuentes (FAQ)', faqContent);
+    });
 
 </script>
 
