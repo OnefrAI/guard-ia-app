@@ -137,10 +137,10 @@ takePhotoButton.addEventListener('click', () => {
             })
             .catch(err => {
                 console.error(`Error al acceder a la cámara: ${err.message}`);
-                createAlertDialog("No se pudo acceder a la cámara.").present();
+                showToast("No se pudo acceder a la cámara.", 'error');
             });
     } else {
-        createAlertDialog("Tu navegador no soporta acceso a la cámara.").present();
+        showToast("Tu navegador no soporta acceso a la cámara.", 'error');
     }
 });
 
@@ -226,17 +226,17 @@ noteForm.addEventListener('submit', async (e) => {
         if (isEditing) {
             const noteDocRef = doc(db, "users", currentUserId, "notes", currentEditingNoteId);
             await updateDoc(noteDocRef, noteData);
-            createAlertDialog("Nota actualizada exitosamente.");
+            showToast("Nota actualizada exitosamente.");
         } else {
             noteData.createdAt = serverTimestamp();
             const notesCollection = collection(db, "users", currentUserId, "notes");
             await addDoc(notesCollection, noteData);
-            createAlertDialog("Nota guardada en la nube exitosamente.");
+            showToast("Nota guardada en la nube exitosamente.");
         }
         resetForm();
     } catch (error) {
         console.error("Error durante el guardado/actualización:", error);
-        createAlertDialog(`Hubo un error.`, `Mensaje: ${error.message}`);
+        showToast(`Hubo un error.`, 'error');
     } finally {
         saveNoteButton.disabled = false;
         saveNoteButton.querySelector('span').textContent = isEditing ? 'Actualizar Nota' : 'Guardar Nota';
@@ -381,8 +381,9 @@ window.deleteNote = async function(noteId) {
             await deleteObject(photoRef);
         }
         await deleteDoc(noteDocRef);
+        showToast("Nota eliminada.");
     } catch (error) {
-        createAlertDialog("Hubo un error al eliminar la nota.", `Mensaje: ${error.message}`);
+        showToast("Hubo un error al eliminar la nota.", 'error');
     }
 };
 
@@ -423,41 +424,36 @@ function removeTag(tagToRemove) {
     renderSelectedTags();
 }
 
-// --- Utility functions (Modals, Reports) ---
+// --- Utility functions ---
 exportPdfBtn.addEventListener('click', () => {
     if (allNotes.length === 0) {
-        return createAlertDialog("No hay notas para exportar.");
+        return showToast("No hay notas para exportar.", "error");
     }
-    createAlertDialog('Función de exportar a PDF en desarrollo.');
+    showToast('Función de exportar a PDF en desarrollo.');
 });
 
-function createAlertDialog(message, details = '') {
-    if (document.querySelector('.custom-modal-overlay')) {
-        document.querySelector('.custom-modal-overlay').remove();
-    };
-    
-    const overlay = document.createElement('div');
-    overlay.className = 'custom-modal-overlay';
-    overlay.innerHTML = `
-        <div class="custom-modal-content">
-            <h3>Aviso</h3>
-            <p>${message}</p>
-            ${details ? `<p style="font-size:0.85rem; color: #a0a0a0; margin-top: -10px;">${details}</p>` : ''}
-            <div class="custom-modal-buttons">
-                <button class="custom-modal-btn alert">Aceptar</button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(overlay);
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.textContent = message;
+    if (type === 'error') {
+        toast.style.backgroundColor = 'var(--color-danger)';
+        toast.style.color = 'white';
+    }
+    document.body.appendChild(toast);
 
-    return new Promise(resolve => {
-        overlay.querySelector('.custom-modal-btn.alert').onclick = () => {
-            if(document.body.contains(overlay)) {
-                document.body.removeChild(overlay);
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 100);
+
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            if (document.body.contains(toast)) {
+                document.body.removeChild(toast);
             }
-            resolve(true);
-        };
-    });
+        }, 500);
+    }, 3000);
 }
 
 function createConfirmationModal(message) {
