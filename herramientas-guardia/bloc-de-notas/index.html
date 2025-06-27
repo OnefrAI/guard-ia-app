@@ -18,10 +18,9 @@
   <header class="app-header">
       <a href="../../index.html" class="back-link">
            <i class="fas fa-arrow-left"></i>
-          <h2>Volver a GUARD-IA</h2>
+          <h2 class="text-lg font-semibold">Volver a GUARD-IA</h2>
       </a>
-      <!-- Contenedor para la información del usuario, que será llenado por JS -->
-      <div id="user-info"></div>
+      <div id="user-info" class="text-sm text-gray-400"></div>
   </header>
 
   <div class="container mx-auto px-4 py-10 relative z-10">
@@ -30,7 +29,7 @@
         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
         <circle cx="12" cy="10" r="3"></circle>
       </svg>
-      <h1>
+      <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold uppercase text-center drop-shadow-lg">
         BLOC DE NOTAS <span class="neon-green">SEGURO</span>
       </h1>
     </div>
@@ -40,6 +39,7 @@
     </div>
 
     <div id="app-content" class="hidden">
+        <!-- El H2 cambia dinámicamente si se está creando o editando -->
         <h2 id="formTitle" class="text-2xl font-semibold text-center mb-6 text-white">Crear Nueva Nota</h2>
         <form id="noteForm" class="space-y-6">
             <!-- SECCIÓN PARA DATOS DE INTERVENCIÓN Y PERSONA -->
@@ -109,6 +109,7 @@
 
             <!-- BOTONES DE ACCIÓN PRINCIPALES DEL FORMULARIO -->
             <div class="action-buttons flex justify-between gap-4 mb-6">
+                <!-- El texto de este botón cambia a "Actualizar Nota" en modo edición -->
                 <button type="submit" id="saveNoteButton" class="btn save-btn">
                     <i class="fas fa-save"></i>
                     <span>Guardar Nota</span>
@@ -117,6 +118,7 @@
                     <i class="fas fa-camera"></i>
                     <span>Tomar Foto</span>
                 </button>
+                <!-- Botón de cancelar edición, oculto por defecto -->
                 <button type="button" id="cancelEditButton" class="btn cancel-btn hidden">
                     <i class="fas fa-times"></i>
                     <span>Cancelar Edición</span>
@@ -127,6 +129,7 @@
         <hr class="form-divider">
 
         <div class="notes-section mt-8">
+            <!-- NUEVA SECCIÓN DE BÚSQUEDA Y FILTRADO -->
             <div class="search-filter-section mb-6">
                 <div class="grid md:grid-cols-2 gap-4">
                     <div class="form-group">
@@ -144,11 +147,8 @@
 
             <div class="notes-header flex justify-between items-center mb-4">
                 <h2 class="text-xl font-semibold">Notas Guardadas</h2>
-                 <button type="button" id="exportPdfBtn" class="btn export-pdf-btn">
-                    <i class="fas fa-file-pdf mr-2"></i> Exportar a PDF
-                </button>
             </div>
-
+            
             <div id="notesContainer" class="notes-list flex flex-col gap-4"></div>
         </div>
     </div>
