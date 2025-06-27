@@ -11,231 +11,6 @@
   
   <!-- Quill.js CSS para el editor de texto enriquecido -->
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-
-  <style>
-    /* Estilos para el nuevo encabezado */
-    .app-header {
-      padding: 1rem;
-      z-index: 50;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: var(--color-bg-secondary); /* Usando colores del CSS existente */
-      border-bottom: 1px solid var(--color-border);
-      position: sticky;
-      top: 0;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
-    }
-    .back-link {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      color: var(--color-text);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-    .back-link:hover {
-      color: var(--color-primary);
-    }
-    .back-link i {
-      font-size: 1.25rem;
-    }
-    .back-link h2 {
-      font-size: 1.125rem;
-      font-weight: 600;
-    }
-    /* FIX: Override para el layout del body y evitar el centrado vertical */
-    body {
-        display: block;
-        padding: 0;
-    }
-    /* Estilos para estado de carga y login */
-    #auth-state {
-        background-color: var(--color-bg-secondary);
-        padding: 1rem;
-        border-radius: 0.75rem;
-        border: 1px solid var(--color-border);
-        text-align: center;
-        margin-bottom: 1.5rem;
-    }
-    #auth-state a {
-        color: var(--color-primary);
-        font-weight: bold;
-        text-decoration: underline;
-    }
-    .hidden {
-        display: none;
-    }
-    /* ESTILOS PARA EL EDITOR QUILL.JS */
-    .ql-toolbar.ql-snow, .ql-container.ql-snow {
-        border: 1px solid var(--color-border) !important;
-        background: rgba(30, 41, 59, 0.5) !important;
-        color: var(--color-text) !important;
-        border-radius: 0.5rem;
-        font-family: inherit;
-    }
-    .ql-toolbar.ql-snow {
-        border-bottom: none !important;
-        border-bottom-left-radius: 0 !important;
-        border-bottom-right-radius: 0 !important;
-    }
-    .ql-container.ql-snow {
-        border-top: none !important;
-        border-top-left-radius: 0 !important;
-        border-top-right-radius: 0 !important;
-        min-height: 150px; /* Altura mínima del editor */
-    }
-    .ql-editor {
-        color: var(--color-text);
-        min-height: 150px; /* Asegura que el editor tenga un área visible */
-    }
-    .ql-editor.ql-blank::before {
-        color: var(--text-medium-color) !important;
-        font-style: normal !important;
-    }
-
-    /* ESTILOS PARA LAS ETIQUETAS */
-    .note-tags {
-        margin-top: 0.5rem;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-    }
-    .note-tag {
-        /* Colores de las etiquetas se definen por clases específicas ahora */
-        padding: 0.25rem 0.75rem;
-        border-radius: 9999px; /* Píldora */
-        font-size: 0.75rem;
-        font-weight: 600;
-        white-space: nowrap;
-    }
-    .note-tag.tag-sala { background-color: #39FF14; color: black; } /* Verde Neón */
-    .note-tag.tag-requerimiento { background-color: #3b82f6; color: white; } /* Azul */
-    .note-tag.tag-superioridad { background-color: #f59e0b; color: black; } /* Naranja */
-    .note-tag.tag-otros { background-color: #e0e0e0; color: black; } /* Blanco/Gris claro */
-
-
-    /* Estilos para botones de exportación (distintos a los principales) */
-    .export-buttons {
-        display: flex;
-        justify-content: flex-end; /* Alinear a la derecha */
-        gap: 1rem;
-        margin-top: 1rem; /* Espacio sobre los botones de nota */
-        flex-wrap: wrap; /* Permitir que los botones salten de línea en móviles */
-    }
-    .export-buttons .btn {
-        background-color: #60a5fa; /* Un azul claro */
-        color: black;
-        padding: 0.75rem 1.25rem;
-        font-size: 0.9rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-    .export-buttons .btn:hover {
-        background-color: #3b82f6; /* Azul más oscuro al hover */
-    }
-    /* Media query para móviles en la barra de búsqueda y encabezado de notas */
-    @media (max-width: 480px) {
-        .notes-header {
-            flex-direction: column; /* Apila el título y la barra de búsqueda */
-            align-items: flex-start; /* Alinea los elementos a la izquierda */
-            gap: 0.75rem; /* Espacio entre ellos */
-        }
-        .notes-header h2 {
-            margin-bottom: 0; /* Elimina margen inferior del título */
-        }
-        .export-buttons {
-            justify-content: center; /* Centra los botones de exportación */
-        }
-        .export-buttons .btn {
-            width: 100%; /* Ocupa todo el ancho */
-            max-width: 200px; /* Limita el ancho máximo */
-        }
-    }
-
-    /* ESTILOS PARA CAMPO DESPLEGABLE DE ETIQUETAS */
-    .dropdown-container {
-        position: relative;
-        width: 100%;
-        margin-bottom: 1.5rem; /* Espacio después del grupo de etiquetas */
-    }
-    .dropdown-input {
-        width: 100%;
-        padding: 0.75rem 1rem;
-        background: rgba(30, 41, 59, 0.5);
-        border: 1px solid var(--color-border);
-        border-radius: 0.5rem;
-        color: var(--color-text);
-        font-size: 1rem;
-        cursor: pointer;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .dropdown-input:focus {
-        outline: none;
-        border-color: var(--color-primary);
-        box-shadow: 0 0 0 2px rgba(57, 255, 20, 0.2);
-    }
-    .dropdown-options {
-        position: absolute;
-        top: 100%; /* Justo debajo del input */
-        left: 0;
-        width: 100%;
-        background-color: var(--color-bg-secondary);
-        border: 1px solid var(--color-border);
-        border-radius: 0.5rem;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        z-index: 20; /* Asegura que esté por encima de otros elementos */
-        display: none; /* Oculto por defecto */
-        padding: 0.5rem;
-    }
-    .dropdown-options.active {
-        display: block;
-    }
-    .dropdown-option {
-        padding: 0.75rem 1rem;
-        color: var(--color-text);
-        cursor: pointer;
-        transition: background-color 0.2s;
-        border-radius: 0.3rem;
-    }
-    .dropdown-option:hover {
-        background-color: rgba(255,255,255,0.1);
-    }
-    .selected-tags-display {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
-        padding-left: 0.5rem; /* Para que no se pegue al borde del input */
-    }
-    .selected-tag-item {
-        background-color: var(--color-primary); /* Color por defecto */
-        color: black;
-        padding: 0.2rem 0.6rem;
-        border-radius: 9999px;
-        font-size: 0.8rem;
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-        cursor: pointer;
-    }
-    .selected-tag-item .remove-tag-icon {
-        font-size: 0.6rem;
-        color: rgba(0,0,0,0.6);
-        transition: color 0.2s;
-    }
-    .selected-tag-item:hover .remove-tag-icon {
-        color: red;
-    }
-
-    /* Colores para los tags seleccionados */
-    .selected-tag-item.tag-servicio-de-sala { background-color: #39FF14; color: black; }
-    .selected-tag-item.tag-a-requerimiento { background-color: #3b82f6; color: white; }
-    .selected-tag-item.tag-por-superioridad { background-color: #f59e0b; color: black; }
-    .selected-tag-item.tag-otros { background-color: #e0e0e0; color: black; }
-
-  </style>
 </head>
 <body class="text-light-text font-sans">
 
@@ -264,8 +39,10 @@
     </div>
 
     <div id="app-content" class="hidden">
+        <!-- El H2 cambia dinámicamente si se está creando o editando -->
+        <h2 id="formTitle" class="text-2xl font-semibold text-center mb-6 text-white">Crear Nueva Nota</h2>
         <form id="noteForm" class="space-y-6">
-            <!-- SECCIÓN PARA DATOS DE INTERVENCIÓN Y PERSONA (YA NO COLAPSABLE) -->
+            <!-- SECCIÓN PARA DATOS DE INTERVENCIÓN Y PERSONA -->
             <div class="form-group primary">
                 <label for="interventionLocation">Lugar de intervención</label>
                 <input type="text" id="interventionLocation" name="interventionLocation" placeholder="Ingrese la ubicación...">
@@ -319,21 +96,20 @@
                         <div class="dropdown-option" data-value="Otros">Otros</div>
                     </div>
                 </div>
-                <div class="selected-tags-display" id="selectedTagsDisplay">
-                    <!-- Las etiquetas seleccionadas se añadirán aquí dinámicamente -->
-                </div>
+                <div class="selected-tags-display" id="selectedTagsDisplay"></div>
             </div>
 
             <!-- CONTENEDOR DEL EDITOR DE TEXTO ENRIQUECIDO (Quill.js) -->
             <div class="form-group">
                 <label for="editor-container">Exposición de los hechos</label>
-                <!-- Este div será inicializado por Quill.js -->
                 <div id="editor-container"></div> 
             </div>
             
             <img id="photoPreview" src="#" alt="Vista previa de la foto" class="note-photo" style="display: none; margin-top: 1rem;" />
 
+            <!-- BOTONES DE ACCIÓN PRINCIPALES DEL FORMULARIO -->
             <div class="action-buttons flex justify-between gap-4 mb-6">
+                <!-- El texto de este botón cambia a "Actualizar Nota" en modo edición -->
                 <button type="submit" id="saveNoteButton" class="btn save-btn">
                 <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
                     <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
@@ -349,26 +125,41 @@
                 </svg>
                 <span>Tomar Foto</span>
                 </button>
-                <button type="button" id="generateReportButton" class="btn report-btn">
-                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                    <polyline points="10 9 9 9 8 9"></polyline>
-                </svg>
-                <span>Generar Informe</span>
+                <!-- Botón de cancelar edición, oculto por defecto -->
+                <button type="button" id="cancelEditButton" class="btn cancel-btn hidden">
+                    <i class="fas fa-times"></i>
+                    <span>Cancelar Edición</span>
                 </button>
             </div>
         </form>
 
+        <hr class="form-divider">
+
         <div class="notes-section mt-8">
+            <!-- NUEVA SECCIÓN DE BÚSQUEDA Y FILTRADO -->
+            <div class="search-filter-section mb-6">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="searchInput" class="text-white">Buscar por texto</label>
+                        <input type="search" id="searchInput" placeholder="Buscar por nombre, documento, lugar...">
+                    </div>
+                    <div class="form-group">
+                        <label for="tagFilter" class="text-white">Filtrar por etiqueta</label>
+                        <select id="tagFilter">
+                            <option value="">Todas las etiquetas</option>
+                            <!-- Opciones se llenan dinámicamente con JS -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+
             <div class="notes-header flex justify-between items-center mb-4">
                 <h2 class="text-xl font-semibold">Notas Guardadas en la Nube</h2>
             </div>
-
-            <!-- BOTONES DE EXPORTACIÓN ADICIONALES -->
             <div class="export-buttons">
+                <button type="button" id="generateReportButton" class="btn report-btn">
+                    <i class="fas fa-file-alt mr-2"></i> Generar Informe TXT
+                </button>
                 <button type="button" id="exportPdfBtn" class="btn">
                     <i class="fas fa-file-pdf mr-2"></i> Exportar a PDF
                 </button>
@@ -376,7 +167,6 @@
                     <i class="fas fa-file-csv mr-2"></i> Exportar a CSV
                 </button>
             </div>
-
             <div id="notesContainer" class="notes-list flex flex-col gap-4"></div>
         </div>
     </div>
@@ -392,14 +182,10 @@
     </div>
   </div>
 
-  <!-- Quill.js JavaScript -->
+  <!-- Librerías JS -->
   <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-  <!-- jsPDF para exportar a PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <!-- html2canvas para convertir HTML a canvas para jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-
   <script type="module" src="script.js"></script>
 </body>
 </html>
