@@ -47,10 +47,7 @@ const authStateDiv = document.getElementById('auth-state');
 const appContentDiv = document.getElementById('app-content');
 const userInfoDiv = document.getElementById('user-info');
 const exportPdfBtn = document.getElementById('exportPdfBtn');
-
-// OCR and Camera Elements
-const scanOcrButton = document.getElementById('scanOcrButton');
-const ocrStatusDiv = document.getElementById('ocr-status');
+const takePhotoButton = document.getElementById('takePhotoButton');
 
 // Edit and Search Elements
 const formTitle = document.getElementById('formTitle');
@@ -128,9 +125,8 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-
-// --- Photo & OCR ---
-scanOcrButton.addEventListener('click', () => {
+// --- Photo & Camera Logic ---
+takePhotoButton.addEventListener('click', () => {
     if (navigator.mediaDevices?.getUserMedia) {
         navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } } })
             .then(stream => {
@@ -160,60 +156,7 @@ captureButton.addEventListener('click', () => {
     photoPreview.classList.remove('hidden');
     
     closeCameraModal();
-    runOcr(capturedPhotoDataUrl);
 });
-
-
-async function runOcr(base64ImageData) {
-    ocrStatusDiv.classList.remove('hidden');
-    const imageData = base64ImageData.split(',')[1];
-    const prompt = "Eres un sistema OCR experto en documentos de identidad españoles (DNI y NIE). Analiza la imagen y extrae el texto de los siguientes campos: APELLIDOS, NOMBRE, DNI o NIE, FECHA DE NACIMIENTO y DOMICILIO. Devuelve los datos en un objeto JSON con las claves 'apellidos', 'nombre', 'documento', 'fechaNacimiento' y 'domicilio'. Si un campo no es legible, devuelve una cadena vacía para ese campo.";
-
-    const schema = {
-        type: "OBJECT",
-        properties: {
-            "apellidos": { "type": "STRING" },
-            "nombre": { "type": "STRING" },
-            "documento": { "type": "STRING" },
-            "fechaNacimiento": { "type": "STRING" },
-            "domicilio": { "type": "STRING" },
-        }
-    };
-
-    const payload = {
-        contents: [{ role: "user", parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: imageData } }] }],
-        generationConfig: { responseMimeType: "application/json", responseSchema: schema }
-    };
-    
-    const apiKey = "";
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-    try {
-        const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
-        const result = await response.json();
-        
-        if (result.candidates && result.candidates[0].content.parts[0]) {
-            const data = JSON.parse(result.candidates[0].content.parts[0].text);
-            autofillForm(data);
-            createAlertDialog("Campos autocompletados. Por favor, revisa los datos.").present();
-        } else {
-            throw new Error("Respuesta inesperada de la API de OCR.");
-        }
-    } catch (error) {
-        console.error("Error en el proceso de OCR:", error);
-        createAlertDialog("Error al analizar el documento.", "No se pudieron extraer los datos. Inténtalo de nuevo.").present();
-    } finally {
-        ocrStatusDiv.classList.add('hidden');
-    }
-}
-
-function autofillForm(data) {
-    document.getElementById('fullName').value = data.nombre && data.apellidos ? `${data.nombre} ${data.apellidos}` : (data.nombre || data.apellidos || '');
-    if (data.documento) document.getElementById('documentNumber').value = data.documento;
-    if (data.fechaNacimiento) document.getElementById('birthdate').value = data.fechaNacimiento;
-    if (data.domicilio) document.getElementById('address').value = data.domicilio;
-}
 
 cancelCaptureButton.addEventListener('click', closeCameraModal);
 
@@ -275,6 +218,9 @@ noteForm.addEventListener('submit', async (e) => {
             factsText: quill.getText(),
             tags: selectedTags,
         };
+        
+        // If there's a new photo, add its URL.
+        // If editing and no new photo, the existing photo URL remains untouched.
         if (photoDownloadURL) {
             noteData.photoUrl = photoDownloadURL;
         }
@@ -330,7 +276,7 @@ window.startEditNote = (noteId) => {
     formTitle.textContent = "Editando Nota";
     saveNoteButton.querySelector('span').textContent = "Actualizar Nota";
     cancelEditButton.classList.remove('hidden');
-    scanOcrButton.classList.remove('hidden');
+    takePhotoButton.classList.remove('hidden');
 
     noteForm.scrollIntoView({ behavior: 'smooth' });
 };
@@ -342,17 +288,15 @@ function resetForm() {
     renderSelectedTags();
     capturedPhotoDataUrl = null;
     photoPreview.classList.add('hidden');
-    ocrStatusDiv.classList.add('hidden');
     isEditing = false;
     currentEditingNoteId = null;
     formTitle.textContent = "Crear Nueva Nota";
     saveNoteButton.querySelector('span').textContent = 'Guardar Nota';
     cancelEditButton.classList.add('hidden');
-    scanOcrButton.classList.remove('hidden');
+    takePhotoButton.classList.remove('hidden');
 }
 
 cancelEditButton.addEventListener('click', resetForm);
-
 
 // --- Search and Filter Logic ---
 function applyFilters() {
