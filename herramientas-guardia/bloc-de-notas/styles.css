@@ -18,6 +18,9 @@
   --color-btn-copy-hover: #059669;
   --color-btn-download: #facc15; /* Amarillo */
   --color-btn-download-hover: #fbbf24;
+  /* NUEVO: Color para botón de editar */
+  --color-btn-edit: #f59e0b; /* Naranja/Ámbar */
+  --color-btn-edit-hover: #d97706;
 
   /* Colores específicos para las etiquetas */
   --tag-servicio-de-sala-bg: #39FF14; /* Verde Neón */
@@ -36,12 +39,52 @@
   box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth; /* Para el scroll al editar */
+}
+
+/* Estilos para el nuevo encabezado */
+.app-header {
+  padding: 1rem;
+  z-index: 50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+  margin-bottom: 1rem; /* Espacio para separar del contenido */
+}
+.back-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-text);
+  text-decoration: none;
+  transition: color 0.2s;
+  font-family: 'Inter', sans-serif; /* Asegura la fuente correcta */
+}
+.back-link:hover {
+  color: var(--color-primary);
+}
+.back-link i {
+  font-size: 1.25rem;
+}
+.back-link h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-bg-secondary) 100%);
   color: var(--color-text);
   min-height: 100vh;
-  padding: 1rem;
+  padding: 0 1rem 1rem 1rem; /* Ajustado para que el header no tenga padding superior */
   line-height: 1.5;
   display: block; /* Modificado de flex para no centrar verticalmente todo el body */
 }
@@ -56,8 +99,8 @@ body {
   padding: 2rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
               0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  position: relative; /* Para el z-index */
-  z-index: 10; /* Asegura que el contenido esté por encima del fondo */
+  position: relative; 
+  z-index: 10; 
 }
 
 .header {
@@ -132,10 +175,22 @@ textarea::placeholder {
 }
 
 input:focus,
-textarea:focus {
+textarea:focus,
+select:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 2px rgba(57, 255, 20, 0.2);
+}
+
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
 }
 
 textarea {
@@ -150,7 +205,6 @@ textarea {
   margin-bottom: 1.5rem;
 }
 
-/* Estilos generales para todos los botones */
 .btn {
   display: flex;
   align-items: center;
@@ -162,42 +216,56 @@ textarea {
   cursor: pointer;
   transition: all 0.2s;
   border: none;
-  color: var(--color-text); /* Color de texto por defecto, se sobrescribe abajo */
 }
 
-/* Estilos específicos para los botones superiores */
 .action-buttons .btn {
   flex: 1;
-  max-width: 32%;
 }
 
 .save-btn {
-  background: #10b981;
-  color: black; /* Texto negro */
+  background: var(--color-success);
+  color: black;
 }
-
-.save-btn:hover {
-  background: #059669;
-}
+.save-btn:hover { background: var(--color-btn-copy-hover); }
 
 .photo-btn {
-  background: #3b82f6;
-  color: black; /* Texto negro */
+  background: var(--color-btn-share);
+  color: white;
 }
-
-.photo-btn:hover {
-  background: #2563eb;
-}
+.photo-btn:hover { background: var(--color-btn-share-hover); }
 
 .report-btn {
   background: #facc15;
-  color: black; /* Texto negro */
+  color: black; 
+}
+.report-btn:hover { background: #fbbf24; }
+
+/* NUEVO: Estilo para botón Cancelar Edición */
+.cancel-btn {
+    background: #71717a; /* Gris */
+    color: white;
+}
+.cancel-btn:hover { background: #52525b; }
+.hidden { display: none; }
+
+
+.form-divider {
+    border: 0;
+    height: 1px;
+    background: var(--color-border);
+    margin: 3rem 0;
 }
 
-.report-btn:hover {
-  background: #fbbf24;
+/* NUEVO: Sección de búsqueda y filtro */
+.search-filter-section {
+  background: rgba(30, 41, 59, 0.5);
+  padding: 1rem 1.5rem 0.5rem 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border);
 }
-
+.search-filter-section .form-group {
+    margin-bottom: 1rem;
+}
 
 .notes-section {
   margin-top: 2rem;
@@ -208,7 +276,7 @@ textarea {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
-  flex-wrap: wrap; /* Permite envolver en pantallas pequeñas */
+  flex-wrap: wrap; 
 }
 
 .notes-header h2 {
@@ -223,125 +291,71 @@ textarea {
 }
 
 .note {
-  background: #fef08a; /* Fondo claro para las notas */
+  background: #fef08a; 
   border-radius: 0.75rem;
   padding: 1rem;
   border: 1px solid var(--color-border);
-  color: #000; /* Texto oscuro para el contenido de la nota */
+  color: #000; 
 }
 
-/* Contenedor para los botones de acción de cada nota */
 .note-actions {
-    display: flex; /* Usa flexbox para poner los botones en línea */
-    flex-wrap: wrap; /* Permite que los botones salten de línea si no caben */
-    gap: 0.5rem; /* Espacio entre botones */
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 0.5rem; 
     margin-top: 10px;
-    justify-content: flex-end; /* Alinea los botones a la derecha */
+    justify-content: flex-end; 
 }
 
-/* Estilo para los botones dentro de las notas, sobrescribe display: block */
 .note .btn {
-  /* Elimina display: block y width: 100% */
-  display: inline-flex; /* O flex, si quieres usar sus propiedades de alineación */
-  width: auto; /* O un ancho fijo si prefieres */
-  padding: 0.5rem 1rem; /* Ajusta el padding para botones más pequeños */
-  font-size: 0.875rem; /* Ajusta el tamaño de fuente */
-  color: black !important; /* Fuerza el color del texto a negro */
+  display: inline-flex; 
+  width: auto;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: black !important;
 }
 
-/* Colores específicos para los botones de acción de cada nota */
-.note .btn-delete {
-    background-color: var(--color-btn-delete);
-}
-.note .btn-delete:hover {
-    background-color: var(--color-btn-delete-hover);
-}
+.note .btn-delete { background-color: var(--color-btn-delete); color: white !important; }
+.note .btn-delete:hover { background-color: var(--color-btn-delete-hover); }
 
-.note .btn-share {
-    background-color: var(--color-btn-share);
-}
-.note .btn-share:hover {
-    background-color: var(--color-btn-share-hover);
-}
+.note .btn-share { background-color: var(--color-btn-share); color: white !important; }
+.note .btn-share:hover { background-color: var(--color-btn-share-hover); }
 
-.note .btn-copy {
-    background-color: var(--color-btn-copy);
-}
-.note .btn-copy:hover {
-    background-color: var(--color-btn-copy-hover);
-}
+.note .btn-copy { background-color: var(--color-btn-copy); }
+.note .btn-copy:hover { background-color: var(--color-btn-copy-hover); }
 
-.note .btn-download {
-    background-color: var(--color-btn-download);
-}
-.note .btn-download:hover {
-    background-color: var(--color-btn-download-hover);
-}
+.note .btn-download { background-color: var(--color-btn-download); }
+.note .btn-download:hover { background-color: var(--color-btn-download-hover); }
 
+/* NUEVO: Estilo botón de editar */
+.note .btn-edit { background-color: var(--color-btn-edit); }
+.note .btn-edit:hover { background-color: var(--color-btn-edit-hover); }
 
 .note-photo {
   max-width: 100%;
-  height: auto; /* Asegura que la altura se ajuste para mantener la proporción */
+  height: auto; 
   margin-top: 1rem;
   border-radius: 0.5rem;
-  display: block; /* Asegura que la imagen ocupe su propia línea si es necesario */
+  display: block; 
 }
+
 
 @media (max-width: 480px) {
   body {
-    font-size: 1rem; /* Ajusta el tamaño de fuente base */
-    padding: 0.5rem;
+    padding: 0 0.5rem 0.5rem 0.5rem;
   }
-
-  h1 {
-    font-size: 1.8rem; /* Ajusta el tamaño del título principal */
-  }
-
-  .container {
-    padding: 1rem; /* Ajusta el padding del contenedor */
-  }
-
-  input,
-  textarea,
-  select {
-    font-size: 1rem; /* Ajusta el tamaño de fuente de los inputs */
-    padding: 0.6rem 0.8rem;
-  }
-
-   .action-buttons .btn {
-       padding: 0.6rem 1rem; /* Ajusta el padding de los botones superiores */
-       font-size: 0.9rem;
-   }
-
-   .note .btn {
-       padding: 0.4rem 0.8rem; /* Ajusta el padding de los botones de nota */
-       font-size: 0.75rem; /* Ajusta el tamaño de fuente de los botones de nota */
-   }
-
-   .header {
-       flex-direction: column; /* Apila el icono y el título en pantallas pequeñas */
-       gap: 0.5rem;
-   }
-    .icon-pin {
-        width: 1.5rem;
-        height: 1.5rem;
-    }
-    h1 {
-        text-align: center;
-    }
-    .action-buttons {
-        flex-direction: column; /* Apila los botones superiores */
-        gap: 0.5rem;
-    }
-    .action-buttons .btn {
-        max-width: 100%; /* Ocupa todo el ancho */
-    }
-     .note-actions {
-         justify-content: center; /* Centra los botones de nota en pantallas pequeñas */
-     }
+  h1 { font-size: 1.8rem; }
+  .container { padding: 1rem; }
+  input, textarea, select { font-size: 1rem; padding: 0.6rem 0.8rem; }
+   .action-buttons .btn { padding: 0.6rem 1rem; font-size: 0.9rem; }
+   .note .btn { padding: 0.4rem 0.8rem; font-size: 0.75rem; }
+   .header { flex-direction: column; gap: 0.5rem; }
+    .icon-pin { width: 1.5rem; height: 1.5rem; }
+    h1 { text-align: center; }
+    .action-buttons { flex-direction: column; gap: 0.5rem; }
+    .action-buttons .btn { max-width: 100%; }
+     .note-actions { justify-content: center; }
 }
 
-/* Modal de cámara */
 .modal {
   display: none;
   position: fixed;
@@ -355,7 +369,6 @@ textarea {
   justify-content: center;
   align-items: center;
 }
-
 .modal-content {
   background: var(--color-bg-secondary);
   padding: 1rem;
@@ -365,36 +378,14 @@ textarea {
   width: 90%;
   margin: auto;
 }
+.modal-content video { width: 100%; border-radius: 0.5rem; }
+.modal-buttons { margin-top: 1rem; display: flex; justify-content: space-around; }
+.capture-btn { background: var(--color-success); }
+.capture-btn:hover { background: #059669; }
+.cancel-btn { background: var(--color-danger); }
+.cancel-btn:hover { background: #c82333; }
 
-.modal-content video {
-  width: 100%;
-  border-radius: 0.5rem;
-}
-
-.modal-buttons {
-  margin-top: 1rem;
-  display: flex;
-  justify-content: space-around;
-}
-
-.capture-btn {
-  background: var(--color-success);
-}
-
-.capture-btn:hover {
-  background: #059669;
-}
-
-.cancel-btn {
-  background: var(--color-danger);
-}
-
-.cancel-btn:hover {
-  background: #c82333;
-}
-
-
-/* ESTILOS PARA EL EDITOR QUILL.JS */
+/* Estilos Quill */
 .ql-toolbar.ql-snow, .ql-container.ql-snow {
     border: 1px solid var(--color-border) !important;
     background: rgba(30, 41, 59, 0.5) !important;
@@ -411,244 +402,70 @@ textarea {
     border-top: none !important;
     border-top-left-radius: 0 !important;
     border-top-right-radius: 0 !important;
-    min-height: 150px; /* Altura mínima del editor */
+    min-height: 150px;
 }
-.ql-editor {
-    color: var(--color-text);
-    min-height: 150px; /* Asegura que el editor tenga un área visible */
-}
+.ql-editor { color: var(--color-text); min-height: 150px; }
 .ql-editor.ql-blank::before {
-    color: var(--color-text) !important; /* Color del placeholder de Quill */
+    color: var(--color-text) !important;
     opacity: 0.7;
     font-style: normal !important;
 }
-/* Estilo para el contenido de Quill en las notas mostradas (solo lectura) */
 .ql-editor-readonly {
-    color: #000; /* Texto oscuro para contraste en la nota de fondo amarillo */
+    color: #000;
     font-size: 1rem;
     line-height: 1.5;
-    word-wrap: break-word; /* Asegura que el texto largo se rompa */
-    overflow: hidden; /* Evita desbordamiento si hay HTML complejo */
+    word-wrap: break-word;
+    overflow: hidden;
 }
 
-/* ESTILOS PARA LAS ETIQUETAS */
-.note-tags {
-    margin-top: 0.5rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-.note-tag {
-    /* Colores de las etiquetas se definen por clases específicas ahora */
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px; /* Forma de píldora */
-    font-size: 0.75rem;
-    font-weight: 600;
-    white-space: nowrap;
-}
-/* Clases para colores de etiquetas */
+/* Estilos Etiquetas */
+.note-tags { margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.note-tag { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
 .note-tag.tag-servicio-de-sala { background-color: var(--tag-servicio-de-sala-bg); color: var(--tag-servicio-de-sala-text); }
 .note-tag.tag-a-requerimiento { background-color: var(--tag-a-requerimiento-bg); color: var(--tag-a-requerimiento-text); }
 .note-tag.tag-por-superioridad { background-color: var(--tag-por-superioridad-bg); color: var(--tag-por-superioridad-text); }
 .note-tag.tag-otros { background-color: var(--tag-otros-bg); color: var(--tag-otros-text); }
 
+.export-buttons { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.export-buttons .btn { background-color: #60a5fa; color: black; padding: 0.75rem 1.25rem; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.export-buttons .btn:hover { background-color: #3b82f6; }
 
-/* ESTILOS PARA BOTONES DE EXPORTACIÓN ADICIONALES (PDF/CSV) */
-.export-buttons {
-    display: flex;
-    justify-content: flex-end; /* Alinear a la derecha */
-    gap: 1rem;
-    margin-top: 1rem; /* Espacio sobre los botones de nota */
-    margin-bottom: 1rem; /* Espacio debajo de los botones de exportación */
-    flex-wrap: wrap; /* Permitir que los botones salten de línea en móviles */
-}
-.export-buttons .btn {
-    background-color: #60a5fa; /* Un azul claro */
-    color: black;
-    padding: 0.75rem 1.25rem;
-    font-size: 0.9rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-.export-buttons .btn:hover {
-    background-color: #3b82f6; /* Azul más oscuro al hover */
-}
-
-/* Media query para móviles */
 @media (max-width: 480px) {
-    .notes-header {
-        flex-direction: column; /* Apila el título y la barra de búsqueda (si existiera) */
-        align-items: flex-start; /* Alinea los elementos a la izquierda */
-        gap: 0.75rem; /* Espacio entre ellos */
-    }
-    .notes-header h2 {
-        margin-bottom: 0; /* Elimina margen inferior del título */
-    }
-    .export-buttons {
-        justify-content: center; /* Centra los botones de exportación */
-    }
-    .export-buttons .btn {
-        width: 100%; /* Ocupa todo el ancho */
-        max-width: 200px; /* Limita el ancho máximo */
-    }
+    .notes-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+    .notes-header h2 { margin-bottom: 0; }
+    .export-buttons { justify-content: center; }
+    .export-buttons .btn { width: 100%; max-width: 200px; }
 }
 
+/* Modales personalizados */
+.custom-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; z-index: 2000; animation: fadeIn 0.3s ease-out; }
+.custom-modal-content { background-color: var(--color-bg-secondary); padding: 25px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); max-width: 400px; width: 90%; text-align: center; color: var(--color-text); animation: slideIn 0.3s ease-out; }
+.custom-modal-content h3 { font-size: 1.5rem; margin-bottom: 15px; color: var(--neon-green); }
+.custom-modal-content p { font-size: 1rem; margin-bottom: 20px; line-height: 1.5; }
+.custom-modal-buttons { display: flex; justify-content: center; gap: 15px; }
+.custom-modal-btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background-color 0.2s ease; }
+.custom-modal-btn.confirm { background-color: var(--color-btn-delete); color: white; }
+.custom-modal-btn.confirm:hover { background-color: var(--color-btn-delete-hover); }
+.custom-modal-btn.cancel { background-color: var(--color-secondary); color: black; }
+.custom-modal-btn.cancel:hover { background-color: #20b000; }
+.custom-modal-btn.alert { background-color: var(--color-primary); color: black; }
+.custom-modal-btn.alert:hover { background-color: var(--primary-hover); }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideIn { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-/* ESTILOS PARA MODALES PERSONALIZADOS */
-.custom-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2000; /* Mayor que otros z-index */
-    animation: fadeIn 0.3s ease-out;
-}
-.custom-modal-content {
-    background-color: var(--color-bg-secondary);
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    max-width: 400px;
-    width: 90%;
-    text-align: center;
-    color: var(--color-text);
-    animation: slideIn 0.3s ease-out;
-}
-.custom-modal-content h3 {
-    font-size: 1.5rem;
-    margin-bottom: 15px;
-    color: var(--neon-green);
-}
-.custom-modal-content p {
-    font-size: 1rem;
-    margin-bottom: 20px;
-    line-height: 1.5;
-}
-.custom-modal-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-}
-.custom-modal-btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.2s ease;
-}
-.custom-modal-btn.confirm {
-    background-color: var(--color-btn-delete); /* Rojo para confirmar eliminar */
-    color: white;
-}
-.custom-modal-btn.confirm:hover {
-    background-color: var(--color-btn-delete-hover);
-}
-.custom-modal-btn.cancel {
-    background-color: var(--color-secondary); /* Verde secundario para cancelar */
-    color: black;
-}
-.custom-modal-btn.cancel:hover {
-    background-color: #20b000;
-}
-.custom-modal-btn.alert {
-    background-color: var(--color-primary); /* Verde primario para alertas */
-    color: black;
-}
-.custom-modal-btn.alert:hover {
-    background-color: var(--primary-hover);
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-@keyframes slideIn {
-    from { transform: translateY(-30px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-/* ESTILOS PARA EL NUEVO CAMPO DESPLEGABLE DE ETIQUETAS */
-.dropdown-container {
-    position: relative;
-    width: 100%;
-    margin-bottom: 1.5rem; /* Espacio después del grupo de etiquetas */
-}
-.dropdown-input {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    background: rgba(30, 41, 59, 0.5);
-    border: 1px solid var(--color-border);
-    border-radius: 0.5rem;
-    color: var(--color-text);
-    font-size: 1rem;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.dropdown-input:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 2px rgba(57, 255, 20, 0.2);
-}
-.dropdown-options {
-    position: absolute;
-    top: 100%; /* Justo debajo del input */
-    left: 0;
-    width: 100%;
-    background-color: var(--color-bg-secondary);
-    border: 1px solid var(--color-border);
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    z-index: 20; /* Asegura que esté por encima de otros elementos */
-    display: none; /* Oculto por defecto */
-    padding: 0.5rem;
-}
-.dropdown-options.active {
-    display: block;
-}
-.dropdown-option {
-    padding: 0.75rem 1rem;
-    color: var(--color-text);
-    cursor: pointer;
-    transition: background-color 0.2s;
-    border-radius: 0.3rem;
-}
-.dropdown-option:hover {
-    background-color: rgba(255,255,255,0.1);
-}
-.selected-tags-display {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-    padding-left: 0.5rem; /* Para que no se pegue al borde del input */
-}
-.selected-tag-item {
-    padding: 0.2rem 0.6rem;
-    border-radius: 9999px;
-    font-size: 0.8rem;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    cursor: pointer;
-}
-.selected-tag-item .remove-tag-icon {
-    font-size: 0.6rem;
-    color: rgba(0,0,0,0.6);
-    transition: color 0.2s;
-}
-.selected-tag-item:hover .remove-tag-icon {
-    color: red;
-}
-/* Colores para los tags seleccionados (con clases específicas) */
+/* Desplegable de Etiquetas */
+.dropdown-container { position: relative; width: 100%; margin-bottom: 1.5rem; }
+.dropdown-input { width: 100%; padding: 0.75rem 1rem; background: rgba(30, 41, 59, 0.5); border: 1px solid var(--color-border); border-radius: 0.5rem; color: var(--color-text); font-size: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.dropdown-input:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 2px rgba(57, 255, 20, 0.2); }
+.dropdown-options { position: absolute; top: 100%; left: 0; width: 100%; background-color: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: 0.5rem; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 20; display: none; padding: 0.5rem; }
+.dropdown-options.active { display: block; }
+.dropdown-option { padding: 0.75rem 1rem; color: var(--color-text); cursor: pointer; transition: background-color 0.2s; border-radius: 0.3rem; }
+.dropdown-option:hover { background-color: rgba(255,255,255,0.1); }
+.selected-tags-display { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; padding-left: 0.5rem; }
+.selected-tag-item { padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.8rem; display: flex; align-items: center; gap: 0.25rem; cursor: pointer; }
+.selected-tag-item .remove-tag-icon { font-size: 0.6rem; color: rgba(0,0,0,0.6); transition: color 0.2s; }
+.selected-tag-item:hover .remove-tag-icon { color: red; }
 .selected-tag-item.tag-servicio-de-sala { background-color: var(--tag-servicio-de-sala-bg); color: var(--tag-servicio-de-sala-text); }
 .selected-tag-item.tag-a-requerimiento { background-color: var(--tag-a-requerimiento-bg); color: var(--tag-a-requerimiento-text); }
 .selected-tag-item.tag-por-superioridad { background-color: var(--tag-por-superioridad-bg); color: var(--tag-por-superioridad-text); }
 .selected-tag-item.tag-otros { background-color: var(--tag-otros-bg); color: var(--tag-otros-text); }
-
