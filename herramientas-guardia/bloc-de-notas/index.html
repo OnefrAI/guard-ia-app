@@ -40,7 +40,6 @@
     </div>
 
     <div id="app-content" class="hidden">
-        <!-- El H2 cambia dinámicamente si se está creando o editando -->
         <h2 id="formTitle" class="text-2xl font-semibold text-center mb-6 text-white">Crear Nueva Nota</h2>
         <form id="noteForm" class="space-y-6">
             <!-- SECCIÓN PARA DATOS DE INTERVENCIÓN Y PERSONA -->
@@ -106,28 +105,18 @@
                 <div id="editor-container"></div> 
             </div>
             
-            <!-- CONTENEDOR PARA LA VISTA PREVIA DE LA FOTO Y EL ESTADO DEL OCR -->
-            <div id="photo-ocr-container" class="photo-ocr-container">
-                <img id="photoPreview" src="#" alt="Vista previa de la foto" class="note-photo hidden" />
-                <div id="ocr-status" class="ocr-status hidden">
-                    <div class="spinner"></div>
-                    <span>Analizando documento con IA...</span>
-                </div>
-            </div>
-
+            <img id="photoPreview" src="#" alt="Vista previa de la foto" class="note-photo hidden" />
 
             <!-- BOTONES DE ACCIÓN PRINCIPALES DEL FORMULARIO -->
             <div class="action-buttons flex justify-between gap-4 mb-6">
-                <!-- El texto de este botón cambia a "Actualizar Nota" en modo edición -->
                 <button type="submit" id="saveNoteButton" class="btn save-btn">
                     <i class="fas fa-save"></i>
                     <span>Guardar Nota</span>
                 </button>
-                <button type="button" id="scanOcrButton" class="btn photo-btn">
+                <button type="button" id="takePhotoButton" class="btn photo-btn">
                     <i class="fas fa-camera"></i>
-                    <span>Escanear Documento (OCR)</span>
+                    <span>Tomar Foto</span>
                 </button>
-                <!-- Botón de cancelar edición, oculto por defecto -->
                 <button type="button" id="cancelEditButton" class="btn cancel-btn hidden">
                     <i class="fas fa-times"></i>
                     <span>Cancelar Edición</span>
@@ -138,7 +127,6 @@
         <hr class="form-divider">
 
         <div class="notes-section mt-8">
-            <!-- NUEVA SECCIÓN DE BÚSQUEDA Y FILTRADO -->
             <div class="search-filter-section mb-6">
                 <div class="grid md:grid-cols-2 gap-4">
                     <div class="form-group">
@@ -149,15 +137,13 @@
                         <label for="tagFilter" class="text-white">Filtrar por etiqueta</label>
                         <select id="tagFilter">
                             <option value="">Todas las etiquetas</option>
-                            <!-- Opciones se llenan dinámicamente con JS -->
                         </select>
                     </div>
                 </div>
             </div>
 
             <div class="notes-header flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold">Notas Guardadas en la Nube</h2>
-                <!-- BOTÓN DE EXPORTAR A PDF MOVIDO AQUÍ Y SIMPLIFICADO -->
+                <h2 class="text-xl font-semibold">Notas Guardadas</h2>
                  <button type="button" id="exportPdfBtn" class="btn export-pdf-btn">
                     <i class="fas fa-file-pdf mr-2"></i> Exportar a PDF
                 </button>
@@ -172,7 +158,7 @@
     <div class="modal-content">
       <video id="video" autoplay></video>
       <div class="modal-buttons flex justify-around mt-4">
-        <button id="captureButton" class="btn capture-btn">Capturar y Analizar</button>
+        <button id="captureButton" class="btn capture-btn">Capturar</button>
         <button id="cancelCaptureButton" class="btn cancel-btn">Cancelar</button>
       </div>
     </div>
