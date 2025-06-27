@@ -219,8 +219,6 @@ noteForm.addEventListener('submit', async (e) => {
             tags: selectedTags,
         };
         
-        // If there's a new photo, add its URL.
-        // If editing and no new photo, the existing photo URL remains untouched.
         if (photoDownloadURL) {
             noteData.photoUrl = photoDownloadURL;
         }
@@ -288,6 +286,7 @@ function resetForm() {
     renderSelectedTags();
     capturedPhotoDataUrl = null;
     photoPreview.classList.add('hidden');
+    photoPreview.removeAttribute('src'); // CORRECCIÓN: Eliminar el src para que no se vea el alt text.
     isEditing = false;
     currentEditingNoteId = null;
     formTitle.textContent = "Crear Nueva Nota";
@@ -343,13 +342,18 @@ function displayNotes(notesToShow) {
         const tagsHtml = (note.tags && note.tags.length > 0) 
             ? `<div class="note-tags">${note.tags.map(tag => `<span class="note-tag ${tagColorMap[tag] || ''}">${tag}</span>`).join('')}</div>`
             : '';
-
+        // CORRECCIÓN: Añadidos todos los campos a la visualización de la nota
         return `
         <div class="note">
             <p><strong>Fecha y Hora:</strong> ${displayTimestamp}</p>
             <p><strong>Lugar de Intervención:</strong> ${note.interventionLocation || 'N/A'}</p>
             <p><strong>Documento:</strong> ${note.documentNumber || 'N/A'}</p>
             <p><strong>Nombre:</strong> ${note.fullName || 'N/A'}</p>
+            <p><strong>Lugar de Nacimiento:</strong> ${note.birthPlace || 'N/A'}</p>
+            <p><strong>Fecha de Nacimiento:</strong> ${note.birthdate || 'N/A'}</p>
+            <p><strong>Teléfono:</strong> ${note.phone || 'N/A'}</p>
+            <p><strong>Padres:</strong> ${note.parentsName || 'N/A'}</p>
+            <p><strong>Dirección:</strong> ${note.address || 'N/A'}</p>
             <p><strong>Hechos:</strong> <div class="ql-editor-readonly">${note.factsHtml || 'N/A'}</div></p>
             ${tagsHtml}
             ${note.photoUrl ? `<img src="${note.photoUrl}" alt="Foto de la nota" class="note-photo" loading="lazy">` : ''}
@@ -429,7 +433,9 @@ exportPdfBtn.addEventListener('click', () => {
 });
 
 function createAlertDialog(message, details = '') {
-    if (document.querySelector('.custom-modal-overlay')) return;
+    if (document.querySelector('.custom-modal-overlay')) {
+        document.querySelector('.custom-modal-overlay').remove();
+    };
     
     const overlay = document.createElement('div');
     overlay.className = 'custom-modal-overlay';
@@ -457,7 +463,7 @@ function createAlertDialog(message, details = '') {
 
 function createConfirmationModal(message) {
     if (document.querySelector('.custom-modal-overlay')) {
-        return { present: () => Promise.resolve(false) };
+       document.querySelector('.custom-modal-overlay').remove();
     }
 
     const overlay = document.createElement('div');
