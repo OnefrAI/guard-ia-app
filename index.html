@@ -114,10 +114,6 @@
                     <i class="fab fa-telegram-plane text-xl"></i> Contacta con @OnefraGT
                 </a>
                 <span class="text-[var(--text-medium-color)] hidden sm:inline">|</span>
-                <a href="#" class="flex items-center justify-center gap-2 text-[var(--text-medium-color)] hover:text-[var(--accent-color)] transition-colors" id="faqLink">
-                    <i class="fas fa-question-circle text-xl"></i> Preguntas Frecuentes (FAQ)
-                </a>
-                <span class="text-[var(--text-medium-color)] hidden sm:inline">|</span>
                 <a href="#" class="flex items-center justify-center gap-2 text-[var(--text-medium-color)] hover:text-[var(--accent-color)] transition-colors" id="suggestLink">
                     <i class="fas fa-lightbulb text-xl"></i> Sugerir Mejoras
                 </a>
@@ -139,7 +135,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"; // Importar Firestore
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"; 
 
     const firebaseConfig = {
       apiKey: "AIzaSyAf3I3_aW__lBtTVlEJ9xesIWkEJ6lMJp8",
@@ -153,7 +149,7 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app); // Inicializar Firestore
+    const db = getFirestore(app); 
 
     const loader = document.getElementById('loader');
     const loginScreen = document.getElementById('login-screen');
@@ -164,11 +160,38 @@
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
     const authError = document.getElementById('authError');
-    const faqLink = document.getElementById('faqLink'); // Nuevo
-    const suggestLink = document.getElementById('suggestLink'); // Nuevo
-    const modalContentDiv = document.getElementById('modalContent'); // Nuevo
+    const suggestLink = document.getElementById('suggestLink'); 
     
-    // --- Lógica de Herramientas (sin cambios en este bloque, pero se incluye para completitud) ---
+    // modalContentDiv ahora se obtiene dentro de las funciones showModal y closeInfoModal
+    // para evitar problemas de re-declaración si el script se carga múltiples veces.
+
+    // showModal ahora acepta 'content' que puede ser texto plano o HTML
+    window.showModal = function(title, content) { 
+        const modalTitleEl = document.getElementById('modalTitle'); // Asegurar acceso local
+        const modalContentDiv = document.getElementById('modalContent'); // Asegurar acceso local
+        const infoModalOverlay = document.getElementById('infoModalOverlay'); // Asegurar acceso local
+
+        if (modalTitleEl && modalContentDiv && infoModalOverlay) {
+            modalTitleEl.textContent = title;
+            modalContentDiv.innerHTML = content; // Usamos innerHTML para todo el contenido
+            infoModalOverlay.classList.add('active');
+        } else {
+            console.error("Error: Elementos del modal no encontrados.");
+        }
+    }
+    window.closeInfoModal = function() {
+        const modalContentDiv = document.getElementById('modalContent'); // Asegurar acceso local
+        const infoModalOverlay = document.getElementById('infoModalOverlay'); // Asegurar acceso local
+
+        if (modalContentDiv && infoModalOverlay) {
+            infoModalOverlay.classList.remove('active');
+            modalContentDiv.innerHTML = ''; // Limpiar contenido al cerrar
+        } else {
+            console.error("Error: Elementos del modal no encontrados en closeInfoModal.");
+        }
+    }
+
+    // --- Lógica de Herramientas ---
 
     const toolsData = [
         {
@@ -224,18 +247,6 @@
             title: 'Calendario de Turnos',
             infoTitle: 'Calendario de Turnos del GUARD-IA',
             infoText: 'Organiza y gestiona tus turnos de trabajo de forma eficiente. Guarda tus calendarios de forma segura en la nube, con acceso privado desde cualquier dispositivo.'
-        },
-        {
-            id: 'support-us',
-            href: 'https://ko-fi.com/onefraguardia', 
-            target: '_blank',
-            icon: 'fa-hand-holding-heart', 
-            title: 'Apoyar GUARD-IA',
-            infoTitle: '¡Ayúdanos a seguir mejorando!',
-            infoText: `Si valoras las herramientas de GUARD-IA y consideras hacer una pequeña contribución, tu apoyo me ayuda a cubrir los costes de mantenimiento y a desarrollar nuevas funcionalidades.
-                       Puedes donar de forma segura a través de Ko-fi.
-                       Cada aportación es bienvenida y muy apreciada.
-                       ¡Buen servicio Compañer@!`
         }
     ];
 
@@ -271,7 +282,9 @@
     // --- Lógica de Autenticación ---
 
     onAuthStateChanged(auth, user => {
-        loader.classList.add('hidden');
+        // Asegurarse de que el loader se oculte SIEMPRE
+        loader.classList.add('hidden'); 
+
         if (user) {
             mainAppContent.classList.remove('hidden');
             loginScreen.classList.add('hidden');
@@ -280,11 +293,12 @@
                     <span class="text-sm text-[var(--text-medium-color)] hidden sm:inline">${user.email}</span>
                     <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-red-700 transition">Salir</button>
                 </div>`;
-            document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
-            renderTools(); // Renderiza las herramientas cuando el usuario está logueado
+            renderTools(); 
         } else {
             loginScreen.classList.remove('hidden');
             mainAppContent.classList.add('hidden');
+            // Si no hay usuario, limpiar el loader y mostrar la pantalla de login
+            loader.classList.add('hidden'); 
         }
     });
 
@@ -325,11 +339,12 @@
 
     const infoModalOverlay = document.getElementById('infoModalOverlay');
     const modalTitle = document.getElementById('modalTitle');
-    const modalText = document.getElementById('modalText'); // Este ya no se usará directamente para el contenido complejo
+    const modalContentDiv = document.getElementById('modalContent'); 
 
-    window.showModal = function(title, contentHtml) { // Ahora acepta HTML
+    // showModal ahora acepta 'content' que puede ser texto plano o HTML
+    window.showModal = function(title, content) { 
         modalTitle.textContent = title;
-        modalContentDiv.innerHTML = contentHtml; // Asignar el HTML directamente al nuevo div
+        modalContentDiv.innerHTML = content; // Usamos innerHTML para todo el contenido
         infoModalOverlay.classList.add('active');
     }
     window.closeInfoModal = function() {
@@ -371,7 +386,7 @@
             submitBtn.disabled = true;
             submitBtn.querySelector('span').textContent = 'Enviando...';
             loader.classList.remove('hidden');
-            messageDiv.textContent = ''; // Limpiar mensaje anterior
+            messageDiv.textContent = ''; 
 
             try {
                 await addDoc(collection(db, 'suggestions'), {
@@ -382,9 +397,9 @@
                 });
                 messageDiv.textContent = '¡Sugerencia enviada con éxito! Gracias por tu aporte.';
                 messageDiv.style.color = 'var(--accent-color)';
-                document.getElementById('suggestionText').value = ''; // Limpiar el textarea
+                document.getElementById('suggestionText').value = ''; 
                 setTimeout(() => {
-                    closeInfoModal(); // Cerrar modal después de un tiempo
+                    closeInfoModal(); 
                 }, 2000); 
 
             } catch (error) {
@@ -397,29 +412,6 @@
                 loader.classList.add('hidden');
             }
         });
-    });
-
-    // --- Funcionalidad para Preguntas Frecuentes (FAQ) ---
-    faqLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        const faqContent = `
-            <div class="space-y-4">
-                <p class="text-base">Aquí encontrarás respuestas a las preguntas más comunes sobre GUARD-IA y sus herramientas. ¡Esta sección se actualizará continuamente!</p>
-                <div class="bg-[var(--card-color)] p-4 rounded-md border border-[var(--border-color)]">
-                    <strong class="text-[var(--accent-color)]">¿Necesito conexión a internet para usar GUARD-IA?</strong>
-                    <p class="text-sm text-[var(--text-medium-color)] mt-1">Algunas herramientas como el Bloc de Notas y el Calendario requieren conexión para guardar y sincronizar tus datos en la nube. El Verificador de Email con IA también necesita internet para funcionar. Otras funcionalidades básicas pueden ser accesibles sin conexión si la aplicación ha sido previamente cargada.</p>
-                </div>
-                <div class="bg-[var(--card-color)] p-4 rounded-md border border-[var(--border-color)]">
-                    <strong class="text-[var(--accent-color)]">¿Mis datos están seguros y privados?</strong>
-                    <p class="text-sm text-[var(--text-medium-color)] mt-1">Sí. Tus datos se cifran en tu dispositivo antes de ser enviados a la nube y se asocian a tu cuenta personal de Firebase. Solo tú tienes acceso a ellos. GUARD-IA está diseñado con un enfoque en la privacidad del profesional.</p>
-                </div>
-                <div class="bg-[var(--card-color)] p-4 rounded-md border border-[var(--border-color)]">
-                    <strong class="text-[var(--accent-color)]">¿Cómo puedo obtener el encabezado de un email para el Verificador IA?</strong>
-                    <p class="text-sm text-[var(--text-medium-color)] mt-1">En la página del Verificador de Email, haz clic en el enlace "¿Cómo obtengo el encabezado?". Se abrirá un modal con instrucciones detalladas para los clientes de email más comunes (Gmail, Outlook, Yahoo).</p>
-                </div>
-            </div>
-        `;
-        showModal('Preguntas Frecuentes (FAQ)', faqContent);
     });
 
 </script>
