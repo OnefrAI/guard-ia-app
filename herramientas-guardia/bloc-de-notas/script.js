@@ -1,6 +1,6 @@
 // Import necessary functions from the Firebase SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { 
     getFirestore, 
     collection, 
@@ -11,8 +11,7 @@ import {
     doc,
     getDoc,
     updateDoc, 
-    serverTimestamp,
-    getDocs
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { 
     getStorage, 
@@ -42,23 +41,26 @@ const storage = getStorage(app);
 // DOM Elements
 const noteForm = document.getElementById('noteForm');
 const notesContainer = document.getElementById('notesContainer');
-const takePhotoButton = document.getElementById('takePhotoButton');
 const saveNoteButton = document.getElementById('saveNoteButton');
 const photoPreview = document.getElementById('photoPreview');
 const authStateDiv = document.getElementById('auth-state');
 const appContentDiv = document.getElementById('app-content');
-const userInfoDiv = document.getElementById('user-info');
+const userInfoDiv = document.querySelector('.user-info-container');
+const userEmailSpan = userInfoDiv.querySelector('.user-email');
+const logoutButton = document.getElementById('logoutButton');
 const exportPdfBtn = document.getElementById('exportPdfBtn');
-const exportCsvBtn = document.getElementById('exportCsvBtn');
-const generateReportButton = document.getElementById('generateReportButton');
 
-// NUEVOS elementos para edición y búsqueda
+// OCR and Camera Elements
+const scanOcrButton = document.getElementById('scanOcrButton');
+const ocrStatusDiv = document.getElementById('ocr-status');
+
+// Edit and Search Elements
 const formTitle = document.getElementById('formTitle');
 const cancelEditButton = document.getElementById('cancelEditButton');
 const searchInput = document.getElementById('searchInput');
 const tagFilter = document.getElementById('tagFilter');
 
-// Elementos para etiquetas
+// Tag Elements
 const tagsDropdownInput = document.getElementById('tagsDropdownInput');
 const tagsDropdownOptions = document.getElementById('tagsDropdownOptions');
 const selectedTagsDisplay = document.getElementById('selectedTagsDisplay');
@@ -83,7 +85,7 @@ const quill = new Quill('#editor-container', {
     placeholder: 'Escribe aquí los hechos y detalles de la intervención...',
 });
 
-// Mapa de colores para etiquetas
+// Tag color map
 const tagColorMap = {
     "Servicio de Sala": "tag-servicio-de-sala", "A requerimiento": "tag-a-requerimiento",
     "Por superioridad": "tag-por-superioridad", "Otros": "tag-otros"
@@ -95,7 +97,7 @@ let mediaStream = null;
 let capturedPhotoDataUrl = null;
 let currentUserId = null;
 let unsubscribeFromNotes = null;
-let allNotes = []; // Almacenamiento local de todas las notas para búsqueda/filtrado
+let allNotes = [];
 let isEditing = false;
 let currentEditingNoteId = null;
 
@@ -105,30 +107,131 @@ onAuthStateChanged(auth, (user) => {
         currentUserId = user.uid;
         authStateDiv.classList.add('hidden');
         appContentDiv.classList.remove('hidden');
-        userInfoDiv.textContent = `Conectado como: ${user.email}`;
+        userEmailSpan.textContent = user.email;
         listenForNotes();
     } else {
         currentUserId = null;
         appContentDiv.classList.add('hidden');
         authStateDiv.classList.remove('hidden');
         authStateDiv.innerHTML = `<p>Debes iniciar sesión para usar el bloc de notas. <a href="../../index.html">Volver para iniciar sesión.</a></p>`;
-        userInfoDiv.textContent = 'No conectado';
+        userEmailSpan.textContent = '';
         if (unsubscribeFromNotes) unsubscribeFromNotes();
         notesContainer.innerHTML = "<p>Inicia sesión para ver tus notas.</p>";
         allNotes = [];
     }
 });
 
-// --- Photo Upload ---
+logoutButton.addEventListener('click', () => {
+    signOut(auth).catch(error => console.error("Error al cerrar sesión:", error));
+});
+
+
+// --- Photo & OCR ---
+scanOcrButton.addEventListener('click', () => {
+    if (navigator.mediaDevices?.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } } })
+            .then(stream => {
+                mediaStream = stream;
+                video.srcObject = stream;
+                video.play();
+                cameraModal.style.display = 'flex';
+            })
+            .catch(err => {
+                console.error(`Error al acceder a la cámara: ${err.message}`);
+                createAlertDialog("No se pudo acceder a la cámara.").present();
+            });
+    } else {
+        createAlertDialog("Tu navegador no soporta acceso a la cámara.").present();
+    }
+});
+
+captureButton.addEventListener('click', () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext('2d');
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    capturedPhotoDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+    
+    photoPreview.src = capturedPhotoDataUrl;
+    photoPreview.classList.remove('hidden');
+    
+    closeCameraModal();
+    runOcr(capturedPhotoDataUrl);
+});
+
+
+async function runOcr(base64ImageData) {
+    ocrStatusDiv.classList.remove('hidden');
+    const imageData = base64ImageData.split(',')[1];
+    const prompt = "Eres un sistema OCR experto en documentos de identidad españoles (DNI y NIE). Analiza la imagen y extrae el texto de los siguientes campos: APELLIDOS, NOMBRE, DNI o NIE, FECHA DE NACIMIENTO y DOMICILIO. Devuelve los datos en un objeto JSON con las claves 'apellidos', 'nombre', 'documento', 'fechaNacimiento' y 'domicilio'. Si un campo no es legible, devuelve una cadena vacía para ese campo.";
+
+    const schema = {
+        type: "OBJECT",
+        properties: {
+            "apellidos": { "type": "STRING" },
+            "nombre": { "type": "STRING" },
+            "documento": { "type": "STRING" },
+            "fechaNacimiento": { "type": "STRING" },
+            "domicilio": { "type": "STRING" },
+        }
+    };
+
+    const payload = {
+        contents: [{ role: "user", parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: imageData } }] }],
+        generationConfig: { responseMimeType: "application/json", responseSchema: schema }
+    };
+    
+    const apiKey = "";
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+    try {
+        const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
+        const result = await response.json();
+        
+        if (result.candidates && result.candidates[0].content.parts[0]) {
+            const data = JSON.parse(result.candidates[0].content.parts[0].text);
+            autofillForm(data);
+            createAlertDialog("Campos autocompletados. Por favor, revisa los datos.").present();
+        } else {
+            throw new Error("Respuesta inesperada de la API de OCR.");
+        }
+    } catch (error) {
+        console.error("Error en el proceso de OCR:", error);
+        createAlertDialog("Error al analizar el documento.", "No se pudieron extraer los datos. Inténtalo de nuevo.").present();
+    } finally {
+        ocrStatusDiv.classList.add('hidden');
+    }
+}
+
+function autofillForm(data) {
+    document.getElementById('fullName').value = data.nombre && data.apellidos ? `${data.nombre} ${data.apellidos}` : (data.nombre || data.apellidos || '');
+    if (data.documento) document.getElementById('documentNumber').value = data.documento;
+    if (data.fechaNacimiento) document.getElementById('birthdate').value = data.fechaNacimiento;
+    if (data.domicilio) document.getElementById('address').value = data.domicilio;
+}
+
+cancelCaptureButton.addEventListener('click', closeCameraModal);
+
+function closeCameraModal() {
+    if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+        mediaStream = null;
+    }
+    video.srcObject = null;
+    cameraModal.style.display = 'none';
+}
+
 async function uploadPhoto(base64String) {
-    if (!currentUserId) throw new Error("Usuario no autenticado para subir la foto.");
+    if (!currentUserId || !base64String) return null;
     const photoId = `note_photo_${Date.now()}`;
-    const storageRef = ref(storage, `users/${currentUserId}/notes_photos/${photoId}.png`);
+    const storageRef = ref(storage, `users/${currentUserId}/notes_photos/${photoId}.jpg`);
     const snapshot = await uploadString(storageRef, base64String, 'data_url');
     return await getDownloadURL(snapshot.ref);
 }
 
-// --- Firestore and Storage ---
+// --- Firestore and Notes Logic ---
 function listenForNotes() {
     if (!currentUserId) return;
     if (unsubscribeFromNotes) unsubscribeFromNotes();
@@ -141,28 +244,21 @@ function listenForNotes() {
             allNotes.push({ id: doc.id, ...doc.data() });
         });
         allNotes.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
-        
         populateTagFilter(); 
         applyFilters(); 
-        console.log(`Se han cargado/actualizado ${allNotes.length} nota(s).`);
     }, (error) => {
         console.error(`Error al cargar las notas: ${error.message}`);
         notesContainer.innerHTML = "<p>Error al cargar las notas. Por favor, recarga la página.</p>";
     });
 }
 
-// --- Note Creation and UPDATE ---
 noteForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     saveNoteButton.disabled = true;
     saveNoteButton.querySelector('span').textContent = 'Guardando...';
 
-    let photoDownloadURL = '';
     try {
-        if (capturedPhotoDataUrl) {
-            photoDownloadURL = await uploadPhoto(capturedPhotoDataUrl);
-        }
-
+        const photoDownloadURL = await uploadPhoto(capturedPhotoDataUrl);
         const noteData = {
             interventionLocation: document.getElementById('interventionLocation').value,
             documentNumber: document.getElementById('documentNumber').value,
@@ -175,8 +271,10 @@ noteForm.addEventListener('submit', async (e) => {
             factsHtml: quill.root.innerHTML,
             factsText: quill.getText(),
             tags: selectedTags,
-            ...(photoDownloadURL && { photoUrl: photoDownloadURL }),
         };
+        if (photoDownloadURL) {
+            noteData.photoUrl = photoDownloadURL;
+        }
 
         if (isEditing) {
             const noteDocRef = doc(db, "users", currentUserId, "notes", currentEditingNoteId);
@@ -188,26 +286,20 @@ noteForm.addEventListener('submit', async (e) => {
             await addDoc(notesCollection, noteData);
             createAlertDialog("Nota guardada en la nube exitosamente.").present();
         }
-        
         resetForm();
     } catch (error) {
-        console.error("Error durante el proceso de guardado/actualización:", error);
+        console.error("Error durante el guardado/actualización:", error);
         createAlertDialog(`Hubo un error.`, `Mensaje: ${error.message}`).present();
     } finally {
         saveNoteButton.disabled = false;
-        if (!isEditing) {
-            saveNoteButton.querySelector('span').textContent = 'Guardar Nota';
-        }
+        saveNoteButton.querySelector('span').textContent = isEditing ? 'Actualizar Nota' : 'Guardar Nota';
     }
 });
 
 // --- Edit Logic ---
 window.startEditNote = (noteId) => {
     const noteToEdit = allNotes.find(note => note.id === noteId);
-    if (!noteToEdit) {
-        console.error("Nota no encontrada para editar");
-        return;
-    }
+    if (!noteToEdit) return;
 
     isEditing = true;
     currentEditingNoteId = noteId;
@@ -226,16 +318,16 @@ window.startEditNote = (noteId) => {
 
     if (noteToEdit.photoUrl) {
         photoPreview.src = noteToEdit.photoUrl;
-        photoPreview.style.display = 'block';
+        photoPreview.classList.remove('hidden');
     } else {
-        photoPreview.style.display = 'none';
+        photoPreview.classList.add('hidden');
     }
     capturedPhotoDataUrl = null;
 
     formTitle.textContent = "Editando Nota";
     saveNoteButton.querySelector('span').textContent = "Actualizar Nota";
     cancelEditButton.classList.remove('hidden');
-    takePhotoButton.classList.add('hidden');
+    scanOcrButton.classList.remove('hidden');
 
     noteForm.scrollIntoView({ behavior: 'smooth' });
 };
@@ -246,15 +338,14 @@ function resetForm() {
     selectedTags = [];
     renderSelectedTags();
     capturedPhotoDataUrl = null;
-    photoPreview.style.display = 'none';
-
+    photoPreview.classList.add('hidden');
+    ocrStatusDiv.classList.add('hidden');
     isEditing = false;
     currentEditingNoteId = null;
-
     formTitle.textContent = "Crear Nueva Nota";
     saveNoteButton.querySelector('span').textContent = 'Guardar Nota';
     cancelEditButton.classList.add('hidden');
-    takePhotoButton.classList.remove('hidden');
+    scanOcrButton.classList.remove('hidden');
 }
 
 cancelEditButton.addEventListener('click', resetForm);
@@ -264,38 +355,23 @@ cancelEditButton.addEventListener('click', resetForm);
 function applyFilters() {
     const searchTerm = searchInput.value.toLowerCase().trim();
     const tagToFilter = tagFilter.value;
-
     let filteredNotes = allNotes;
-
     if (searchTerm) {
-        filteredNotes = filteredNotes.filter(note => {
-            const searchCorpus = `
-                ${note.fullName || ''} 
-                ${note.documentNumber || ''} 
-                ${note.interventionLocation || ''} 
-                ${note.factsText || ''}
-            `.toLowerCase();
-            return searchCorpus.includes(searchTerm);
-        });
+        filteredNotes = filteredNotes.filter(note =>
+            Object.values(note).some(value => 
+                String(value).toLowerCase().includes(searchTerm)
+            )
+        );
     }
-
     if (tagToFilter) {
         filteredNotes = filteredNotes.filter(note => note.tags && note.tags.includes(tagToFilter));
     }
-    
     displayNotes(filteredNotes);
 }
 
 function populateTagFilter() {
-    const allTags = new Set();
-    allNotes.forEach(note => {
-        if (note.tags) {
-            note.tags.forEach(tag => allTags.add(tag));
-        }
-    });
-
+    const allTags = new Set(allNotes.flatMap(note => note.tags || []));
     const currentFilterValue = tagFilter.value;
-
     tagFilter.innerHTML = '<option value="">Todas las etiquetas</option>';
     allTags.forEach(tag => {
         const option = document.createElement('option');
@@ -303,13 +379,11 @@ function populateTagFilter() {
         option.textContent = tag;
         tagFilter.appendChild(option);
     });
-
     tagFilter.value = currentFilterValue;
 }
 
 searchInput.addEventListener('input', applyFilters);
 tagFilter.addEventListener('change', applyFilters);
-
 
 // --- Display and Interaction ---
 function displayNotes(notesToShow) { 
@@ -329,11 +403,6 @@ function displayNotes(notesToShow) {
             <p><strong>Lugar de Intervención:</strong> ${note.interventionLocation || 'N/A'}</p>
             <p><strong>Documento:</strong> ${note.documentNumber || 'N/A'}</p>
             <p><strong>Nombre:</strong> ${note.fullName || 'N/A'}</p>
-            <p><strong>Lugar de nacimiento:</strong> ${note.birthPlace || 'N/A'}</p>
-            <p><strong>Fecha de nacimiento:</strong> ${note.birthdate || 'N/A'}</p>
-            <p><strong>Padres:</strong> ${note.parentsName || 'N/A'}</p>
-            <p><strong>Dirección:</strong> ${note.address || 'N/A'}</p>
-            <p><strong>Teléfono:</strong> ${note.phone || 'N/A'}</p>
             <p><strong>Hechos:</strong> <div class="ql-editor-readonly">${note.factsHtml || 'N/A'}</div></p>
             ${tagsHtml}
             ${note.photoUrl ? `<img src="${note.photoUrl}" alt="Foto de la nota" class="note-photo" loading="lazy">` : ''}
@@ -342,7 +411,7 @@ function displayNotes(notesToShow) {
                 <button class="btn btn-delete" onclick="window.deleteNote('${note.id}')">Eliminar</button>
                 <button class="btn btn-share" onclick='window.shareNote(${JSON.stringify(note)})'>Compartir</button>
                 <button class="btn btn-copy" onclick='window.copyNoteText(${JSON.stringify(note)})'>Copiar Texto</button>
-                ${note.photoUrl ? `<button class="btn btn-download" onclick="window.downloadNotePhoto('${note.photoUrl}')">Descargar Foto</button>` : ''}
+                ${note.photoUrl ? `<a href="${note.photoUrl}" target="_blank" download="foto_nota_${note.id}.jpg"><button class="btn btn-download">Descargar Foto</button></a>` : ''}
             </div>
         </div>`;
     }).join('');
@@ -365,66 +434,15 @@ window.deleteNote = async function(noteId) {
         }
         await deleteDoc(noteDocRef);
     } catch (error) {
-        console.error(`Error al eliminar la nota: ${error.message}`);
         createAlertDialog("Hubo un error al eliminar la nota.", `Mensaje: ${error.message}`).present();
     }
 };
 
-window.shareNote = async function(noteData) {
-    const displayTimestamp = noteData.createdAt?.seconds ? new Date(noteData.createdAt.seconds * 1000).toLocaleString('es-ES') : 'N/A';
-    let shareText = `Nota Policial:\nFecha: ${displayTimestamp}\nLugar: ${noteData.interventionLocation || 'N/A'}\nDocumento: ${noteData.documentNumber || 'N/A'}\nNombre: ${noteData.fullName || 'N/A'}\nHechos: ${noteData.factsText || 'N/A'}\nEtiquetas: ${(noteData.tags || []).join(', ')}`;
-    const shareOptions = { title: 'Nota Policial', text: shareText };
-    if (noteData.photoUrl) {
-        try {
-            const response = await fetch(noteData.photoUrl);
-            const blob = await response.blob();
-            shareOptions.files = [new File([blob], 'foto_nota.png', { type: blob.type })];
-        } catch (error) { console.error('Error al procesar foto para compartir:', error); }
-    }
-    if (navigator.share) await navigator.share(shareOptions).catch(err => { if (err.name !== 'AbortError') console.error(err); });
-    else createAlertDialog('La función de compartir no es compatible con este navegador.').present();
-}
-window.copyNoteText = async function(noteData) {
-    const displayTimestamp = noteData.createdAt?.seconds ? new Date(noteData.createdAt.seconds * 1000).toLocaleString('es-ES') : 'N/A';
-    let noteText = `Nota Policial:\nFecha: ${displayTimestamp}\nLugar: ${noteData.interventionLocation || 'N/A'}\nDocumento: ${noteData.documentNumber || 'N/A'}\nNombre: ${noteData.fullName || 'N/A'}\nHechos: ${noteData.factsText || 'N/A'}\nEtiquetas: ${(noteData.tags || []).join(', ')}`;
-    try {
-        await navigator.clipboard.writeText(noteText);
-        createAlertDialog('Texto de la nota copiado.').present();
-    } catch (err) { createAlertDialog('No se pudo copiar el texto.').present(); }
-}
-window.downloadNotePhoto = (photoUrl) => {
-    if (!photoUrl) return;
-    const a = document.createElement('a');
-    a.href = photoUrl; a.download = 'foto_nota.png';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-};
-
-generateReportButton.addEventListener('click', async () => {
-    if (!currentUserId) return createAlertDialog("Debes estar conectado para generar un informe.").present();
-    const notesToReport = allNotes;
-    if (notesToReport.length === 0) return createAlertDialog("No hay notas para generar un informe.").present();
-    
-    let reportText = 'Informe de Intervenciones\n\n';
-    notesToReport.forEach((note, index) => {
-        const displayTimestamp = note.createdAt?.toDate() ? note.createdAt.toDate().toLocaleString('es-ES') : 'N/A';
-        reportText += `Intervención ${index + 1}\n---------------------------------\nFecha y Hora: ${displayTimestamp}\nLugar de Intervención: ${note.interventionLocation || 'N/A'}\nDocumento: ${note.documentNumber || 'N/A'}\nNombre: ${note.fullName || 'N/A'}\nHechos: ${note.factsText || 'N/A'}\n---------------------------------\n\n`;
-    });
-    const blob = new Blob([reportText], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'informe_intervenciones.txt';
-    a.click();
-    URL.revokeObjectURL(url);
-});
-
-// --- Lógica de etiquetas ---
+// --- Tags Dropdown Logic ---
 tagsDropdownInput.addEventListener('click', (e) => {
     e.stopPropagation();
     tagsDropdownOptions.classList.toggle('active');
 });
-
-// *** CAMBIO REALIZADO AQUÍ ***
 tagsDropdownOptions.addEventListener('click', (e) => {
     if (e.target.classList.contains('dropdown-option')) {
         const tagValue = e.target.dataset.value;
@@ -432,17 +450,14 @@ tagsDropdownOptions.addEventListener('click', (e) => {
             selectedTags.push(tagValue);
             renderSelectedTags();
         }
-        // Oculta el menú desplegable después de seleccionar una opción
         tagsDropdownOptions.classList.remove('active'); 
     }
 });
-
 document.addEventListener('click', (e) => {
     if (!tagsDropdownInput.contains(e.target) && !tagsDropdownOptions.contains(e.target)) {
         tagsDropdownOptions.classList.remove('active');
     }
 });
-
 function renderSelectedTags() {
     selectedTagsDisplay.innerHTML = '';
     selectedTags.forEach(tag => {
@@ -460,32 +475,21 @@ function removeTag(tagToRemove) {
     renderSelectedTags();
 }
 
-
-// --- Resto de funciones (Cámara, Exportación, Modales) sin cambios ---
-// ... (el código existente para estas funciones va aquí)
-exportPdfBtn.addEventListener('click', async () => { /* ... código existente ... */ });
-exportCsvBtn.addEventListener('click', async () => { /* ... código existente ... */ });
-takePhotoButton.addEventListener('click', () => { /* ... código existente ... */ });
-captureButton.addEventListener('click', () => { /* ... código existente ... */ });
-cancelCaptureButton.addEventListener('click', closeCameraModal);
-
-function closeCameraModal() {
-    if (mediaStream) {
-        mediaStream.getTracks().forEach(track => track.stop());
-        mediaStream = null;
-    }
-    video.srcObject = null;
-    cameraModal.style.display = 'none';
-}
+// --- Utility functions (Modals, Reports) ---
+// Removidos listeners de botones de exportación CSV y TXT
+exportPdfBtn.addEventListener('click', () => createAlertDialog('Función de exportar a PDF en desarrollo.').present());
 
 function createAlertDialog(message, details = '') {
+    // Evita duplicar modales
+    if (document.querySelector('.custom-modal-overlay')) return;
+    
     const overlay = document.createElement('div');
     overlay.className = 'custom-modal-overlay';
     overlay.innerHTML = `
         <div class="custom-modal-content">
             <h3>Aviso</h3>
             <p>${message}</p>
-            ${details ? `<p style="font-size:0.85rem; color: var(--text-medium-color); margin-top: -10px;">${details}</p>` : ''}
+            ${details ? `<p style="font-size:0.85rem; color: #a0a0a0; margin-top: -10px;">${details}</p>` : ''}
             <div class="custom-modal-buttons">
                 <button class="custom-modal-btn alert">Aceptar</button>
             </div>
@@ -493,19 +497,14 @@ function createAlertDialog(message, details = '') {
     `;
     document.body.appendChild(overlay);
 
-    return {
-        present: () => {
-            return new Promise(resolve => {
-                overlay.querySelector('.custom-modal-btn.alert').onclick = () => {
-                    document.body.removeChild(overlay);
-                    resolve(true);
-                };
-            });
-        }
+    overlay.querySelector('.custom-modal-btn.alert').onclick = () => {
+        document.body.removeChild(overlay);
     };
 }
 
 function createConfirmationModal(message) {
+    if (document.querySelector('.custom-modal-overlay')) return { present: () => Promise.resolve(false) };
+
     const overlay = document.createElement('div');
     overlay.className = 'custom-modal-overlay';
     overlay.innerHTML = `
@@ -518,20 +517,18 @@ function createConfirmationModal(message) {
             </div>
         </div>
     `;
-    document.body.appendChild(overlay);
 
-    return {
-        present: () => {
-            return new Promise(resolve => {
-                overlay.querySelector('.custom-modal-btn.confirm').onclick = () => {
-                    document.body.removeChild(overlay);
-                    resolve(true);
-                };
-                overlay.querySelector('.custom-modal-btn.cancel').onclick = () => {
-                    document.body.removeChild(overlay);
-                    resolve(false);
-                };
-            });
-        }
-    };
+    const promise = new Promise(resolve => {
+        overlay.querySelector('.custom-modal-btn.confirm').onclick = () => {
+            document.body.removeChild(overlay);
+            resolve(true);
+        };
+        overlay.querySelector('.custom-modal-btn.cancel').onclick = () => {
+            document.body.removeChild(overlay);
+            resolve(false);
+        };
+    });
+
+    document.body.appendChild(overlay);
+    return { present: () => promise };
 }
