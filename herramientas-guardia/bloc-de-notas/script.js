@@ -45,9 +45,7 @@ const saveNoteButton = document.getElementById('saveNoteButton');
 const photoPreview = document.getElementById('photoPreview');
 const authStateDiv = document.getElementById('auth-state');
 const appContentDiv = document.getElementById('app-content');
-const userInfoDiv = document.querySelector('.user-info-container');
-const userEmailSpan = userInfoDiv.querySelector('.user-email');
-const logoutButton = document.getElementById('logoutButton');
+const userInfoDiv = document.getElementById('user-info');
 const exportPdfBtn = document.getElementById('exportPdfBtn');
 
 // OCR and Camera Elements
@@ -107,22 +105,27 @@ onAuthStateChanged(auth, (user) => {
         currentUserId = user.uid;
         authStateDiv.classList.add('hidden');
         appContentDiv.classList.remove('hidden');
-        userEmailSpan.textContent = user.email;
+        
+        userInfoDiv.innerHTML = `
+            <div class="user-info-container">
+                 <span class="user-email">${user.email}</span>
+                 <button id="logoutButton" title="Cerrar sesión" class="logout-btn"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        `;
+        document.getElementById('logoutButton').addEventListener('click', () => {
+             signOut(auth).catch(error => console.error("Error al cerrar sesión:", error));
+        });
         listenForNotes();
     } else {
         currentUserId = null;
         appContentDiv.classList.add('hidden');
         authStateDiv.classList.remove('hidden');
         authStateDiv.innerHTML = `<p>Debes iniciar sesión para usar el bloc de notas. <a href="../../index.html">Volver para iniciar sesión.</a></p>`;
-        userEmailSpan.textContent = '';
+        userInfoDiv.innerHTML = ''; // Clear user info
         if (unsubscribeFromNotes) unsubscribeFromNotes();
         notesContainer.innerHTML = "<p>Inicia sesión para ver tus notas.</p>";
         allNotes = [];
     }
-});
-
-logoutButton.addEventListener('click', () => {
-    signOut(auth).catch(error => console.error("Error al cerrar sesión:", error));
 });
 
 
@@ -409,8 +412,6 @@ function displayNotes(notesToShow) {
             <div class="note-actions">
                 <button class="btn btn-edit" onclick="window.startEditNote('${note.id}')">Editar</button>
                 <button class="btn btn-delete" onclick="window.deleteNote('${note.id}')">Eliminar</button>
-                <button class="btn btn-share" onclick='window.shareNote(${JSON.stringify(note)})'>Compartir</button>
-                <button class="btn btn-copy" onclick='window.copyNoteText(${JSON.stringify(note)})'>Copiar Texto</button>
                 ${note.photoUrl ? `<a href="${note.photoUrl}" target="_blank" download="foto_nota_${note.id}.jpg"><button class="btn btn-download">Descargar Foto</button></a>` : ''}
             </div>
         </div>`;
@@ -476,11 +477,14 @@ function removeTag(tagToRemove) {
 }
 
 // --- Utility functions (Modals, Reports) ---
-// Removidos listeners de botones de exportación CSV y TXT
-exportPdfBtn.addEventListener('click', () => createAlertDialog('Función de exportar a PDF en desarrollo.').present());
+exportPdfBtn.addEventListener('click', () => {
+    if (allNotes.length === 0) {
+        return createAlertDialog("No hay notas para exportar.").present();
+    }
+    createAlertDialog('Función de exportar a PDF en desarrollo.').present();
+});
 
 function createAlertDialog(message, details = '') {
-    // Evita duplicar modales
     if (document.querySelector('.custom-modal-overlay')) return;
     
     const overlay = document.createElement('div');
@@ -497,13 +501,20 @@ function createAlertDialog(message, details = '') {
     `;
     document.body.appendChild(overlay);
 
-    overlay.querySelector('.custom-modal-btn.alert').onclick = () => {
-        document.body.removeChild(overlay);
-    };
+    return new Promise(resolve => {
+        overlay.querySelector('.custom-modal-btn.alert').onclick = () => {
+            if(document.body.contains(overlay)) {
+                document.body.removeChild(overlay);
+            }
+            resolve(true);
+        };
+    });
 }
 
 function createConfirmationModal(message) {
-    if (document.querySelector('.custom-modal-overlay')) return { present: () => Promise.resolve(false) };
+    if (document.querySelector('.custom-modal-overlay')) {
+        return { present: () => Promise.resolve(false) };
+    }
 
     const overlay = document.createElement('div');
     overlay.className = 'custom-modal-overlay';
@@ -517,18 +528,18 @@ function createConfirmationModal(message) {
             </div>
         </div>
     `;
+    document.body.appendChild(overlay);
 
     const promise = new Promise(resolve => {
         overlay.querySelector('.custom-modal-btn.confirm').onclick = () => {
-            document.body.removeChild(overlay);
+            if(document.body.contains(overlay)) document.body.removeChild(overlay);
             resolve(true);
         };
         overlay.querySelector('.custom-modal-btn.cancel').onclick = () => {
-            document.body.removeChild(overlay);
+            if(document.body.contains(overlay)) document.body.removeChild(overlay);
             resolve(false);
         };
     });
-
-    document.body.appendChild(overlay);
+    
     return { present: () => promise };
 }
