@@ -118,7 +118,7 @@ onAuthStateChanged(auth, (user) => {
         appContentDiv.classList.add('hidden');
         authStateDiv.classList.remove('hidden');
         authStateDiv.innerHTML = `<p>Debes iniciar sesión para usar el bloc de notas. <a href="../../index.html">Volver para iniciar sesión.</a></p>`;
-        userInfoDiv.innerHTML = ''; // Clear user info
+        userInfoDiv.innerHTML = '';
         if (unsubscribeFromNotes) unsubscribeFromNotes();
         notesContainer.innerHTML = "<p>Inicia sesión para ver tus notas.</p>";
         allNotes = [];
@@ -226,17 +226,17 @@ noteForm.addEventListener('submit', async (e) => {
         if (isEditing) {
             const noteDocRef = doc(db, "users", currentUserId, "notes", currentEditingNoteId);
             await updateDoc(noteDocRef, noteData);
-            createAlertDialog("Nota actualizada exitosamente.").present();
+            createAlertDialog("Nota actualizada exitosamente.");
         } else {
             noteData.createdAt = serverTimestamp();
             const notesCollection = collection(db, "users", currentUserId, "notes");
             await addDoc(notesCollection, noteData);
-            createAlertDialog("Nota guardada en la nube exitosamente.").present();
+            createAlertDialog("Nota guardada en la nube exitosamente.");
         }
         resetForm();
     } catch (error) {
         console.error("Error durante el guardado/actualización:", error);
-        createAlertDialog(`Hubo un error.`, `Mensaje: ${error.message}`).present();
+        createAlertDialog(`Hubo un error.`, `Mensaje: ${error.message}`);
     } finally {
         saveNoteButton.disabled = false;
         saveNoteButton.querySelector('span').textContent = isEditing ? 'Actualizar Nota' : 'Guardar Nota';
@@ -286,7 +286,7 @@ function resetForm() {
     renderSelectedTags();
     capturedPhotoDataUrl = null;
     photoPreview.classList.add('hidden');
-    photoPreview.removeAttribute('src'); // CORRECCIÓN: Eliminar el src para que no se vea el alt text.
+    photoPreview.removeAttribute('src'); 
     isEditing = false;
     currentEditingNoteId = null;
     formTitle.textContent = "Crear Nueva Nota";
@@ -342,7 +342,6 @@ function displayNotes(notesToShow) {
         const tagsHtml = (note.tags && note.tags.length > 0) 
             ? `<div class="note-tags">${note.tags.map(tag => `<span class="note-tag ${tagColorMap[tag] || ''}">${tag}</span>`).join('')}</div>`
             : '';
-        // CORRECCIÓN: Añadidos todos los campos a la visualización de la nota
         return `
         <div class="note">
             <p><strong>Fecha y Hora:</strong> ${displayTimestamp}</p>
@@ -372,7 +371,7 @@ function displayNotes(notesToShow) {
 
 window.deleteNote = async function(noteId) {
     if (!currentUserId || !noteId) return;
-    const confirmed = await createConfirmationModal("¿Estás seguro de eliminar esta nota? Esta acción no se puede deshacer.").present();
+    const confirmed = await createConfirmationModal("¿Estás seguro de eliminar esta nota? Esta acción no se puede deshacer.");
     if (!confirmed) return;
     try {
         const noteDocRef = doc(db, "users", currentUserId, "notes", noteId);
@@ -383,7 +382,7 @@ window.deleteNote = async function(noteId) {
         }
         await deleteDoc(noteDocRef);
     } catch (error) {
-        createAlertDialog("Hubo un error al eliminar la nota.", `Mensaje: ${error.message}`).present();
+        createAlertDialog("Hubo un error al eliminar la nota.", `Mensaje: ${error.message}`);
     }
 };
 
@@ -427,9 +426,9 @@ function removeTag(tagToRemove) {
 // --- Utility functions (Modals, Reports) ---
 exportPdfBtn.addEventListener('click', () => {
     if (allNotes.length === 0) {
-        return createAlertDialog("No hay notas para exportar.").present();
+        return createAlertDialog("No hay notas para exportar.");
     }
-    createAlertDialog('Función de exportar a PDF en desarrollo.').present();
+    createAlertDialog('Función de exportar a PDF en desarrollo.');
 });
 
 function createAlertDialog(message, details = '') {
