@@ -18,18 +18,21 @@
   <header class="app-header">
       <a href="../../index.html" class="back-link">
            <i class="fas fa-arrow-left"></i>
-          <h2 class="text-lg font-semibold">Volver a GUARD-IA</h2>
+          <h2 class="text-lg font-semibold">Volver</h2>
       </a>
-      <div id="user-info" class="text-sm text-gray-400"></div>
+      <div id="user-info" class="user-info-container">
+          <span class="user-email"></span>
+          <button id="logoutButton" class="logout-btn"><i class="fas fa-sign-out-alt"></i></button>
+      </div>
   </header>
 
-  <div class="container mx-auto px-4 py-10 relative z-10">
-    <div class="header flex items-center justify-content-center gap-3 mb-8">
+  <div class="container mx-auto px-4 py-8 relative z-10">
+    <div class="header flex items-center justify-content-center gap-3 mb-6">
       <svg class="icon-pin" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
         <circle cx="12" cy="10" r="3"></circle>
       </svg>
-      <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold uppercase text-center drop-shadow-lg">
+      <h1 class="main-title">
         BLOC DE NOTAS <span class="neon-green">SEGURO</span>
       </h1>
     </div>
@@ -40,7 +43,7 @@
 
     <div id="app-content" class="hidden">
         <!-- El H2 cambia dinámicamente si se está creando o editando -->
-        <h2 id="formTitle" class="text-2xl font-semibold text-center mb-6 text-white">Crear Nueva Nota</h2>
+        <h2 id="formTitle" class="form-title-main">Crear Nueva Nota</h2>
         <form id="noteForm" class="space-y-6">
             <!-- SECCIÓN PARA DATOS DE INTERVENCIÓN Y PERSONA -->
             <div class="form-group primary">
@@ -50,7 +53,7 @@
 
             <div class="form-grid grid gap-4">
                 <div class="form-group">
-                <label for="documentNumber">Número de Documento</label>
+                <label for="documentNumber">Número de Documento (DNI/NIE)</label>
                 <input type="text" id="documentNumber" name="documentNumber" placeholder="Número de Documento">
                 </div>
                 <div class="form-group">
@@ -105,25 +108,26 @@
                 <div id="editor-container"></div> 
             </div>
             
-            <img id="photoPreview" src="#" alt="Vista previa de la foto" class="note-photo" style="display: none; margin-top: 1rem;" />
+            <!-- CONTENEDOR PARA LA VISTA PREVIA DE LA FOTO Y EL ESTADO DEL OCR -->
+            <div id="photo-ocr-container" class="photo-ocr-container">
+                <img id="photoPreview" src="#" alt="Vista previa de la foto" class="note-photo hidden" />
+                <div id="ocr-status" class="ocr-status hidden">
+                    <div class="spinner"></div>
+                    <span>Analizando documento con IA...</span>
+                </div>
+            </div>
+
 
             <!-- BOTONES DE ACCIÓN PRINCIPALES DEL FORMULARIO -->
             <div class="action-buttons flex justify-between gap-4 mb-6">
                 <!-- El texto de este botón cambia a "Actualizar Nota" en modo edición -->
                 <button type="submit" id="saveNoteButton" class="btn save-btn">
-                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                    <polyline points="7 3 7 8 15 8"></polyline>
-                </svg>
-                <span>Guardar Nota</span>
+                    <i class="fas fa-save"></i>
+                    <span>Guardar Nota</span>
                 </button>
-                <button type="button" id="takePhotoButton" class="btn photo-btn">
-                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
-                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                    <circle cx="12" cy="13" r="4"></circle>
-                </svg>
-                <span>Tomar Foto</span>
+                <button type="button" id="scanOcrButton" class="btn photo-btn">
+                    <i class="fas fa-camera"></i>
+                    <span>Escanear Documento (OCR)</span>
                 </button>
                 <!-- Botón de cancelar edición, oculto por defecto -->
                 <button type="button" id="cancelEditButton" class="btn cancel-btn hidden">
@@ -136,7 +140,7 @@
         <hr class="form-divider">
 
         <div class="notes-section mt-8">
-            <!-- NUEVA SECCIÓN DE BÚSQUEDA Y FILTRADO -->
+            <!-- SECCIÓN DE BÚSQUEDA Y FILTRADO -->
             <div class="search-filter-section mb-6">
                 <div class="grid md:grid-cols-2 gap-4">
                     <div class="form-group">
@@ -154,17 +158,10 @@
             </div>
 
             <div class="notes-header flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold">Notas Guardadas en la Nube</h2>
-            </div>
-            <div class="export-buttons">
-                <button type="button" id="generateReportButton" class="btn report-btn">
-                    <i class="fas fa-file-alt mr-2"></i> Generar Informe TXT
-                </button>
-                <button type="button" id="exportPdfBtn" class="btn">
+                <h2 class="text-xl font-semibold">Notas Guardadas</h2>
+                 <!-- BOTÓN DE EXPORTACIÓN ÚNICO -->
+                <button type="button" id="exportPdfBtn" class="btn export-btn">
                     <i class="fas fa-file-pdf mr-2"></i> Exportar a PDF
-                </button>
-                <button type="button" id="exportCsvBtn" class="btn">
-                    <i class="fas fa-file-csv mr-2"></i> Exportar a CSV
                 </button>
             </div>
             <div id="notesContainer" class="notes-list flex flex-col gap-4"></div>
@@ -176,7 +173,7 @@
     <div class="modal-content">
       <video id="video" autoplay></video>
       <div class="modal-buttons flex justify-around mt-4">
-        <button id="captureButton" class="btn capture-btn">Capturar</button>
+        <button id="captureButton" class="btn capture-btn">Capturar y Analizar</button>
         <button id="cancelCaptureButton" class="btn cancel-btn">Cancelar</button>
       </div>
     </div>
