@@ -14,7 +14,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* --- Paleta de Colores y Variables CSS --- */
-        /* Se ha simplificado y organizado la paleta para facilitar el mantenimiento. */
         :root {
             /* Modo Oscuro (Por defecto) */
             --bg-primary: #121212;
@@ -157,7 +156,7 @@
         .pattern-start-date, .pattern-end-date { background-color: var(--accent-primary) !important; }
         .pattern-start-date .day-number, .pattern-end-date .day-number { color: var(--accent-text) !important; }
 
-        /* --- Modal y Toast (NUEVO) --- */
+        /* --- Modal y Toast --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px);
@@ -240,9 +239,8 @@
                         </div>
                         <div id="calendarGrid" class="calendar-grid"></div>
                     </div>
-                    <!-- NUEVA FUNCIONALIDAD: Resumen de Turnos -->
+                    <!-- Resumen de Turnos -->
                     <div id="shiftSummary" class="mt-4 pt-4 border-t border-[var(--border-primary)] flex flex-wrap justify-center gap-x-4 gap-y-2">
-                        <!-- El contenido se generará con JavaScript -->
                     </div>
                 </div>
 
@@ -289,27 +287,22 @@
 <script type="module">
     // --- Firebase SDK Imports ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { 
         getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, addDoc, 
         writeBatch, deleteField, serverTimestamp, query, orderBy
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // --- Configuración y Estado de la Aplicación ---
-    // CORRECCIÓN: Se prioriza la configuración del entorno, pero se incluye un fallback
-    // a la configuración original para asegurar que la app funcione en cualquier contexto.
-    const firebaseConfig = typeof __firebase_config !== 'undefined' 
-        ? JSON.parse(__firebase_config) 
-        : {
-            apiKey: "AIzaSyAf3I3_aW__lBtTVlEJ9xesIWkEJ6lMJp8", // Clave de ejemplo, reemplazar si es necesario
-            authDomain: "guard-ia-a36da.firebaseapp.com",
-            projectId: "guard-ia-a36da",
-            storageBucket: "guard-ia-a36da.appspot.com",
-            messagingSenderId: "914018061004",
-            appId: "1:914018061004:web:6ab6c6ca728199033bd069",
-            measurementId: "G-W45Z1BH3T4"
-        };
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const firebaseConfig = {
+        apiKey: "AIzaSyAf3I3_aW__lBtTVlEJ9xesIWkEJ6lMJp8",
+        authDomain: "guard-ia-a36da.firebaseapp.com",
+        projectId: "guard-ia-a36da",
+        storageBucket: "guard-ia-a36da.appspot.com",
+        messagingSenderId: "914018061004",
+        appId: "1:914018061004:web:6ab6c6ca728199033bd069",
+        measurementId: "G-W45Z1BH3T4"
+    };
 
     // Inicialización de Firebase
     const app = initializeApp(firebaseConfig);
@@ -342,25 +335,6 @@
     // --- Selectores del DOM ---
     const $ = (selector) => document.querySelector(selector);
     const $$ = (selector) => document.querySelectorAll(selector);
-
-    // --- Autenticación ---
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            state.userId = user.uid;
-            console.log("Autenticación exitosa. UID:", state.userId);
-            initializeAppForUser();
-        } else {
-            const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-            if (token) {
-                signInWithCustomToken(auth, token).catch(error => {
-                    console.error("Error con token personalizado:", error);
-                    signInAnonymously(auth).catch(e => console.error("Error en login anónimo:", e));
-                });
-            } else {
-                signInAnonymously(auth).catch(e => console.error("Error en login anónimo:", e));
-            }
-        }
-    });
 
     // --- Funciones de Utilidad (Fechas, UI) ---
     const formatDate = (date) => date.toISOString().split('T')[0];
@@ -452,45 +426,47 @@
         });
     };
 
-    // --- Lógica de la Aplicación ---
+    // --- Lógica Principal de la App ---
 
-    function initializeAppForUser() {
+    // CORRECCIÓN: Se reintroduce la función `waitForAuthInit` del script original
+    // para asegurar que no se ejecute nada hasta que la autenticación esté lista.
+    const waitForAuthInit = () => {
+        return new Promise((resolve) => {
+            const unsubscribe = onAuthStateChanged(auth, (user) => {
+                unsubscribe();
+                resolve(user);
+            });
+        });
+    };
+
+    async function initializeAppForUser(user) {
+        state.userId = user.uid;
         $('#app-loader').style.display = 'none';
         $('#app-content').classList.remove('hidden');
         
         setupEventListeners();
         applyInitialTheme();
         createShiftSelectorButtons();
-        listenForUserCalendars();
+        await listenForUserCalendars();
 
         if (!localStorage.getItem('multiCalendarTutorialCompleted_v3')) {
             setTimeout(() => showTutorialPopup(), 500);
         }
     }
 
+    function showLoginScreen() {
+        $('#app-loader').style.display = 'none';
+        const main = $('main');
+        main.innerHTML = `<div class="card p-6 text-center"><p>Debes iniciar sesión para usar el calendario. <a href="#" class="font-bold text-[var(--accent-primary)]">Volver a la página principal para iniciar sesión.</a></p></div>`;
+        main.classList.remove('hidden');
+    }
+
     // --- Firestore ---
-    function getCollectionRef(collectionName, calendarId = null) {
-        if (!state.userId) return null;
-        const basePath = `/artifacts/${appId}/users/${state.userId}`;
-        return calendarId
-            ? collection(db, `${basePath}/calendars/${calendarId}/${collectionName}`)
-            : collection(db, `${basePath}/${collectionName}`);
-    }
-
-    function getDocRef(collectionName, docId) {
-        if (!state.userId) return null;
-        const basePath = `/artifacts/${appId}/users/${state.userId}`;
-        return doc(db, `${basePath}/${collectionName}/${docId}`);
-    }
-
     function listenForUserCalendars() {
         if (state.unsubscribeCalendars) state.unsubscribeCalendars();
-        const calendarsRef = getCollectionRef('calendars');
-        if (!calendarsRef) return;
+        const calendarsRef = collection(db, 'users', state.userId, 'calendars');
         
-        const q = query(calendarsRef, orderBy("name"));
-
-        state.unsubscribeCalendars = onSnapshot(q, (snapshot) => {
+        state.unsubscribeCalendars = onSnapshot(calendarsRef, (snapshot) => {
             state.calendars = {};
             snapshot.forEach(doc => {
                 state.calendars[doc.id] = doc.data();
@@ -501,17 +477,23 @@
             if (lastActive && state.calendars[lastActive]) {
                 selectCalendar(lastActive);
             } else if (snapshot.docs.length > 0) {
-                selectCalendar(snapshot.docs[0].id);
+                // Ordenar por nombre antes de seleccionar el primero
+                const sortedIds = Object.keys(state.calendars).sort((a, b) => 
+                    (state.calendars[a].name || '').localeCompare(state.calendars[b].name || '')
+                );
+                selectCalendar(sortedIds[0]);
             } else {
                 showMainCalendarArea(false);
             }
+        }, (error) => {
+            console.error("Error en listener de calendarios:", error);
+            showToast("Error de permisos al cargar calendarios.");
         });
     }
 
     function listenForShiftData(calendarId) {
         if (state.unsubscribeShifts) state.unsubscribeShifts();
-        const shiftsRef = getCollectionRef('shifts', calendarId);
-        if(!shiftsRef) return;
+        const shiftsRef = collection(db, 'users', state.userId, 'calendars', calendarId, 'shifts');
 
         state.shiftData = {};
         state.unsubscribeShifts = onSnapshot(shiftsRef, (snapshot) => {
@@ -524,6 +506,9 @@
                 }
             });
             renderCalendar();
+        }, (error) => {
+            console.error("Error en listener de turnos:", error);
+            showToast("Error de permisos al cargar turnos.");
         });
     }
 
@@ -532,7 +517,7 @@
         if (!name) return showToast("El nombre del calendario no puede estar vacío.");
         
         try {
-            const calendarsRef = getCollectionRef('calendars');
+            const calendarsRef = collection(db, 'users', state.userId, 'calendars');
             const newDocRef = await addDoc(calendarsRef, { name, createdAt: serverTimestamp() });
             showToast(`Calendario "${name}" creado.`);
             $('#newCalendarName').value = '';
@@ -551,7 +536,7 @@
         if (!confirmed) return;
 
         try {
-            await deleteDoc(getDocRef('calendars', id));
+            await deleteDoc(doc(db, 'users', state.userId, 'calendars', id));
             showToast("Calendario eliminado.");
         } catch (e) {
             console.error("Error eliminando calendario:", e);
@@ -561,7 +546,7 @@
     
     async function saveShiftData(dateString, data) {
         if (!state.activeCalendarId) return;
-        const shiftDocRef = doc(db, `/artifacts/${appId}/users/${state.userId}/calendars/${state.activeCalendarId}/shifts/${dateString}`);
+        const shiftDocRef = doc(db, 'users', state.userId, 'calendars', state.activeCalendarId, 'shifts', dateString);
         try {
             if (!data.shift && !data.note) {
                 await deleteDoc(shiftDocRef);
@@ -801,7 +786,7 @@
         while (currentDateIter <= untilDate) {
             const dateStr = formatDate(currentDateIter);
             const shiftToApply = state.selectedPatternSequence[pIndex % state.selectedPatternSequence.length];
-            const shiftDocRef = doc(db, `/artifacts/${appId}/users/${state.userId}/calendars/${state.activeCalendarId}/shifts/${dateStr}`);
+            const shiftDocRef = doc(db, `users/${state.userId}/calendars/${state.activeCalendarId}/shifts/${dateStr}`);
 
             if (shiftToApply) {
                 batch.set(shiftDocRef, { shift: shiftToApply }, { merge: true });
@@ -836,7 +821,11 @@
         } else {
             selector.disabled = false;
             $('#deleteCalendarBtn').disabled = false;
-            calendarIds.forEach(id => {
+            // Ordenar por nombre para una visualización consistente
+            const sortedIds = Object.keys(state.calendars).sort((a, b) => 
+                (state.calendars[a].name || '').localeCompare(state.calendars[b].name || '')
+            );
+            sortedIds.forEach(id => {
                 selector.innerHTML += `<option value="${id}">${state.calendars[id].name}</option>`;
             });
         }
@@ -968,6 +957,24 @@
             $('#applySelectedPatternBtn').disabled = $('#applyUntilDate').value === '' || state.selectedPatternSequence.length === 0;
         });
     }
+
+    // --- Punto de Entrada de la App ---
+    async function init() {
+        try {
+            const user = await waitForAuthInit();
+            if (user) {
+                await initializeAppForUser(user);
+            } else {
+                showLoginScreen();
+            }
+        } catch (error) {
+            console.error("Fallo en la inicialización de la autenticación:", error);
+            showLoginScreen();
+        }
+    }
+
+    init();
+
 </script>
 
 </body>
