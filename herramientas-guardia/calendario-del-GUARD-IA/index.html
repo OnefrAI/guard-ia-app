@@ -296,7 +296,19 @@
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // --- Configuración y Estado de la Aplicación ---
-    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+    // CORRECCIÓN: Se prioriza la configuración del entorno, pero se incluye un fallback
+    // a la configuración original para asegurar que la app funcione en cualquier contexto.
+    const firebaseConfig = typeof __firebase_config !== 'undefined' 
+        ? JSON.parse(__firebase_config) 
+        : {
+            apiKey: "AIzaSyAf3I3_aW__lBtTVlEJ9xesIWkEJ6lMJp8", // Clave de ejemplo, reemplazar si es necesario
+            authDomain: "guard-ia-a36da.firebaseapp.com",
+            projectId: "guard-ia-a36da",
+            storageBucket: "guard-ia-a36da.appspot.com",
+            messagingSenderId: "914018061004",
+            appId: "1:914018061004:web:6ab6c6ca728199033bd069",
+            measurementId: "G-W45Z1BH3T4"
+        };
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
     // Inicialización de Firebase
@@ -605,10 +617,9 @@
             currentMonday.setDate(currentMonday.getDate() + 7);
         }
         grid.innerHTML = html;
-        updateShiftSummary(); // <-- LLAMADA A LA NUEVA FUNCIÓN
+        updateShiftSummary();
     }
 
-    // NUEVA FUNCIÓN: Calcula y muestra el resumen de turnos del mes.
     function updateShiftSummary() {
         const summaryContainer = $('#shiftSummary');
         if (!summaryContainer) return;
