@@ -201,8 +201,8 @@
     <div class="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
         <!-- Cabecera -->
         <header class="flex justify-between items-center mb-6 pb-4 border-b border-[var(--border-primary)]">
-            <!-- CORRECCIÓN: Se añade un enlace funcional y target="_top" para salir de iframes -->
-            <a href="https://guard-ia-a36da.web.app" target="_top" class="text-[var(--text-primary)] hover:text-[var(--accent-primary)] transition-colors flex items-center gap-3">
+            <!-- CORRECCIÓN: Se cambia el enlace a la raíz del sitio "/" para mayor fiabilidad -->
+            <a href="/" target="_top" class="text-[var(--text-primary)] hover:text-[var(--accent-primary)] transition-colors flex items-center gap-3">
                 <i class="fas fa-arrow-left text-xl"></i>
                 <h2 class="text-lg font-semibold hidden sm:block">Volver a GUARD-IA</h2>
             </a>
@@ -455,7 +455,7 @@
     function showLoginScreen() {
         $('#app-loader').style.display = 'none';
         const main = $('main');
-        main.innerHTML = `<div class="card p-6 text-center"><p>Debes iniciar sesión para usar el calendario. <a href="https://guard-ia-a36da.web.app" target="_top" class="font-bold text-[var(--accent-primary)]">Volver a la página principal para iniciar sesión.</a></p></div>`;
+        main.innerHTML = `<div class="card p-6 text-center"><p>Debes iniciar sesión para usar el calendario. <a href="/" target="_top" class="font-bold text-[var(--accent-primary)]">Volver a la página principal para iniciar sesión.</a></p></div>`;
         main.classList.remove('hidden');
     }
 
