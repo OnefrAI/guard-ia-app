@@ -9,7 +9,7 @@
     --bg-tertiary: #2a2a2a;
     --text-primary: #ffffff;
     --text-secondary: #888888;
-    --border-primary: rgba(255, 255, 255, 0.1);
+    --border-primary: rgba(255, 255, 255, 0.25);
     --border-secondary: rgba(255, 255, 255, 0.05);
     --accent-primary: #39FF14;
     --accent-text: #0a0a0a;
@@ -553,7 +553,7 @@ body.light-mode .current-day .day-number {
     right: 0;
     color: #ffffff;
     padding: 0.15rem 0;
-    border-radius: 0;
+    border-radius: 0.3rem;
     font-size: 0.65rem;
     font-weight: 800;
     text-transform: uppercase;
