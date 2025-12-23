@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Drogas - GUARD-IA</title>
+  <meta name="description" content="Calculadora de drogas basada en dosis mínimas psicoactivas de sustancias controladas.">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --bg-color: #050505;
+      --bg-secondary: #0a0a0a;
+      --card-color: rgba(26, 26, 26, 0.6);
+      --card-hover-bg: rgba(34, 34, 34, 0.8);
+      --text-color: #e8e8e8;
+      --text-medium-color: #a0a0a0;
+      --text-light-color: #707070;
+      --accent-color: #39FF14;
+      --accent-glow: rgba(57, 255, 20, 0.3);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --input-bg: rgba(42, 42, 42, 0.6);
+      --input-border: rgba(255, 255, 255, 0.1);
+      --glass-bg: rgba(255, 255, 255, 0.03);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --warning-color: #fbbf24;
+      --danger-color: #ef4444;
+      --success-color: var(--accent-color);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: linear-gradient(135deg, var(--bg-color) 0%, var(--bg-secondary) 100%);
+      color: var(--text-color);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    /* Fondo animado con grid */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(57, 255, 20, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(57, 255, 20, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      z-index: 0;
+      pointer-events: none;
+    }
+    
+    /* Efecto de luz ambiental */
+    body::after {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at center, rgba(57, 255, 20, 0.05) 0%, transparent 70%);
+      animation: ambientPulse 8s ease-in-out infinite;
+      z-index: 0;
+      pointer-events: none;
+    }
+    
+    @keyframes ambientPulse {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.1); }
+    }
+
+    /* HEADER */
+    .app-header {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
+      padding: 1rem 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .back-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--text-color);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+    }
+    
+    .back-link:hover {
+      color: var(--accent-color);
+      background: rgba(57, 255, 20, 0.05);
+      transform: translateX(-4px);
+    }
+    
+    .back-link i {
+      font-size: 1.25rem;
+      transition: transform 0.3s ease;
+    }
+    
+    .back-link:hover i {
+      transform: translateX(-4px);
+    }
+    
+    .back-link h2 {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    /* CONTAINER */
+    .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 2.5rem;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 1.5rem;
+      box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.4),
+        0 0 40px var(--accent-glow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      position: relative;
+      z-index: 1;
+      animation: fadeInUp 0.6s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 2rem;
+      text-transform: uppercase;
+    }
+    
+    .neon-green {
+      background: linear-gradient(135deg, var(--accent-color) 0%, #2dd60f 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 30px var(--accent-glow);
+      animation: glowPulse 3s ease-in-out infinite;
+    }
+    
+    @keyframes glowPulse {
+      0%, 100% { filter: drop-shadow(0 0 10px var(--accent-glow)); }
+      50% { filter: drop-shadow(0 0 20px var(--accent-color)); }
+    }
+
+    /* FORM */
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    label {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    label i {
+      color: var(--accent-color);
+      font-size: 1.1rem;
+    }
+    
+    input, select {
+      padding: 0.875rem 1rem;
+      font-size: 1rem;
+      font-family: inherit;
+      background: var(--input-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--input-border);
+      color: var(--text-color);
+      border-radius: 0.75rem;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+    
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      background: rgba(42, 42, 42, 0.8);
+      box-shadow: 
+        0 0 0 3px var(--accent-glow),
+        0 4px 12px rgba(0, 0, 0, 0.3);
+      transform: translateY(-2px);
+    }
+    
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2339FF14' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      padding-right: 3rem;
+    }
+    
+    select option {
+      background: var(--bg-secondary);
+      color: var(--text-color);
+      padding: 0.5rem;
+    }
+    
+    button {
+      padding: 1rem;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: inherit;
+      background: linear-gradient(135deg, var(--accent-color) 0%, #2dd60f 100%);
+      color: #0a0a0a;
+      border: none;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.02em;
+      margin-top: 0.5rem;
+    }
+    
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 
+        0 6px 20px var(--accent-glow),
+        0 0 30px var(--accent-glow);
+    }
+    
+    button:hover::before {
+      left: 100%;
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+
+    /* RESULT */
+    #result {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border-color);
+      animation: slideIn 0.4s ease-out;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .result-administrative {
+      background: rgba(251, 191, 36, 0.1);
+      border-color: var(--warning-color);
+      color: var(--warning-color);
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.2);
+    }
+    
+    .result-penal {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: var(--danger-color);
+      color: var(--danger-color);
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.3); }
+      50% { box-shadow: 0 0 40px rgba(239, 68, 68, 0.5); }
+    }
+
+    /* SUBSTANCE INFO */
+    #substanceInfo {
+      display: none;
+      margin-top: 2rem;
+      gap: 2rem;
+      animation: fadeIn 0.6s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    #substanceInfo.show {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    
+    .image-container {
+      flex: 1;
+      min-width: 280px;
+      display: flex;
+      justify-content: center;
+    }
+    
+    .image-container img {
+      width: 100%;
+      max-width: 350px;
+      height: auto;
+      border-radius: 1rem;
+      border: 1px solid var(--glass-border);
+      box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.5),
+        0 0 20px var(--accent-glow);
+      transition: transform 0.3s ease;
+    }
+    
+    .image-container img:hover {
+      transform: scale(1.05);
+    }
+    
+    .explanation {
+      flex: 1;
+      min-width: 280px;
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      line-height: 1.7;
+      color: var(--text-medium-color);
+    }
+    
+    .explanation p {
+      margin: 0;
+    }
+
+    /* INFO BOX */
+    .info-box {
+      margin-top: 2.5rem;
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--accent-color);
+      border-radius: 1rem;
+      text-align: center;
+      line-height: 1.6;
+      color: var(--text-medium-color);
+      font-size: 0.9rem;
+    }
+    
+    .info-box p {
+      margin-bottom: 0.75rem;
+    }
+    
+    .info-box p:last-child {
+      margin-bottom: 0;
+    }
+    
+    .info-box a {
+      color: var(--accent-color);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .info-box a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--accent-color);
+      transition: width 0.3s ease;
+    }
+    
+    .info-box a:hover {
+      text-shadow: 0 0 10px var(--accent-glow);
+    }
+    
+    .info-box a:hover::after {
+      width: 100%;
+    }
+
+    /* CONFETTI CANVAS */
+    .confetti {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      display: none;
+      z-index: 9999;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .container {
+        margin: 1.5rem;
+        padding: 1.5rem;
+      }
+      
+      h1 {
+        font-size: 1.5rem;
+      }
+      
+      .back-link h2 {
+        display: none;
+      }
+      
+      #substanceInfo {
+        flex-direction: column;
+      }
+      
+      .image-container,
+      .explanation {
+        min-width: 100%;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .app-header {
+        padding: 1rem;
+      }
+      
+      .container {
+        margin: 1rem;
+        padding: 1.25rem;
+      }
+      
+      h1 {
+        font-size: 1.25rem;
+      }
+      
+      button {
+        padding: 0.875rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-content">
+      <a href="../../index.html" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        <h2>Volver a GUARD-IA</h2>
+      </a>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container">
+    <h1>CALCULADORA DE <span class="neon-green">DROGAS</span></h1>
+    
+    <form id="offenseForm">
+      <!-- Tipo de sustancia -->
+      <div class="form-group">
+        <label for="drugType">
+          <i class="fas fa-flask"></i>
+          Tipo de sustancia:
+        </label>
+        <select id="drugType" name="drugType" required>
+          <option value="" disabled selected>-- Selecciona una sustancia --</option>
+          <option value="cocaina" data-limit="7.5" data-image="images/cocaina.jpg" data-explanation="Conforme a la jurisprudencia vigente, aunque en este momento no sea posible determinar con exactitud la cantidad ni la pureza de la sustancia incautada Cocaína, el hecho de que indiciariamente se supere la cantidad necesaria para un consumo de más de cinco días implica que el porte se presume destinado al tráfico, siendo <span style='color:#ef4444;'>7.5 gramos</span> la cantidad máxima permitida en vía pública.">Cocaína</option>
+          <option value="mdma" data-limit="2.4" data-image="images/mdma.jpg" data-explanation="Conforme a la jurisprudencia vigente, aunque en este momento no sea posible determinar con exactitud la cantidad ni la pureza de la sustancia incautada Éxtasis (MDMA), el hecho de que indiciariamente se supere la cantidad necesaria para un consumo de más de cinco días implica que el porte se presume destinado al tráfico, siendo <span style='color:#ef4444;'>2.4 gramos</span> la cantidad máxima permitida en vía pública.">Éxtasis (MDMA)</option>
+          <option value="cristal_mdma" data-limit="2.4" data-image="images/cristal_mdma.jpg" data-explanation="Conforme a la jurisprudencia vigente, aunque en este momento no sea posible determinar con exactitud la cantidad ni la pureza de la sustancia incautada Cristal (MDMA), el hecho de que indiciariamente se supere la cantidad necesaria para un consumo de más de cinco días implica que el porte se presume destinado al tráfico, siendo <span style='color:#ef4444;'>2.4 gramos</span> la cantidad máxima permitida en vía pública.">Cristal (MDMA)</option>
+          <option value="hachis" data-limit="25" data-image="images/hachis.jpg" data-explanation="Conforme a la jurisprudencia vigente, aunque en este momento no sea posible determinar con exactitud la cantidad ni la pureza de la sustancia incautada Hachís, el hecho de que indiciariamente se supere la cantidad necesaria para un consumo de más de cinco días implica que el porte se presume destinado al tráfico, siendo <span style='color:#ef4444;'>25 gramos</span> la cantidad máxima permitida en vía pública.">Hachís</option>
+          <option value="speed" data-limit="0.9" data-image="images/speed.jpg" data-explanation="Conforme a la jurisprudencia vigente, aunque en este momento no sea posible determinar con exactitud la cantidad ni la pureza de la sustancia incautada Speed - Anfetaminas, el hecho de que indiciariamente se supere la cantidad necesaria para un consumo de más de cinco días implica que el porte se presume destinado al tráfico, siendo <span style='color:#ef4444;'>0.9 gramos</span> la cantidad máxima permitida en vía pública.">Speed - Anfetaminas</option>
+          <option value="heroina" data-limit="3" data-image="images/heroina.jpg" data-explanation="Conforme a la jurisprudencia vigente, aunque en este momento no sea posible determinar con exactitud la cantidad ni la pureza de la sustancia incautada Heroína, el hecho de que indiciariamente se supere la cantidad necesaria para un consumo de más de cinco días implica que el porte se presume destinado al tráfico, siendo <span style='color:#ef4444;'>3 gramos</span> la cantidad máxima permitida en vía pública.">Heroína</option>
+          <option value="lsd" data-limit="0.003" data-image="images/lsd.jpg" data-explanation="Conforme a la jurisprudencia vigente, aunque en este momento no sea posible determinar con exactitud la cantidad ni la pureza de la sustancia incautada LSD, el hecho de que indiciariamente se supere la cantidad necesaria para un consumo de más de cinco días implica que el porte se presume destinado al tráfico, siendo <span style='color:#ef4444;'>0.003 gramos</span> la cantidad máxima permitida en vía pública.">LSD</option>
+          <option value="marihuana" data-limit="100" data-image="images/marihuana.jpg" data-explanation="Conforme a la jurisprudencia vigente, aunque en este momento no sea posible determinar con exactitud la cantidad ni la pureza de la sustancia incautada Marihuana, el hecho de que indiciariamente se supere la cantidad necesaria para un consumo de más de cinco días implica que el porte se presume destinado al tráfico, siendo <span style='color:#ef4444;'>100 gramos</span> la cantidad máxima permitida en vía pública.">Marihuana</option>
+          <option value="mefedrona" data-limit="2.4" data-image="images/mefedrona.jpg" data-explanation="Conforme a la jurisprudencia vigente, aunque en este momento no sea posible determinar con exactitud la cantidad ni la pureza de la sustancia incautada Mefedrona, el hecho de que indiciariamente se supere la cantidad necesaria para un consumo de más de cinco días implica que el porte se presume destinado al tráfico, siendo <span style='color:#ef4444;'>2.4 gramos</span> la cantidad máxima permitida en vía pública.">Mefedrona</option>
+          <option value="metanfetamina" data-limit="0.3" data-image="images/metanfetamina.jpg" data-explanation="Conforme a la jurisprudencia vigente, aunque en este momento no sea posible determinar con exactitud la cantidad ni la pureza de la sustancia incautada Metanfetamina (Crystal), el hecho de que indiciariamente se supere la cantidad necesaria para un consumo de más de cinco días implica que el porte se presume destinado al tráfico, siendo <span style='color:#ef4444;'>0.3 gramos</span> la cantidad máxima permitida en vía pública.">Metanfetamina (Crystal)</option>
+          <option value="morfina" data-limit="10" data-image="images/morfina.jpg" data-explanation="Conforme a la jurisprudencia vigente, aunque en este momento no sea posible determinar con exactitud la cantidad ni la pureza de la sustancia incautada Morfina, el hecho de que indiciariamente se supere la cantidad necesaria para un consumo de más de cinco días implica que el porte se presume destinado al tráfico, siendo <span style='color:#ef4444;'>10 gramos</span> la cantidad máxima permitida en vía pública.">Morfina</option>
+          <option value="tuci" data-limit="2.4" data-image="images/tuci.jpg" data-explanation="Conforme a la jurisprudencia vigente, aunque en este momento no sea posible determinar con exactitud la cantidad ni la pureza de la sustancia incautada TuCi o &quot;Cocaína Rosa&quot;, el hecho de que indiciariamente se supere la cantidad necesaria para un consumo de más de cinco días implica que el porte se presume destinado al tráfico, siendo <span style='color:#ef4444;'>2.4 gramos</span> la cantidad máxima permitida en vía pública.">TuCi o "Cocaína Rosa"</option>
+          <option value="ketamina" data-limit="1" data-image="images/ketamina.jpg" data-explanation="Conforme a la jurisprudencia vigente, aunque en este momento no sea posible determinar con exactitud la cantidad ni la pureza de la sustancia incautada Ketamina, el hecho de que indiciariamente se supere la cantidad necesaria para un consumo de más de cinco días implica que el porte se presume destinado al tráfico, siendo <span style='color:#ef4444;'>1 gramo</span> la cantidad máxima permitida en vía pública.">Ketamina</option>
+          <option value="ghb" data-limit="105" data-image="images/ghb.jpg" data-explanation="Conforme a la jurisprudencia vigente, aunque en este momento no sea posible determinar con exactitud la cantidad ni la pureza de la sustancia incautada GHB - GBL - Éxtasis Líquido, el hecho de que indiciariamente se supere la cantidad necesaria para un consumo de más de cinco días implica que el porte se presume destinado al tráfico, siendo <span style='color:#ef4444;'>105 gramos</span> la cantidad máxima permitida en vía pública.">GHB - GBL - Éxtasis Líquido</option>
+          <option value="fentanilo" data-limit="0.5" data-image="images/fentanilo.jpg" data-explanation="Conforme a la jurisprudencia vigente, aunque en este momento no sea posible determinar con exactitud la cantidad ni la pureza de la sustancia incautada Fentanilo, el hecho de que indiciariamente se supere la cantidad necesaria para un consumo de más de cinco días implica que el porte se presume destinado al tráfico, siendo <span style='color:#ef4444;'>0.5 gramos</span> la cantidad máxima permitida en vía pública.">Fentanilo</option>
+          <option value="metadona" data-limit="1.2" data-image="images/metadona.jpg" data-explanation="Conforme a la jurisprudencia vigente, aunque en este momento no sea posible determinar con exactitud la cantidad ni la pureza de la sustancia incautada Metadona, el hecho de que indiciariamente se supere la cantidad necesaria para un consumo de más de cinco días implica que el porte se presume destinado al tráfico, siendo <span style='color:#ef4444;'>1.2 gramos</span> la cantidad máxima permitida en vía pública.">Metadona</option>
+          <option value="clonazepam" data-limit="50" data-image="images/clonazepam.jpg" data-explanation="Conforme a la jurisprudencia vigente, aunque en este momento no sea posible determinar con exactitud la cantidad ni la pureza de la sustancia incautada Clonazepam (Rivotril), el hecho de que indiciariamente se supere la cantidad necesaria para un consumo de más de cinco días implica que el porte se presume destinado al tráfico, siendo <span style='color:#ef4444;'>50 unidades o más sin receta</span> la cantidad mínima para una infracción penal.">Clonazepam (Rivotril)</option>
+          <option value="dmt" data-limit="50" data-image="images/dimetiltriptamina.jpg" data-explanation="Conforme a la jurisprudencia vigente, aunque en este momento no sea posible determinar con exactitud la cantidad ni la pureza de la sustancia incautada DMT o Dimetiltriptamina, el hecho de que indiciariamente se supere la cantidad necesaria para un consumo de más de cinco días implica que el porte se presume destinado al tráfico, siendo <span style='color:#ef4444;'>50 gramos</span> la cantidad máxima permitida en vía pública.">DMT o Dimetiltriptamina</option>
+          <option value="hoja_de_coca" data-limit="2000" data-image="images/hoja de coca.jpg" data-explanation="Conforme a la jurisprudencia vigente, aunque en este momento no sea posible determinar con exactitud la cantidad ni la pureza de la sustancia incautada Hoja de Coca, el hecho de que indiciariamente se supere la cantidad necesaria para un consumo de más de cinco días implica que el porte se presume destinado al tráfico, siendo <span style='color:#ef4444;'>2000 gramos</span> la cantidad máxima permitida en vía pública.">Hoja de Coca</option>
+        </select>
+      </div>
+      
+      <!-- Cantidad -->
+      <div class="form-group">
+        <label for="quantity">
+          <i class="fas fa-weight"></i>
+          Cantidad (gramos):
+        </label>
+        <input type="number" id="quantity" name="quantity" placeholder="Ingresa la cantidad" required min="0.01" step="any">
+      </div>
+      
+      <button type="submit" id="calculateButton">
+        <i class="fas fa-calculator"></i>
+        Calcular Infracción
+      </button>
+    </form>
+    
+    <div id="result" role="alert"></div>
+    
+    <!-- Sección para imagen y explicación -->
+    <div id="substanceInfo">
+      <div class="image-container">
+        <img id="drugImage" src="" alt="Imagen de la sustancia">
+      </div>
+      <div class="explanation" id="explanationText"></div>
+    </div>
+    
+    <!-- Información en recuadro -->
+    <div class="info-box">
+      <p>
+        Los datos utilizados en esta herramienta provienen del <strong>Instituto Nacional de Toxicología</strong> y están basados en la normativa vigente sobre dosis mínimas psicoactivas de sustancias controladas.
+      </p>
+      <p>
+        Fuente: <a href="https://www.poderjudicial.es/cgpj/es/Poder-Judicial/Tribunal-Supremo/Actividad-del-TS/Estudios/Cuadros-de-cantidades-de-notoria-importancia-y-dosis-minimas-psicoactivas-de-las-principales-sustancias-toxicas-objeto-de-trafico-de-drogas--actualmente-vigente" target="_blank" rel="noopener">Tabla oficial del Poder Judicial</a>
+      </p>
+    </div>
+  </main>
+  
+  <canvas class="confetti" id="confettiCanvas"></canvas>
+  
+  <!-- Librería para confeti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.3.1"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('offenseForm');
+      const resultDiv = document.getElementById('result');
+      const substanceInfoDiv = document.getElementById('substanceInfo');
+      const drugImgElement = document.getElementById('drugImage');
+      const explanationTextDiv = document.getElementById('explanationText');
+
+      // Manejar el envío del formulario
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const quantityValue = parseFloat(document.getElementById('quantity').value);
+        const drugTypeSelect = document.getElementById('drugType');
+        const selectedOption = drugTypeSelect.options[drugTypeSelect.selectedIndex];
+
+        // Validaciones básicas
+        if (isNaN(quantityValue) || quantityValue <= 0 || !selectedOption.value) {
+          resultDiv.innerHTML = '<p style="color: #ef4444;">⚠️ Por favor, ingresa los datos correctamente.</p>';
+          resultDiv.style.background = 'rgba(239, 68, 68, 0.1)';
+          resultDiv.style.borderColor = '#ef4444';
+          substanceInfoDiv.classList.remove('show');
+          return;
+        }
+
+        // Obtener el límite establecido
+        const limit = parseFloat(selectedOption.dataset.limit);
+        const infractionType = quantityValue >= limit ? 'penal' : 'administrativa';
+
+        // Mostrar resultado según el tipo de infracción
+        if (infractionType === 'administrativa') {
+          resultDiv.innerHTML = '<p>✔️ Infracción Administrativa</p>';
+          resultDiv.className = 'result-administrative';
+        } else {
+          resultDiv.innerHTML = '<p>⚠️ Infracción Penal</p>';
+          resultDiv.className = 'result-penal';
+          launchConfetti();
+        }
+
+        // Actualizar y mostrar la imagen de la sustancia
+        drugImgElement.src = selectedOption.dataset.image;
+        drugImgElement.alt = selectedOption.text;
+
+        // Actualizar la explicación
+        explanationTextDiv.innerHTML = `<p>${selectedOption.dataset.explanation}</p>`;
+
+        // Mostrar la sección de información
+        substanceInfoDiv.classList.add('show');
+        
+        // Scroll suave al resultado
+        resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+
+      // Función para lanzar el confeti
+      function launchConfetti() {
+        const duration = 3000;
+        const animationEnd = Date.now() + duration;
+        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+
+        function randomInRange(min, max) {
+          return Math.random() * (max - min) + min;
+        }
+
+        const interval = setInterval(function() {
+          const timeLeft = animationEnd - Date.now();
+
+          if (timeLeft <= 0) {
+            return clearInterval(interval);
+          }
+
+          const particleCount = 50 * (timeLeft / duration);
+          
+          confetti(Object.assign({}, defaults, {
+            particleCount,
+            origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+          }));
+          confetti(Object.assign({}, defaults, {
+            particleCount,
+            origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+          }));
+        }, 250);
+      }
+
+      // Limpiar resultado al cambiar la selección
+      document.getElementById('drugType').addEventListener('change', () => {
+        resultDiv.innerHTML = '';
+        resultDiv.className = '';
+        substanceInfoDiv.classList.remove('show');
+      });
+
+      document.getElementById('quantity').addEventListener('input', () => {
+        resultDiv.innerHTML = '';
+        resultDiv.className = '';
+        substanceInfoDiv.classList.remove('show');
+      });
+    });
+  </script>
+</body>
+</html>

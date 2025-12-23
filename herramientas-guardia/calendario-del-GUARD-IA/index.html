@@ -1,0 +1,449 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario GUARD-IA</title>
+
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#39FF14">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Calendario">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <meta name="description" content="Calendario de turnos del GUARD-IA - Organiza tus turnos de forma segura">
+
+    <!-- External Resources -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dark-mode">
+    <div id="app-loader" class="fixed inset-0 bg-gray-900 bg-opacity-90 flex items-center justify-center z-[2000]">
+        <div class="text-white text-xl flex flex-col items-center gap-4">
+            <i class="fas fa-spinner fa-spin text-4xl" style="color: var(--accent-primary)"></i>
+            <span>Cargando sistema...</span>
+        </div>
+    </div>
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-9 h-9 rounded-lg bg-gray-900 border border-green-500/50 flex items-center justify-center shadow-[0_0_10px_rgba(74,222,128,0.2)]">
+                    <i class="fas fa-robot text-green-400 text-xl"></i>
+                </div>
+                <h2 class="text-lg font-bold tracking-tight text-white">GUARD-IA <span
+                        class="text-xs text-green-400 font-normal border border-green-500/30 rounded px-1 ml-1">Pro</span>
+                </h2>
+            </div>
+            <button id="closeSidebarBtn" class="btn-icon btn-secondary" style="width:32px;height:32px"><i
+                    class="fas fa-times"></i></button>
+        </div>
+
+        <div class="sidebar-content">
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-section-title"><i class="fas fa-calendar-alt mr-2"></i> Mis Calendarios</h3>
+
+                <div class="relative mb-3">
+                    <select id="calendarSelector" class="form-select w-full font-bold" style="padding-left:2.5rem">
+                        <option value="default">Mi Calendario</option>
+                    </select>
+                    <i class="fas fa-check-circle absolute left-3 top-3.5 text-green-500"></i>
+                </div>
+
+                <div class="flex gap-1 mb-1">
+                    <input type="text" id="newCalendarName" class="form-input" placeholder="Nombre nuevo..."
+                        style="border-radius: 0.5rem 0 0 0.5rem; font-size:0.85rem">
+                    <button id="addCalendarBtn" class="btn btn-primary"
+                        style="border-radius: 0 0.5rem 0.5rem 0; padding:0 1rem">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-section-title" style="color: #fbbf24;"><i class="fas fa-star mr-2"></i> Herramientas
+                    Pro</h3>
+
+                <button id="btnStats" class="btn btn-secondary w-full flex-col gap-1 py-3 h-auto mb-2">
+                    <i class="fas fa-chart-pie text-2xl" style="color: #fbbf24;"></i>
+                    <span class="text-xs font-bold">Ver Estadísticas</span>
+                </button>
+
+                <div class="flex gap-2">
+                    <button id="btnExportIcs" class="btn btn-secondary flex-1 text-xs">
+                        <i class="fas fa-file-export" style="color: #a78bfa;"></i> Exportar ICS
+                    </button>
+                    <button id="btnImportIcs" class="btn btn-secondary flex-1 text-xs">
+                        <i class="fas fa-file-import" style="color: #10b981;"></i> Importar ICS
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-section-title"><i class="fas fa-cog mr-2"></i> Configuración</h3>
+
+                <button id="manageCustomShiftsBtn" class="btn btn-secondary w-full justify-start mb-2">
+                    <i class="fas fa-palette w-6 text-center" style="color: #34d399;"></i>
+                    <span>Personalizar Colores/Turnos</span>
+                </button>
+
+                <button id="manageCyclesBtn" class="btn btn-secondary w-full justify-start mb-2">
+                    <i class="fas fa-sync w-6 text-center" style="color: #60a5fa;"></i>
+                    <span>Configurar Patrones/Ciclos</span>
+                </button>
+
+                <button id="helpBtn" class="btn btn-secondary w-full justify-start mt-2">
+                    <i class="fas fa-question-circle w-6 text-center text-gray-400"></i>
+                    <span>Ayuda y Tutorial</span>
+                </button>
+
+                <!-- Botón Instalar App -->
+                <button id="installAppBtn" class="btn btn-secondary w-full justify-start mt-2"
+                    style="background: rgba(57, 255, 20, 0.1); border: 1px solid rgba(57, 255, 20, 0.3);">
+                    <i class="fas fa-download w-6 text-center" style="color: #39FF14;"></i>
+                    <span style="color: #39FF14;">Instalar App Calendario</span>
+                </button>
+
+                <a href="../../index.html" target="_top" class="btn btn-secondary w-full justify-start mt-2">
+                    <i class="fas fa-arrow-left w-6 text-center text-gray-400"></i>
+                    <span>Salir / Volver</span>
+                </a>
+            </div>
+
+            <div class="mt-8 pt-4 border-t border-gray-800 opacity-80 hover:opacity-100 transition-opacity">
+                <h3 class="sidebar-section-title text-red-900"><i class="fas fa-exclamation-triangle mr-2"></i> Zona de
+                    Peligro</h3>
+                <div class="flex gap-2">
+                    <button id="clearAllShiftsBtn" class="btn btn-danger flex-1 text-xs py-2"
+                        style="background:rgba(239, 68, 68, 0.15); border:1px solid rgba(239, 68, 68, 0.3); color:#fca5a5">
+                        <i class="fas fa-eraser"></i> Limpiar Calendario
+                    </button>
+                    <button id="deleteCalendarBtn" class="btn btn-danger flex-1 text-xs py-2"
+                        style="background:rgba(239, 68, 68, 0.15); border:1px solid rgba(239, 68, 68, 0.3); color:#fca5a5">
+                        <i class="fas fa-trash"></i> Borrar Cal.
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </aside>
+
+    <div id="app-content" class="hidden">
+        <header class="mobile-header">
+            <button id="hamburgerBtn" class="hamburger-btn"><i class="fas fa-bars"></i></button>
+
+            <div class="flex items-center justify-center gap-1 flex-1">
+                <button id="prevMonth" class="btn-icon btn-secondary" style="width:32px; height:32px; min-width:32px">
+                    <i class="fas fa-chevron-left text-xs"></i>
+                </button>
+
+                <div class="date-selector-container" style="flex: 0 1 auto; margin:0 4px">
+                    <button id="datePickerBtn" class="date-picker-btn" style="padding: 0.4rem 0.8rem;">
+                        <span id="calendarTitle" class="whitespace-nowrap text-sm">Noviembre 2025</span>
+                        <i class="fas fa-chevron-down text-xs ml-1"></i>
+                    </button>
+                </div>
+
+                <button id="nextMonth" class="btn-icon btn-secondary" style="width:32px; height:32px; min-width:32px">
+                    <i class="fas fa-chevron-right text-xs"></i>
+                </button>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button id="themeToggleBtn" class="btn-icon btn-secondary" style="width:32px; height:32px"><i
+                        class="fas fa-moon text-xs"></i></button>
+                <button id="todayBtn" class="btn btn-primary text-xs px-3 py-1" style="height:32px">Hoy</button>
+            </div>
+        </header>
+        <main id="mainCaptureArea">
+            <section id="mainCalendarArea" class="hidden">
+                <div class="calendar-weekdays">
+                    <div>L</div>
+                    <div>M</div>
+                    <div>M</div>
+                    <div>J</div>
+                    <div>V</div>
+                    <div>S</div>
+                    <div>D</div>
+                </div>
+                <div id="calendarGrid" class="calendar-grid"></div>
+            </section>
+        </main>
+
+        <!-- Panel lateral de tareas del mes -->
+        <div id="tasksPanelOverlay" class="tasks-panel-overlay"></div>
+        <div id="notesHistory" class="notes-history"></div>
+
+        <!-- Botón flotante para ver tareas del mes -->
+        <button id="fabTasksBtn" class="fab-tasks-button">
+            <i class="fas fa-clipboard-list"></i>
+            <span id="tasksCountBadge" class="fab-tasks-badge hidden">0</span>
+        </button>
+
+        <button id="fabEditBtn" class="fab-button hidden"><i class="fas fa-edit"></i></button>
+
+        <div id="floatingEditPanel" class="floating-edit-panel">
+            <div class="flex justify-between items-center mb-2 panel-header">
+                <h3 class="text-base font-bold">Editar Turnos (Añada a mano los turnos que precise)</h3>
+                <button id="closeEditPanelBtn" class="btn-icon btn-secondary"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div id="shiftsTab" class="block">
+                <div class="compact-edit-grid">
+                    <div class="turno-buttons-row-1" id="shiftSelector"></div>
+                    <div class="turno-buttons-row-2">
+                        <button class="turno-btn btn-borrar" data-shift-type="erase">
+                            <i class="fas fa-eraser"></i> Borrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div id="modal-container"></div>
+
+    <!-- Login Screen for standalone PWA -->
+    <div id="auth-screen" class="fixed inset-0 bg-gray-900 flex items-center justify-center z-[3000] hidden">
+        <div class="bg-gray-800 p-8 rounded-2xl max-w-md w-full mx-4 border border-green-500/20">
+            <div class="text-center mb-6">
+                <div
+                    class="w-16 h-16 mx-auto mb-4 rounded-xl bg-gray-900 border border-green-500/50 flex items-center justify-center">
+                    <i class="fas fa-calendar-alt text-green-400 text-3xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-white">Calendario GUARD-IA</h1>
+                <p class="text-gray-400 mt-2">Inicia sesión con tu cuenta GUARD-IA</p>
+            </div>
+
+            <form id="authForm" class="space-y-4">
+                <div>
+                    <input type="email" id="authEmail" placeholder="Correo electrónico"
+                        class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-green-500 focus:outline-none"
+                        required autocomplete="email">
+                </div>
+                <div class="relative">
+                    <input type="password" id="authPassword" placeholder="Contraseña"
+                        class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-green-500 focus:outline-none pr-12"
+                        required autocomplete="current-password">
+                    <button type="button" id="toggleAuthPass"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-green-400">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <button type="submit"
+                    class="w-full py-3 bg-green-500 hover:bg-green-600 text-gray-900 font-bold rounded-lg transition-colors">
+                    Entrar
+                </button>
+                <p id="authError" class="text-red-400 text-sm text-center min-h-[1.25rem]"></p>
+            </form>
+
+            <div class="mt-6 pt-4 border-t border-gray-700 text-center">
+                <p class="text-gray-400 text-sm">¿No tienes cuenta?</p>
+                <a href="../../index.html" class="text-green-400 hover:underline text-sm">Regístrate en GUARD-IA</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Auth Module -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAf3I3_aW__lBtTVlEJ9xesIWkEJ6lMJp8",
+            authDomain: "guard-ia-a36da.firebaseapp.com",
+            projectId: "guard-ia-a36da",
+            storageBucket: "guard-ia-a36da.appspot.com",
+            messagingSenderId: "914018061004",
+            appId: "1:914018061004:web:6ab6c6ca728199033bd069",
+            measurementId: "G-W45Z1BH3T4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Export to window for script.js to use
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+
+        const authScreen = document.getElementById('auth-screen');
+        const appContent = document.getElementById('app-content');
+        const appLoader = document.getElementById('app-loader');
+        const authForm = document.getElementById('authForm');
+        const authError = document.getElementById('authError');
+        const toggleAuthPass = document.getElementById('toggleAuthPass');
+
+        // Toggle password visibility
+        if (toggleAuthPass) {
+            toggleAuthPass.addEventListener('click', () => {
+                const passInput = document.getElementById('authPassword');
+                const icon = toggleAuthPass.querySelector('i');
+                if (passInput.type === 'password') {
+                    passInput.type = 'text';
+                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    passInput.type = 'password';
+                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            });
+        }
+
+        // Handle login form
+        if (authForm) {
+            authForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('authEmail').value;
+                const password = document.getElementById('authPassword').value;
+                authError.textContent = '';
+
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                } catch (err) {
+                    console.error('Login error:', err);
+                    if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
+                        authError.textContent = 'Email o contraseña incorrectos';
+                    } else if (err.code === 'auth/user-not-found') {
+                        authError.textContent = 'Usuario no encontrado';
+                    } else if (err.code === 'auth/too-many-requests') {
+                        authError.textContent = 'Demasiados intentos. Inténtalo más tarde';
+                    } else {
+                        authError.textContent = 'Error al iniciar sesión';
+                    }
+                }
+            });
+        }
+
+        // Check auth state
+        onAuthStateChanged(auth, (user) => {
+            if (appLoader) appLoader.classList.add('hidden');
+
+            if (user) {
+                // User is logged in
+                console.log('[Calendario] Usuario autenticado:', user.email);
+                window.currentUser = user;
+                if (authScreen) authScreen.classList.add('hidden');
+                if (appContent) appContent.classList.remove('hidden');
+
+                // Dispatch event for script.js to know auth is ready
+                window.dispatchEvent(new CustomEvent('firebase-auth-ready', { detail: { user } }));
+            } else {
+                // User not logged in - show auth screen
+                console.log('[Calendario] Usuario no autenticado');
+                window.currentUser = null;
+                if (authScreen) authScreen.classList.remove('hidden');
+                if (appContent) appContent.classList.add('hidden');
+            }
+        });
+    </script>
+
+    <script src="script.js"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('[Calendario] SW registrado'))
+                    .catch(err => console.error('[Calendario] SW error:', err));
+            });
+        }
+
+        // Modal de instrucciones de instalacion
+        function showInstallModal() {
+            const existingModal = document.getElementById('installModal');
+            if (existingModal) existingModal.remove();
+
+            const modal = document.createElement('div');
+            modal.id = 'installModal';
+            modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1rem;';
+            modal.onclick = function (e) { if (e.target === modal) modal.remove(); };
+
+            const content = document.createElement('div');
+            content.style.cssText = 'background:#1a1a1a;border:1px solid rgba(57,255,20,0.3);border-radius:1rem;padding:1.5rem;max-width:380px;text-align:center;';
+            content.innerHTML = '<div style="font-size:3rem;margin-bottom:1rem;">📲</div>' +
+                '<h3 style="color:#39FF14;font-size:1.25rem;font-weight:bold;margin-bottom:1rem;">Instalar App Calendario</h3>' +
+                '<p style="color:#ccc;margin-bottom:1.5rem;line-height:1.5;">Sigue estos pasos para instalar:</p>' +
+                '<div style="text-align:left;background:#0a0a0a;border-radius:0.5rem;padding:1rem;margin-bottom:1rem;">' +
+                '<p style="color:#fff;margin-bottom:0.5rem;"><strong>Android (Chrome):</strong></p>' +
+                '<p style="color:#aaa;margin-left:1rem;margin-bottom:1rem;font-size:0.9rem;">Menu (3 puntos) - Instalar app</p>' +
+                '<p style="color:#fff;margin-bottom:0.5rem;"><strong>iPhone (Safari):</strong></p>' +
+                '<p style="color:#aaa;margin-left:1rem;font-size:0.9rem;">Compartir - Agregar a inicio</p>' +
+                '</div>';
+
+            const btn = document.createElement('button');
+            btn.textContent = 'Entendido';
+            btn.style.cssText = 'background:#39FF14;color:#000;border:none;padding:0.75rem 2rem;border-radius:0.5rem;font-weight:bold;cursor:pointer;width:100%;';
+            btn.onclick = function () { modal.remove(); };
+            content.appendChild(btn);
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+        }
+
+        // PWA Install Prompt Handler
+        let deferredPrompt;
+        const installBtn = document.getElementById('installAppBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('[Calendario] PWA instalable detectada');
+            e.preventDefault();
+            deferredPrompt = e;
+            // Mostrar botón de instalación
+            if (installBtn) {
+                installBtn.classList.remove('hidden');
+            }
+        });
+
+        if (installBtn) {
+            installBtn.addEventListener('click', async () => {
+                if (!deferredPrompt) {
+                    // Si no hay prompt, mostrar instrucciones manuales
+                    showInstallModal();
+                    return;
+                }
+
+                // Mostrar el prompt de instalación
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log('[Calendario] Instalación:', outcome);
+
+                if (outcome === 'accepted') {
+                    installBtn.classList.add('hidden');
+                }
+                deferredPrompt = null;
+            });
+        }
+
+        // Ocultar botón si ya está instalada
+        window.addEventListener('appinstalled', () => {
+            console.log('[Calendario] App instalada correctamente');
+            if (installBtn) {
+                installBtn.classList.add('hidden');
+            }
+            deferredPrompt = null;
+        });
+
+        // Detectar si ya está en modo standalone (instalada)
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            console.log('[Calendario] Ejecutando como PWA instalada');
+            if (installBtn) {
+                installBtn.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,23 @@
+{
+  "name": "guard-ia-app",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OnefrAI/guard-ia-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/OnefrAI/guard-ia-app/issues"
+  },
+  "homepage": "https://github.com/OnefrAI/guard-ia-app#readme"
+}
