@@ -450,6 +450,8 @@ main {
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
+    grid-auto-rows: 1fr;
+    flex: 1;
     gap: 1px;
     background-color: var(--border-primary);
     border: 1px solid var(--border-primary);
@@ -462,9 +464,11 @@ main {
    ========================================== */
 
 .day-cell {
-    height: 6rem;
-    /* Altura fija: esto evita que se deforme */
-    padding: 0.2rem;
+    min-height: 5rem;
+    height: auto;
+    flex: 1;
+    padding: 0.15rem;
+    padding-bottom: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -475,7 +479,6 @@ main {
     cursor: pointer;
     transition: all 0.2s ease;
     overflow: hidden;
-    /* Esto corta el texto si es muy largo */
 }
 
 .day-cell.has-shift {
@@ -545,17 +548,18 @@ body.light-mode .current-day .day-number {
 
 .shift-type-badge {
     position: absolute;
-    top: 0.3rem;
-    left: 0.3rem;
+    bottom: 0;
+    left: 0;
+    right: 0;
     color: #ffffff;
-    padding: 0.2rem 0.5rem;
-    border-radius: 0.3rem;
-    font-size: 0.75rem;
+    padding: 0.15rem 0;
+    border-radius: 0;
+    font-size: 0.65rem;
     font-weight: 800;
     text-transform: uppercase;
+    text-align: center;
     z-index: 3;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 /* Los colores se aplican directamente desde JavaScript */
