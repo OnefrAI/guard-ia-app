@@ -1740,17 +1740,23 @@ function showStatistics() {
     });
 
     // 3. CALCULAR HORAS EXTRA (NUEVO - Desde las notas)
+    // Soporta tanto formato legacy (objeto único) como nuevo formato (array de tareas)
     let extraHoursTotal = 0;
 
     Object.entries(state.notes).forEach(function (entry) {
         const d = new Date(entry[0]);
         // Verificar si la nota es de este mes
         if (d.getFullYear() === year && d.getMonth() === month) {
-            const note = entry[1];
-            // Verificar si tiene la etiqueta correcta y horas guardadas
-            if (note.tag && note.tag.text === "HORAS EXTRA" && note.tag.hours) {
-                extraHoursTotal += parseFloat(note.tag.hours);
-            }
+            const noteData = entry[1];
+            // Soportar arrays de tareas (nuevo formato) y objetos únicos (legacy)
+            const tasks = Array.isArray(noteData) ? noteData : [noteData];
+
+            tasks.forEach(function (task) {
+                // Verificar si tiene la etiqueta correcta y horas guardadas
+                if (task.tag && task.tag.text === "HORAS EXTRA" && task.tag.hours) {
+                    extraHoursTotal += parseFloat(task.tag.hours);
+                }
+            });
         }
     });
 
