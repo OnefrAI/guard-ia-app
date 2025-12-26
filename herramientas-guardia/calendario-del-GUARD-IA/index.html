@@ -352,13 +352,111 @@
 
     <script src="script.js"></script>
 
-    <!-- Service Worker Registration -->
+    <!-- Service Worker Registration with Auto-Update -->
     <script>
+        // ========================================
+        // AUTO-UPDATE SYSTEM
+        // ========================================
+        
+        // Show update notification toast
+        function showUpdateToast(message, autoReload = false) {
+            const existingToast = document.getElementById('updateToast');
+            if (existingToast) existingToast.remove();
+
+            const toast = document.createElement('div');
+            toast.id = 'updateToast';
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+                border: 1px solid #39FF14;
+                border-radius: 12px;
+                padding: 16px 24px;
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                box-shadow: 0 10px 40px rgba(57, 255, 20, 0.3);
+                animation: slideUp 0.3s ease-out;
+                max-width: 90vw;
+            `;
+            
+            toast.innerHTML = `
+                <i class="fas fa-sync-alt" style="color: #39FF14; font-size: 1.25rem; animation: spin 1s linear infinite;"></i>
+                <span style="color: #fff; font-weight: 500;">${message}</span>
+            `;
+            
+            // Add animation styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideUp {
+                    from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+                    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+                }
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+            document.body.appendChild(toast);
+
+            if (autoReload) {
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                setTimeout(() => toast.remove(), 5000);
+            }
+        }
+
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('[Calendario] SW registrado'))
-                    .catch(err => console.error('[Calendario] SW error:', err));
+            window.addEventListener('load', async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register('./sw.js');
+                    console.log('[Calendario] SW registrado');
+
+                    // Check for updates immediately and periodically
+                    registration.update();
+                    
+                    // Check for updates every 60 seconds
+                    setInterval(() => {
+                        registration.update();
+                        console.log('[Calendario] Checking for updates...');
+                    }, 60000);
+
+                    // Handle updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        console.log('[Calendario] 🔄 New version found, downloading...');
+
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New update available - tell SW to activate immediately
+                                console.log('[Calendario] ✨ New version ready, activating...');
+                                newWorker.postMessage({ type: 'SKIP_WAITING' });
+                            }
+                        });
+                    });
+
+                    // Listen for the SW taking control (means update applied)
+                    navigator.serviceWorker.addEventListener('controllerchange', () => {
+                        console.log('[Calendario] 🎉 New version activated, reloading...');
+                        showUpdateToast('¡Actualización aplicada! Recargando...', true);
+                    });
+
+                    // Listen for messages from SW
+                    navigator.serviceWorker.addEventListener('message', (event) => {
+                        if (event.data && event.data.type === 'SW_UPDATED') {
+                            console.log(`[Calendario] Updated to version ${event.data.version}`);
+                        }
+                    });
+
+                } catch (err) {
+                    console.error('[Calendario] SW error:', err);
+                }
             });
         }
 
